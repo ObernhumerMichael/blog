@@ -18,7 +18,7 @@
 // onward, rather than an empty file nothing imports.
 
 import { defineCollection } from 'astro:content';
-import { z } from 'astro/zod'
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const writing = defineCollection({

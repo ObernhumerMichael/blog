@@ -30,16 +30,16 @@ pnpm dev
 
 ## Scripts
 
-| Script | Does |
-| --- | --- |
-| `pnpm dev` | Local dev server |
-| `pnpm build` | Static build to `dist/` |
-| `pnpm preview` | Serve the built output locally |
-| `pnpm check:astro` | Type-check `.astro` files |
-| `pnpm check:css` | Stylelint — enforces the token-only, no-literal-values rules from `IMPLEMENTATION_PLAN.md` §8 (Phase 1) |
-| `pnpm check:format` | Prettier, check-only |
-| `pnpm format` | Prettier, write |
-| `pnpm verify` | Everything above, in the order CI runs it |
+| Script              | Does                                                                                                    |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`          | Local dev server                                                                                        |
+| `pnpm build`        | Static build to `dist/`                                                                                 |
+| `pnpm preview`      | Serve the built output locally                                                                          |
+| `pnpm check:astro`  | Type-check `.astro` files                                                                               |
+| `pnpm check:css`    | Stylelint — enforces the token-only, no-literal-values rules from `IMPLEMENTATION_PLAN.md` §8 (Phase 1) |
+| `pnpm check:format` | Prettier, check-only                                                                                    |
+| `pnpm format`       | Prettier, write                                                                                         |
+| `pnpm verify`       | Everything above, in the order CI runs it                                                               |
 
 `check:content` and `check:links` are stubs until Phase 5 / Phase 8 — see
 `IMPLEMENTATION_PLAN.md` for what they'll cover.
