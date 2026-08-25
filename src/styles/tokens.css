@@ -153,7 +153,11 @@
        Self-hosted, subset, variable where a variable release exists.
        Source Serif 4 ships Roman and Italic as SEPARATE variable files; italic
        is used for quotes only (§2.5) and is deliberately not preloaded.
-       IBM Plex Mono has no variable release: two static cuts, 400 and 500.
+       IBM Plex Mono DOES have a variable release (IBM/plex's
+       plex-mono-variable package, wght 100–700) — confirmed by inspecting the
+       real font file in Phase 0.4, correcting an earlier assumption in
+       IMPLEMENTATION_PLAN.md's original AD-07. Ship it instead of two static
+       cuts; see docs/reference/glyph-coverage.md.
        ===================================================================== */
 
     --font-serif: 'Source Serif 4 Var', 'Source Serif 4 Fallback', Georgia, serif;
