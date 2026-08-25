@@ -1,0 +1,37 @@
+# Phase 0 exit criterion: astro build succeeds in CI on every push.
+#
+# Deliberately trivial. From commit two onward this catches a broken scaffold
+# in ~2 minutes instead of it surfacing mid-Phase-1 as an ambiguous red build
+# that could be CSS, could be the scaffold, no way to tell which. Quality
+# gates (T1–T5 from IMPLEMENTATION_PLAN.md §8) get added to this same
+# workflow phase by phase — stylelint at Phase 1, content invariants at
+# Phase 5, Playwright + Lighthouse at Phase 8 — never as a separate workflow
+# file, so there is always exactly one CI pipeline to reason about.
+
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        # Version intentionally omitted: read from package.json's
+        # "packageManager" field via corepack, so there is exactly one place
+        # the pnpm version is pinned.
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run build

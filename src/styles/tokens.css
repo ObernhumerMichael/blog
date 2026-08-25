@@ -1,0 +1,466 @@
+/* =============================================================================
+   tokens.css — The Ledger design system, token layer
+   Implements DESIGN_SYSTEM.md §2 (tokens), §3.3 (responsive spacing),
+   §3.4 (responsive type), §4.1 (breakpoints).
+
+   RULES FOR THIS FILE
+   1. This is the ONLY file in the repository permitted to contain a colour
+      literal. Enforced by stylelint (see .stylelintrc.json).
+   2. No component may introduce a value that is not declared here (§2 preamble,
+      §22.1–22.5).
+   3. Every colour token carries both theme values via light-dark(), so the two
+      themes cannot drift. See "THEMING" below.
+   4. Responsive type and spacing are redeclared HERE and nowhere else. No
+      component file may contain a media query about type (§4.3, §22.13).
+
+   THEMING
+   DESIGN_SYSTEM.md §24.1 asks that tokens be declared once and overridden
+   wholesale for dark, "not per component", so the themes stay in step. We use
+   CSS light-dark(), which satisfies that intent more strongly than two blocks:
+   both values live in one declaration and cannot be edited independently.
+
+   TRAP — do not set `color-scheme` on any element below :root.
+   light-dark() resolves against the element's used color-scheme. Setting
+   `color-scheme: dark` on the code block (tempting, for dark scrollbars) would
+   flip every token inside it, and §13.1 requires the code block's border to stay
+   visible in the LIGHT theme. Use `scrollbar-color` explicitly instead.
+
+   UNITS
+   Type is expressed in rem (documented px value in a comment on every line) so
+   the site honours the reader's browser font-size setting. At the default 16px
+   root, every computed value is exactly the px value in DESIGN_SYSTEM.md §2.5
+   and §3.4 — this is an implementation decision, not a design change.
+   Layout geometry (measure, gutter, margins, spacing scale) stays in px,
+   because the 4px grid and the 680px measure are geometric, not typographic.
+   ============================================================================= */
+
+@layer tokens {
+  :root {
+    /* ---------------------------------------------------------------------
+       Theme resolution (§2.2). The inline <head> script sets data-theme only
+       when the reader has made an explicit choice; otherwise the OS decides.
+       --------------------------------------------------------------------- */
+    color-scheme: light dark;
+
+    /* =====================================================================
+       1 · COLOUR — semantic roles (§2.1 light / §2.2 dark)
+       ===================================================================== */
+
+    /* Grounds */
+    --c-bg: light-dark(oklch(0.982 0.006 75), oklch(0.185 0.008 75));
+    --c-surface: light-dark(oklch(0.962 0.007 75), oklch(0.215 0.008 75));
+    --c-sunken: light-dark(oklch(0.945 0.008 75), oklch(0.155 0.008 75));
+
+    /* Text */
+    --c-text: light-dark(oklch(0.26 0.012 75), oklch(0.9 0.008 75));
+    --c-text-2: light-dark(oklch(0.4 0.012 75), oklch(0.72 0.012 75));
+    --c-muted: light-dark(oklch(0.58 0.012 75), oklch(0.6 0.012 75));
+    --c-faint: light-dark(oklch(0.72 0.012 75), oklch(0.65 0.012 75));
+
+    /* Article running prose. §2.2 deviation 1 + §25.1: in dark, body text sits
+       one step under headings. In light there is no such distinction, so this
+       token deliberately resolves to --c-text's light value. */
+    --c-text-prose: light-dark(oklch(0.26 0.012 75), oklch(0.88 0.008 75));
+
+    /* Hairlines */
+    --c-rule: light-dark(oklch(0.9 0.008 75), oklch(0.3 0.008 75));
+    --c-rule-in: light-dark(oklch(0.93 0.008 75), oklch(0.27 0.008 75));
+
+    /* Group opener. §25.4: dark has NO --c-rule-2 equivalent — it uses
+       --c-rule, because the dark hairline is already proportionally stronger
+       (§2.2 deviation 3). Confirmed intentional; do not "fix" this. */
+    --c-rule-2: light-dark(oklch(0.82 0.008 75), oklch(0.3 0.008 75));
+
+    /* Accent (§1.6 — one accent, budget of three per viewport) */
+    --c-accent: light-dark(oklch(0.55 0.14 40), oklch(0.72 0.12 45));
+
+    /* !! PROVISIONAL — SPEC GAP !!
+       §2.2's dark table omits --c-accent-hi, and §18.1 leaves its dark contrast
+       cell empty, but §16.1 requires a hover step in BOTH themes. The value
+       below applies the light theme's own logic in reverse: light moves 0.08
+       toward higher contrast against its ground (0.55 -> 0.47) and gains 0.01
+       chroma, so dark moves 0.08 the other way (0.72 -> 0.80). Verify against
+       the dark article frames in Claude Design before launch and replace. */
+    --c-accent-hi: light-dark(oklch(0.47 0.15 40), oklch(0.8 0.13 45));
+
+    /* !! PROVISIONAL — SPEC GAP !!
+       §2.1 defines --c-nav (inactive nav link, frame chrome labels) but §2.2
+       gives no dark value. Light --c-nav sits between --c-text and --c-muted,
+       slightly stronger than muted; the value below holds that same relation in
+       dark. Verify against the dark masthead frame before launch. */
+    --c-nav: light-dark(oklch(0.45 0.012 75), oklch(0.75 0.012 75));
+
+    /* Semantic hues. §1.6 + §18.4: these may only ever appear ALONGSIDE a word,
+       never as the sole carrier of meaning. */
+    --c-warn: light-dark(oklch(0.5 0.1 70), oklch(0.8 0.115 85));
+    --c-warn-bg: light-dark(oklch(0.955 0.03 85), oklch(0.24 0.035 85));
+    --c-ok: light-dark(oklch(0.48 0.09 150), oklch(0.75 0.105 155));
+
+    /* Component-specific text colours. §25.1 classifies these as real values in
+       the design that sit outside the semantic roles; they are declared here so
+       that no component file needs a colour literal. */
+    --c-callout-text: light-dark(oklch(0.3 0.012 75), oklch(0.88 0.008 75));
+    --c-quote-text: light-dark(oklch(0.35 0.012 75), oklch(0.8 0.01 75));
+
+    /* Machine grounds — IDENTICAL in both themes (E2, §13.1). Single values,
+       not light-dark(). Only the code block's BORDER changes between themes,
+       which is a component rule, not a token. */
+    --c-code-bg: oklch(0.2 0.01 75);
+    --c-term-bg: oklch(0.155 0.008 75);
+
+    /* =====================================================================
+       2 · CODE AND SYNTAX PALETTE (§2.3)
+       Constant across both themes. Seven syntax roles (§25.4 corrects the
+       spec's stated "five"), all held at 0.78–0.82 lightness so no token
+       shouts. Punctuation and operators stay at --code-fg.
+       ===================================================================== */
+
+    --code-fg: oklch(0.86 0.008 75);
+    --term-fg: oklch(0.82 0.008 75);
+
+    --syn-comment: oklch(0.6 0.012 75);
+    --syn-keyword: oklch(0.8 0.09 90);
+    --syn-string: oklch(0.78 0.09 155);
+    --syn-literal: oklch(0.74 0.12 300);
+    --syn-number: oklch(0.8 0.09 60);
+    --syn-function: oklch(0.82 0.09 200);
+
+    --term-prompt: oklch(0.72 0.12 45);
+    --term-success: oklch(0.75 0.105 155);
+
+    /* Chrome (§13.2, §13.3) */
+    --code-linenum: oklch(0.45 0.01 75);
+    --code-chrome-bg: oklch(0.235 0.01 75);
+    --code-chrome-rule: oklch(0.3 0.01 75);
+    --code-control-border: oklch(0.34 0.01 75);
+    --code-filename: oklch(0.7 0.012 75); /* §13.2 */
+    --term-chrome-rule: oklch(0.28 0.008 75);
+
+    /* Line highlighting — tint AND a 2px inset marker (§13.2, §18.4).
+       17% sits at the midpoint of the specified 16–18% range. */
+    --code-hl-bg: oklch(0.72 0.12 45 / 0.17);
+    --code-hl-marker: oklch(0.72 0.12 45);
+
+    /* Diff. Leading +/− glyphs are mandatory; tint is secondary (§13.2).
+       These two hues appear nowhere else in the system (§2.3). */
+    --diff-del-fg: oklch(0.8 0.075 25);
+    --diff-del-bg: oklch(0.55 0.14 25 / 0.14);
+    --diff-add-fg: oklch(0.8 0.08 155);
+    --diff-add-bg: oklch(0.55 0.12 155 / 0.13);
+
+    /* =====================================================================
+       3 · TYPOGRAPHY — families (§2.4)
+       Self-hosted, subset, variable where a variable release exists.
+       Source Serif 4 ships Roman and Italic as SEPARATE variable files; italic
+       is used for quotes only (§2.5) and is deliberately not preloaded.
+       IBM Plex Mono has no variable release: two static cuts, 400 and 500.
+       ===================================================================== */
+
+    --font-serif: 'Source Serif 4 Var', 'Source Serif 4 Fallback', Georgia, serif;
+    --font-sans: 'IBM Plex Sans Var', 'IBM Plex Sans Fallback', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'IBM Plex Mono Fallback', monospace;
+
+    /* =====================================================================
+       4 · TYPE SCALE — primitives (§2.5, §3.4)
+       BASE = the <760 column of §3.4. The two breakpoints are additive
+       min-width queries (§4.3, mobile-first). Type floors (§3.4): body 17px,
+       metadata 11.5px, code 12.5px, label 10.5px — nothing here goes under.
+       ===================================================================== */
+
+    /* Display — article and project-detail h1 */
+    --fs-display: 1.75rem; /* 28px */
+    --lh-display: 1.24;
+    --tr-display: -0.015em;
+    /* E5 — the only length-conditional type rule in the system. Applied by the
+       h1 component when the title exceeds 90 characters, at <760 only. */
+    --fs-display-long: 1.625rem; /* 26px */
+
+    /* Title — index, about, 404 */
+    --fs-title: 1.625rem; /* 26px */
+    --lh-title: 1.26;
+    --tr-title: -0.013em;
+
+    /* Section heading */
+    --fs-h2: 1.3125rem; /* 21px */
+    --lh-h2: 1.3;
+    --tr-h2: -0.01em;
+
+    /* Subsection heading */
+    --fs-h3: 1.125rem; /* 18px */
+    --lh-h3: 1.4;
+    --tr-h3: -0.006em;
+
+    /* Lead / standfirst — one paragraph, never two (§21.1) */
+    --fs-lead: 1.0625rem; /* 17px */
+    --lh-lead: 1.6;
+
+    /* Running prose — the size the whole system is tuned around (§2.5) */
+    --fs-body: 1.0625rem; /* 17px — FLOOR */
+    --lh-body: 1.7;
+
+    /* Interface text */
+    --fs-ui: 0.875rem; /* 14px */
+    --lh-ui: 1.55;
+
+    --fs-small: 0.84375rem; /* 13.5px — no responsive step in §3.4 */
+    --lh-small: 1.55;
+
+    /* Metadata */
+    --fs-meta: 0.71875rem; /* 11.5px — FLOOR */
+    --lh-meta: 1.5;
+
+    /* Uppercase label. Mono is never tracked EXCEPT here (§2.5). */
+    --fs-label: 0.65625rem; /* 10.5px — FLOOR, constant at all widths */
+    --lh-label: 1;
+    --tr-label: 0.12em;
+
+    /* Code */
+    --fs-code: 0.78125rem; /* 12.5px — FLOOR */
+    --lh-code: 1.75;
+
+    /* ---------------------------------------------------------------------
+       Derived / component-local type values (§2.5, second table).
+       Part of the system even though they are not top-level scale steps: item
+       titles must sit between --t-h3 and --t-ui. Where the spec gives a range,
+       the chosen value is noted.
+       --------------------------------------------------------------------- */
+    --fs-featured-index: 1.75rem; /* 28px  — featured entry, blog index */
+    --fs-featured-home: 1.6875rem; /* 27px  — featured entry, homepage */
+    --fs-project-title: 1.3125rem; /* 21px  — projects index item */
+    --fs-project-title-compact: 1.1875rem; /* 19px — spec 18–19, upper chosen */
+    --fs-row-title: 1.03125rem; /* 16.5px at mobile (§05 responsive) */
+    --fs-related-title: 1.03125rem; /* 16.5px — related item (§10.7) */
+    --fs-prevnext-title: 1.0625rem; /* 17px  — prev/next (§10.7) */
+    --fs-statement: 1.5rem; /* 24px  — homepage opening statement */
+    --fs-callout: 1rem; /* 16px  — 15.5px at mobile, see below */
+    --fs-quote: 1.1875rem; /* 19px  — spec 18–19, upper chosen */
+    --fs-wordmark: 0.90625rem; /* 14.5px */
+    --fs-nav: 0.84375rem; /* 13.5px */
+    --fs-meta-sm: 0.71875rem; /* 11.5px — captions, footer, TOC */
+    --fs-meta-xs: 0.6875rem; /* 11px  — spec 10.5–11 */
+    --fs-table-cell: 0.78125rem; /* 12.5px at mobile; 13px from 760 — FLOOR */
+
+    /* Mobile-only overrides from the component specs */
+    --fs-callout-mobile: 0.96875rem; /* 15.5px (§10) */
+
+    /* =====================================================================
+       5 · TYPE TOKENS — atomic bundles
+       §22.4 forbids introducing a size outside the scale. A token that
+       decomposes into four independent declarations stops being a token, so
+       each step is bundled here via the `font` shorthand and applied by a
+       single class in base.css. Tracking and colour are companions, because
+       the shorthand cannot carry them.
+
+       NOTE: the `font` shorthand resets font-feature-settings,
+       font-variation-settings and font-optical-sizing to their initial values.
+       That is intended — font-optical-sizing's initial value is `auto`, which
+       is what §2.4 relies on for Source Serif's opsz axis. Never set
+       font-variation-settings before applying one of these.
+       ===================================================================== */
+
+    --t-display: 400 var(--fs-display)/var(--lh-display) var(--font-serif);
+    --t-title: 400 var(--fs-title)/var(--lh-title) var(--font-serif);
+    --t-h2: 600 var(--fs-h2)/var(--lh-h2) var(--font-serif);
+    --t-h3: 600 var(--fs-h3)/var(--lh-h3) var(--font-serif);
+    --t-lead: 400 var(--fs-lead)/var(--lh-lead) var(--font-serif);
+    --t-body: 400 var(--fs-body)/var(--lh-body) var(--font-serif);
+    --t-ui: 400 var(--fs-ui)/var(--lh-ui) var(--font-sans);
+    --t-small: 400 var(--fs-small)/var(--lh-small) var(--font-sans);
+    --t-meta: 400 var(--fs-meta)/var(--lh-meta) var(--font-mono);
+    --t-label: 500 var(--fs-label)/var(--lh-label) var(--font-mono);
+    --t-code: 400 var(--fs-code)/var(--lh-code) var(--font-mono);
+    /* Italic is used for quotes ONLY (§2.5 typographic laws). */
+    --t-quote: italic 400 var(--fs-quote)/1.6 var(--font-serif);
+
+    /* =====================================================================
+       6 · SPACING (§2.6, §3.3)
+       Base unit 4px. Canonical scale — each step has a permitted use in §2.6.
+       ===================================================================== */
+
+    --sp-4: 4px; /* baseline nudges only */
+    --sp-8: 8px; /* tag padding-y, label -> value */
+    --sp-12: 12px; /* list-item gaps, h3 -> paragraph */
+    --sp-16: 16px; /* h2 -> paragraph, callout/code padding-y */
+    --sp-20: 20px; /* rule -> content, mobile page margin, quote indent */
+    --sp-24: 24px; /* paragraph -> paragraph; the most-used value on the site */
+    --sp-32: 32px; /* prose -> block element */
+    --sp-40: 40px; /* tablet band padding, article footer apparatus */
+    --sp-56: 56px; /* paragraph -> h2, desktop margin, desktop band padding */
+    --sp-72: 72px; /* page-level band separation */
+    --sp-96: 96px; /* end of article body -> footer apparatus */
+    --sp-128: 128px; /* RESERVED: homepage and 404 page top only (E12) */
+
+    /* Responsive steps added by the responsive pass (§3.3). All on the 4px
+       base; the pass introduced no new numbers. */
+    --sp-26: 26px; /* mobile prose -> block */
+    --sp-36: 36px; /* mobile paragraph -> h2 */
+    --sp-48: 48px; /* tablet paragraph -> h2 */
+
+    /* Component interior sub-steps (E13). Permitted ONLY inside a component,
+       never between components and never on a page band. */
+    --sp-14: 14px;
+    --sp-18: 18px;
+    --sp-22: 22px;
+    --sp-28: 28px;
+
+    /* E1 — the single spacing value off the 4px scale. Set by the 12-column
+       arithmetic of the 1320px frame, not by rhythm. It is a layout constant,
+       not a spacing step. Do not "correct" it to 40 or 48. */
+    --grid-gap: 44px;
+
+    /* ---------------------------------------------------------------------
+       Semantic spacing — the values that change per breakpoint (§3.3).
+       Spacing shrinks by exactly one step per breakpoint, never two, so the
+       vertical rhythm stays recognisable (§4.3). BASE = <760.
+       --------------------------------------------------------------------- */
+    --page-margin: var(--sp-20);
+    --sp-band-y: 32px; /* section band padding-y */
+    --sp-para: var(--sp-20); /* paragraph -> paragraph */
+    --sp-para-h2: var(--sp-36); /* paragraph -> next h2 */
+    --sp-prose-block: var(--sp-26); /* prose -> code/figure/table */
+    --sp-meta-gap: var(--sp-14); /* metadata row token gaps (§9) */
+
+    /* =====================================================================
+       7 · SIZING (§2.7)
+       ===================================================================== */
+
+    --page-max: 1320px; /* outer frame; header, footer and grid align to it */
+    --measure: 680px; /* ~68ch. NEVER grows (§2.5, §22.10) */
+    --gutter-w: 148px; /* left metadata column, >=1100 only */
+    --aside-w: 200px; /* right column, >=1100 only */
+    --header-w: 760px; /* article header may exceed the measure (E11) */
+
+    --measure-lead: 62ch; /* lead paragraph — narrower, deliberately */
+    --measure-desc: 58ch; /* project / homepage work descriptions */
+    --measure-about: 66ch; /* about + experience descriptions */
+    --measure-bio: 64ch; /* author block bio (§10.6) */
+
+    --masthead-h: 60px; /* fixed at >=1100; below, a consequence of padding */
+    --row-min-h: 48px; /* index and menu rows (§18.5) */
+    --target-min: 44px; /* every interactive element on touch (§18.5) */
+
+    --img-cap: 65vh; /* so a tall screenshot cannot own the screen */
+    --portrait-about: 200px;
+    --portrait-about-h: 220px;
+    --portrait-author: 88px;
+
+    --fig-h-home: 170px; /* homepage lead figure */
+    --fig-h-index: 200px; /* index lead figure, case-study screenshot */
+    --fig-h-arch: 230px; /* case-study architecture diagram */
+    --fig-h-article: 250px; /* article diagram */
+
+    --toc-cap: 150px; /* mobile TOC scroll cap above 20 sections (E4) */
+    --scroll-fade: 26px; /* spec 24–28; midpoint chosen */
+    --instrument-w: 210px; /* project instrument track (spec 190–210) */
+
+    /* =====================================================================
+       8 · BORDERS, RADIUS, ELEVATION (§2.8–2.10)
+       ===================================================================== */
+
+    --bw: 1px; /* one weight, everywhere */
+    --bw-marker: 2px; /* left marker ONLY: quote, callout, active TOC tick,
+                           progress bar, highlighted code line. Never 3px. */
+
+    --radius: 4px; /* code, terminal, button, callout (0 4 4 0), frames */
+    --radius-sm: 3px; /* inline code, copy control, theme control */
+    /* Radius requires a fill. A bordered-but-unfilled box is square (§2.9).
+       There is NO elevation system and no shadow token — this is a design
+       rule, not an omission (§2.10). Depth is ground colour only. */
+
+    /* =====================================================================
+       9 · MOTION (§2.12, §17.3)
+       ===================================================================== */
+
+    --dur: 120ms; /* state change on an element the pointer is already on */
+    --dur-layout: 160ms; /* anything that changes layout (disclosure) */
+    /* Ceiling is 200ms. Nothing exceeds it. Enforced by stylelint. */
+    --ease: cubic-bezier(0.2, 0, 0, 1); /* one curve for everything */
+
+    /* =====================================================================
+       10 · FOCUS (§2.13)
+       Identical on every focusable element in both themes, keyboard focus only.
+       Nothing removes it without replacing it (§18.2).
+       ===================================================================== */
+
+    --focus-w: 2px;
+    --focus-offset: 2px;
+    --focus-color: var(--c-accent);
+  }
+
+  /* =======================================================================
+     BREAKPOINT: --bp-rows, >=760 (§2.14, §4.1)
+     Multi-track rows return, inline nav returns, blocks re-enter the measure.
+     760 is the width at which a 5-track index row can no longer hold its
+     tracks, and at which an inline nav of four links stops fitting at 13.5px.
+     ======================================================================= */
+  @media (min-width: 760px) {
+    :root {
+      /* Type (§3.4) */
+      --fs-display: 2.25rem; /* 36px */
+      --lh-display: 1.22;
+      --fs-title: 1.875rem; /* 30px */
+      --lh-title: 1.24;
+      --fs-h2: 1.5rem; /* 24px */
+      --fs-h3: 1.1875rem; /* 19px */
+      --fs-lead: 1.1875rem; /* 19px */
+      --fs-body: 1.15625rem; /* 18.5px */
+      --lh-body: 1.72;
+      --fs-ui: 0.90625rem; /* 14.5px */
+      --fs-meta: 0.75rem; /* 12px */
+      --fs-code: 0.84375rem; /* 13.5px */
+
+      --fs-table-cell: 0.8125rem; /* 13px */
+      --fs-callout: 1rem; /* 16px */
+      --fs-row-title: 1.09375rem; /* 17.5px — spec 17–17.5, upper chosen (§05) */
+
+      /* Spacing (§3.3) */
+      --page-margin: var(--sp-32);
+      --sp-band-y: var(--sp-40);
+      --sp-para: var(--sp-24);
+      --sp-para-h2: var(--sp-48);
+      --sp-prose-block: var(--sp-32);
+      --sp-meta-gap: var(--sp-22);
+    }
+  }
+
+  /* =======================================================================
+     BREAKPOINT: --bp-gutter, >=1100 (§2.14, §4.1)
+     The 148px metadata gutter and 200px aside appear; the frame caps at 1320.
+     1100 is where 148 + 44 + 680 + 44 + 200 = 1016 plus 2 x 32 margins can be
+     honoured without stealing from the measure — and the measure is never
+     negotiable.
+     ======================================================================= */
+  @media (min-width: 1100px) {
+    :root {
+      /* Type (§3.4) */
+      --fs-display: 2.625rem; /* 42px */
+      --lh-display: 1.2;
+      --fs-title: 2.125rem; /* 34px */
+      --fs-h2: 1.5625rem; /* 25px */
+      --fs-h3: 1.21875rem; /* 19.5px */
+      --fs-lead: 1.25rem; /* 20px */
+      --lh-lead: 1.62;
+      --fs-ui: 0.9375rem; /* 15px */
+
+      /* Spacing (§3.3) */
+      --page-margin: var(--sp-56);
+      --sp-band-y: var(--sp-56);
+      --sp-para-h2: var(--sp-56);
+      --sp-meta-gap: var(--sp-24);
+    }
+  }
+
+  /* =======================================================================
+     EXPLICIT THEME OVERRIDE
+     The inline <head> script sets data-theme ONLY when the reader has chosen.
+     With no attribute, the OS preference governs via color-scheme: light dark.
+     Persisted locally and applied before first paint, so there is no flash
+     (§2.2, "Theme behaviour").
+     ======================================================================= */
+  :root[data-theme='light'] {
+    color-scheme: light;
+  }
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+  }
+}
