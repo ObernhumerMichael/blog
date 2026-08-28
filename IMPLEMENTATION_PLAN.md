@@ -558,13 +558,11 @@ Do this before subsetting (Phase 1), because it changes what Phase 1 has to buil
 
 **Exit:** `glyph-coverage.md` exists and is complete; Phase 1's font work has a yes/no answer for every glyph instead of discovering gaps mid-subsetting.
 
-#### 0.5 · Governance documents
+#### 0.5 · Governance documents — **complete, 2026-08-25**
 
-1. **ADRs** for AD-01 through AD-13, one file each under `docs/decisions/`, format: decision / date / reasoning (2–4 sentences) / what it rules out. Short — these exist so future-you doesn't re-litigate "why not Tailwind" from memory in eighteen months.
-2. **OD log** — the table already added to §2 of this plan *is* the OD record; no separate file needed, just keep it updated as OD-06 and OD-07 above get resolved.
-3. **Publication boundary for OD-04**, per §7.4 of this plan: a one-page document listing what may and may not appear in the industrial case study (no customer names, no measurement values, no schema, no internal service names, no screenshots, no code), acknowledged in writing by your employer. This is the one item in Phase 0 with a dependency outside your own time — start it first, since it may sit waiting for a signature while everything else in Phase 0 proceeds.
-
-**Exit:** 13 ADRs committed; publication boundary sent for acknowledgement (doesn't need to be signed yet to exit Phase 0, but must be *sent* — don't let it silently slip to Phase 10 when the case study is due).
+1. **ADRs for AD-01 through AD-13, plus AD-07a**, committed under `docs/decisions/`, indexed in `docs/decisions/README.md`. Two of the fourteen record real corrections found during Phase 0 execution rather than hypothetical ones: ADR-0002/0003/0006 correct assumptions made before `DESIGN_SYSTEM.md` existed; ADR-0007 and ADR-0007a record the Plex Mono variable-font discovery and the three-missing-glyph resolution found in 0.4.
+2. **OD log** — the table in §2 of this plan, kept current as decisions resolve.
+3. **Publication boundary for OD-04** — drafted and sent for acknowledgement (§7.4 below); not yet countersigned, tracked as the one open item carried past Phase 0's own exit.
 
 ---
 
