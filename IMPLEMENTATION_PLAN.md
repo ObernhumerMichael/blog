@@ -575,11 +575,83 @@ Do this before subsetting (Phase 1), because it changes what Phase 1 has to buil
 - OD-06 (license) and OD-07 (domain) resolved or explicitly deferred with a placeholder.
 - Publication boundary document sent.
 
-### Phase 1 · Token layer and theme *(1 day)*
+### Phase 1 · Token layer and theme *(1–1.5 days — revised up from 1 day: real font subsetting and metric-matching are measurement work, not typing)*
 
-`tokens.css` complete for both themes, including responsive type redeclarations. Fonts subset, self-hosted, metric-matched fallbacks, preloads. Inline theme script with no flash. `reset.css` + `base.css` including the focus and motion tokens.
+Six sub-phases. Two things already exist from work done ahead of schedule during Phase 0 and get *finished*, not started, here: `tokens.css` (drafted, two values still provisional) and the real font files (pulled and glyph-checked in 0.4, not yet subset or self-hosted). Order matters because 1.3 depends on 1.1's actual output filenames, and 1.6 depends on 1.2–1.4 existing to have something to lint.
 
-**Exit:** a page showing every token as a swatch/specimen; theme toggle switches with no flash; T2 lint passes; font subsetting verified to include `→ ↗ ← · ● ○ ◐`.
+#### 1.1 · Font subsetting
+
+1. Subset the six variable files from 0.4 (Source Serif Roman/Italic, Plex Sans Roman/Italic, Plex Mono Roman/Italic) with `fonttools`' `pyftsubset`, to: Latin + German (Ä Ö Ü ä ö ü ß, per OD-05) + the confirmed-present glyphs from §2.11 (`→ ↗ ← · / # + −`).
+2. **Do not include `●` `○` `◐` in the subset request at all** — per ADR-0007a they're never rendered as font glyphs (CSS-drawn dot, inline SVG half-circle instead), so there's nothing to subset and no `unicode-range` fallback font is needed. This is a real simplification the 0.4 finding bought: the original plan assumed a fallback-font mechanism for missing glyphs; it turned out not to be necessary at all.
+3. **Preserve variable tables explicitly.** `pyftsubset` can silently drop `fvar`/`gvar`/`avar` if invoked carelessly (some flag combinations implicitly instance the font down to a static weight). Verify after subsetting — not before — by re-running the same fontTools `fvar`-axis check from 0.4 against the *subset* output, not just the source file. A subsetting step that quietly flattens the variable axis is a real, easy-to-miss failure mode and the whole reason §2.4's optical-size behavior exists.
+4. Output `.woff2` (universal support at this point, best compression — no `.woff` fallback needed).
+5. Record before/after byte sizes in `docs/reference/glyph-coverage.md` (append a subsetting-results section rather than a new file, since it's the natural continuation of that document).
+
+**Exit:** six `.woff2` files in `public/fonts/`; fontTools confirms `fvar` intact on every one; sizes recorded.
+
+#### 1.2 · Metric-matched fallback fonts
+
+1. Extract real vertical metrics (`hhea.ascender`, `hhea.descender`, `hhea.lineGap`, `unitsPerEm`, and cap-height/x-height from `OS/2`) from each of the six subset files via fontTools — not estimated.
+2. Compute `size-adjust`, `ascent-override`, `descent-override`, `line-gap-override` for three `@font-face` fallback blocks: `"Source Serif 4 Fallback"` matched against Georgia, `"IBM Plex Sans Fallback"` against the `system-ui` stack, `"IBM Plex Mono Fallback"` against a generic monospace stack. This is what `tokens.css`'s font stacks already assume exist (`var(--font-serif)` lists the Fallback name second) — they're referenced but not yet defined.
+3. Verify by throttling network in a browser and confirming the fallback-to-real-font swap doesn't visibly reflow — this is the actual point of doing the metric math, so check it, don't just trust the arithmetic.
+
+**Exit:** three fallback `@font-face` blocks in `src/styles/tokens.css` (or a new `src/styles/fonts.css` — see 1.3), with a code comment recording the source metrics used, so a future font swap knows what to recompute.
+
+#### 1.3 · Finish `tokens.css`, resolve the provisional values
+
+1. Split font-loading concerns (the six real `@font-face` blocks, the three fallback blocks, `font-display: swap`, preload hints for the three above-the-fold faces) into `src/styles/fonts.css`, separate from `tokens.css`'s custom-property declarations — they're different kinds of change (a font swap vs. a design-token edit) and shouldn't sit in one file.
+2. **Resolve the two `!! PROVISIONAL !!` tokens** (`--c-accent-hi` dark, `--c-nav` dark) against the reference screenshots captured in 0.3. This needs you specifically — either point me at the relevant dark-mode article/masthead screenshot filenames from `docs/reference/`, or read the accent-hover and nav-link states off them yourself and give me the two oklch values. Don't let this stay guessed-and-flagged past Phase 1; it's exactly the kind of small thing that's cheap to fix now and annoying to notice later.
+3. Confirm `light-dark()` resolution once more against real content, not just the token file in isolation — this is what 1.7's specimen page is for.
+
+**Exit:** no `!! PROVISIONAL !!` markers remain in `tokens.css`; `fonts.css` exists and is imported once, from `base.css`.
+
+#### 1.4 · `reset.css` and `base.css`
+
+1. `reset.css` — deliberately minimal. Box-sizing border-box, margin reset on a short list of elements, but **do not reset list-style or table default spacing** — §10.4 wants real browser list markers, and an aggressive reset (Tailwind's preflight, `modern-normalize`'s list handling, etc.) fights that later. Write this one by hand rather than importing a package, specifically so it can't accidentally undo a design requirement you'd have to notice and patch.
+2. `base.css` — the focus token as one universal rule (`:focus-visible { outline: var(--focus-w) solid var(--focus-color); outline-offset: var(--focus-offset); }`, §2.13); the global `prefers-reduced-motion: reduce` override collapsing `--dur`/`--dur-layout` to `0s` (§17.5) — since every duration in the codebase is required to reference these two tokens (T2 lints for it), this single override is genuinely global, which is the point; `scroll-margin-top: var(--masthead-h)` on heading anchors, so the sticky masthead (built in Phase 2) doesn't cover a `:target` heading when someone follows a TOC or footnote link.
+
+**Exit:** tabbing through the empty specimen page shows one consistent focus ring; toggling reduced-motion in OS settings collapses a test transition to instant.
+
+#### 1.5 · Inline theme resolver
+
+1. Write the theme-detection/persistence script as its own file (`src/lib/theme-init.ts`, compiled to a tiny inline string, or authored directly as a template literal) — logic only, no DOM beyond setting `data-theme` and reading/writing one `localStorage` key. Keep it pure enough to unit-test.
+2. It doesn't get *embedded* until `BaseLayout.astro` exists in Phase 2 (the `<head>` this script lives in isn't built yet) — so 1.5's deliverable here is the script itself plus a throwaway inline `<script>` on the specimen page that calls it, just to prove the no-flash behavior works before the real layout exists to host it properly.
+
+**Exit:** on the specimen page, a manual toggle switches instantly with no flash on reload, in both an explicit-choice and OS-preference state.
+
+#### 1.6 · Stylelint (T2) — brought forward from Phase 8, per the original plan's own instruction
+
+1. Write `.stylelintrc.json` implementing the full rule table from §8 (T2) of this plan: no colour literals outside `tokens.css`; `box-shadow` disallowed; `border-width`/`border-radius` allow-lists; transition duration ceiling and required `var(--ease)`; `font-family` only via `var(--font-*)`; media queries restricted to 760/1100, `@container` to 700.
+2. Wire it into `check:css` (already stubbed in `package.json`) and add it as a CI step.
+3. **Prove it actually catches things**: deliberately commit a `box-shadow: 0 1px 2px black;` to a scratch file, confirm `pnpm run check:css` fails, then remove it. Do this now, while it's cheap to verify, not after the rule set has quietly bit-rotted.
+
+**Exit:** `pnpm run verify` fails on a deliberate violation and passes once removed; CI runs it on every push.
+
+#### 1.7 · Specimen page
+
+`src/pages/_dev/specimen.astro` — excluded from the production build per the `_dev` convention already established. Renders, in both themes via the 1.5 toggle:
+
+- Every colour token as a labelled swatch.
+- Every `--t-*` type step at real size with its token name printed in mono beside it.
+- The spacing scale as a visual ruler.
+- Border weights and radius values as swatches.
+- The §2.11 glyph row (`→ ↗ ← · / # + −`) plus the ADR-0007a resolutions — the CSS-drawn status dot (both states) and the inline-SVG theme glyph — rendered together, specifically so you can eyeball whether the drawn dot actually sits well next to real text before any real component uses it.
+
+This is the cheapest insurance in the whole phase: every subsequent phase's "does this look right" question gets answered by comparing against this one page instead of hunting through real pages.
+
+**Exit:** specimen page renders correctly at 390/900/1320 in both themes; this becomes the reference you and I both check against for the rest of the build.
+
+---
+
+**Phase 1 overall exit criteria:**
+
+- Six self-hosted `.woff2` files, confirmed variable, in `public/fonts/`.
+- Three metric-matched fallback `@font-face` blocks, computed not guessed.
+- `tokens.css` has zero provisional markers left.
+- `reset.css` + `base.css` written; focus ring and reduced-motion verified by hand.
+- Theme toggle is instant, no flash, in both explicit and OS-preference states.
+- Stylelint wired into `verify` and CI, proven to actually fail on a violation.
+- Specimen page live, covering every token and both glyph-resolution exceptions.
 
 ### Phase 2 · Frame, layout structures, chrome *(1–2 days)*
 
