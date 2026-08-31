@@ -60,13 +60,15 @@
     ],
 
     "declaration-property-value-allowed-list": {
-      "border-width": ["/^(0|1px|2px)$/"],
-      "border-top-width": ["/^(0|1px|2px)$/"],
-      "border-right-width": ["/^(0|1px|2px)$/"],
-      "border-bottom-width": ["/^(0|1px|2px)$/"],
-      "border-left-width": ["/^(0|1px|2px)$/"],
+      "border-width": ["/^(0|1px|2px|var\\(--bw\\)|var\\(--bw-marker\\))$/"],
+      "border-top-width": ["/^(0|1px|2px|var\\(--bw\\)|var\\(--bw-marker\\))$/"],
+      "border-right-width": ["/^(0|1px|2px|var\\(--bw\\)|var\\(--bw-marker\\))$/"],
+      "border-bottom-width": ["/^(0|1px|2px|var\\(--bw\\)|var\\(--bw-marker\\))$/"],
+      "border-left-width": ["/^(0|1px|2px|var\\(--bw\\)|var\\(--bw-marker\\))$/"],
 
-      "border-radius": ["/^(0|3px|4px|50%|0 4px 4px 0)$/"],
+      "border-radius": [
+        "/^(0|3px|4px|50%|0 4px 4px 0|var\\(--radius\\)|var\\(--radius-sm\\))$/"
+      ],
 
       "transition-duration": ["/^var\\(--dur(-layout)?\\)$/"],
       "animation-duration": ["/^var\\(--dur(-layout)?\\)$/"],

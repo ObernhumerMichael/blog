@@ -1,0 +1,565 @@
+---
+// Phase 1.7 — the specimen page. This is the reference every subsequent
+// phase's "does this look right" question gets checked against, instead of
+// hunting through real pages. Lives at src/pages/dev/ (no underscore — see
+// ADR-0014); excluded from what ships via the deploy-time `rm -rf dist/dev`
+// step, not via Astro's routing.
+import '../../styles/global.css';
+import themeInitSource from '../../lib/theme-init.js?raw';
+
+// Token lists below were extracted directly from tokens.css via grep, not
+// typed from memory — see the Phase 1.7 write-up. Grouped to match
+// tokens.css's own section numbering (§ comments in that file) so this page
+// and the source stay easy to cross-reference.
+
+const groundTokens = ['--c-bg', '--c-surface', '--c-sunken'];
+const textTokens = ['--c-text', '--c-text-2', '--c-muted', '--c-faint', '--c-text-prose'];
+const ruleTokens = ['--c-rule', '--c-rule-in', '--c-rule-2'];
+const accentTokens = ['--c-accent', '--c-accent-hi', '--c-nav'];
+const semanticTokens = ['--c-warn', '--c-warn-bg', '--c-ok'];
+const machineTokens = ['--c-code-bg', '--c-term-bg'];
+const componentTextTokens = ['--c-callout-text', '--c-quote-text'];
+
+const syntaxTokens = [
+  '--code-fg',
+  '--term-fg',
+  '--syn-comment',
+  '--syn-keyword',
+  '--syn-string',
+  '--syn-literal',
+  '--syn-number',
+  '--syn-function',
+  '--term-prompt',
+  '--term-success',
+  '--code-linenum',
+];
+const codeChromeTokens = [
+  '--code-chrome-bg',
+  '--code-chrome-rule',
+  '--code-control-border',
+  '--code-filename',
+  '--term-chrome-rule',
+];
+const diffTokens = ['--diff-del-fg', '--diff-del-bg', '--diff-add-fg', '--diff-add-bg'];
+
+const typeTokens = [
+  '--t-display',
+  '--t-title',
+  '--t-h2',
+  '--t-h3',
+  '--t-lead',
+  '--t-body',
+  '--t-ui',
+  '--t-small',
+  '--t-meta',
+  '--t-label',
+  '--t-code',
+  '--t-quote',
+];
+
+// Canonical scale first, in the order §2.6 states permitted use, then the
+// two families of exceptions kept visually separate since they're allowed
+// in different contexts (component-interior only vs. the one grid-gap
+// constant).
+const spacingCanonical = [
+  '--sp-4',
+  '--sp-8',
+  '--sp-12',
+  '--sp-16',
+  '--sp-20',
+  '--sp-24',
+  '--sp-32',
+  '--sp-40',
+  '--sp-56',
+  '--sp-72',
+  '--sp-96',
+  '--sp-128',
+];
+const spacingResponsive = ['--sp-26', '--sp-36', '--sp-48'];
+const spacingComponentSub = ['--sp-14', '--sp-18', '--sp-22', '--sp-28'];
+
+const glyphs = [
+  { char: '→', name: 'internal forward nav' },
+  { char: '↗', name: 'external link' },
+  { char: '←', name: 'previous in sequence' },
+  { char: '·', name: 'datum separator' },
+  { char: '/', name: 'breadcrumb separator' },
+  { char: '#', name: 'tag prefix' },
+  { char: '+', name: 'disclosure closed / diff added' },
+  { char: '−', name: 'disclosure open / diff removed' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Specimen — Ledger tokens</title>
+    <script is:inline set:html={themeInitSource} />
+    <style>
+      body {
+        margin: 0;
+        padding: 32px;
+        background: var(--c-bg);
+        color: var(--c-text);
+        font: var(--t-ui);
+      }
+      h1 {
+        font: var(--t-title);
+        margin: 0 0 8px;
+      }
+      h2 {
+        font: var(--t-h2);
+        margin: 48px 0 16px;
+        padding-top: 24px;
+        border-top: 1px solid var(--c-rule);
+      }
+      h2:first-of-type {
+        border-top: none;
+        padding-top: 0;
+      }
+      .lede {
+        font: var(--t-lead);
+        color: var(--c-text-2);
+        max-width: 60ch;
+        margin: 0 0 16px;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font: var(--t-meta);
+        color: var(--c-muted);
+      }
+      #theme-toggle {
+        font: var(--t-meta);
+        padding: 6px 10px;
+        cursor: pointer;
+        color: var(--c-text);
+        background: var(--c-surface);
+        border: 1px solid var(--c-rule);
+        border-radius: var(--radius-sm);
+      }
+
+      .grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .swatch {
+        width: 120px;
+      }
+      .swatch-fill {
+        height: 56px;
+        border: 1px solid var(--c-rule);
+        border-radius: var(--radius);
+      }
+      .swatch-name {
+        font: var(--t-meta);
+        color: var(--c-muted);
+        margin-top: 6px;
+        word-break: break-all;
+      }
+
+      .type-row {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--c-rule-in);
+      }
+      .type-row .token-name {
+        flex: 0 0 140px;
+        font: var(--t-meta);
+        color: var(--c-accent);
+      }
+      .type-row .sample {
+        color: var(--c-text);
+      }
+
+      .ruler {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .ruler-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .ruler-bar {
+        height: 14px;
+        background: var(--c-accent);
+        /* No radius — §2.9: radius requires a fill on one of the specific
+           surfaces listed there (code block, button, callout, etc.). A
+           plain measurement bar isn't one of them, so it stays square. */
+      }
+      .ruler-label {
+        font: var(--t-meta);
+        color: var(--c-muted);
+        width: 90px;
+      }
+
+      .border-demo {
+        width: 72px;
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--c-surface);
+      }
+
+      .status-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      .status-dot.live {
+        background: var(--c-ok);
+      }
+      .status-dot.archived {
+        background: transparent;
+        border: 1px solid var(--c-muted);
+      }
+
+      .theme-glyph {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+      }
+
+      .glyph-row {
+        display: flex;
+        gap: 24px;
+        font: var(--t-body);
+        flex-wrap: wrap;
+      }
+      .glyph-row .glyph {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .glyph .char {
+        font: var(--t-body);
+        color: var(--c-accent);
+        width: 1.5em;
+        text-align: center;
+      }
+      .glyph .desc {
+        font: var(--t-meta);
+        color: var(--c-muted);
+      }
+
+      .motion-demo {
+        width: 48px;
+        height: 24px;
+        background: var(--c-rule);
+        border-radius: var(--radius-sm);
+        transition-property: background-color;
+        transition-duration: var(--dur);
+        transition-timing-function: var(--ease);
+        cursor: pointer;
+      }
+      .motion-demo:hover {
+        background: var(--c-accent);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Specimen</h1>
+    <p class="lede">
+      Every token in tokens.css, rendered from the tokens themselves — not reference
+      values retyped by hand. If this page looks wrong, the token is wrong; if a real
+      component looks wrong but this page looks right, the component is bypassing the
+      token system somewhere.
+    </p>
+    <p class="toolbar">
+      <button id="theme-toggle">toggle theme</button>
+      effective theme: <strong id="theme-readout">?</strong>
+    </p>
+
+    <h2>Grounds</h2>
+    <div class="grid">
+      {
+        groundTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Text</h2>
+    <div class="grid">
+      {
+        textTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Rules</h2>
+    <div class="grid">
+      {
+        ruleTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Accent &amp; nav</h2>
+    <div class="grid">
+      {
+        accentTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Semantic hues</h2>
+    <div class="grid">
+      {
+        semanticTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Machine grounds (identical in both themes, E2)</h2>
+    <div class="grid">
+      {
+        machineTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Component-specific text colours</h2>
+    <div class="grid">
+      {
+        componentTextTokens.map((t) => (
+          <div class="swatch">
+            <div
+              class="swatch-fill"
+              style={`background: var(--c-sunken); color: var(${t}); display: flex; align-items: center; justify-content: center; font: var(--t-body);`}
+            >
+              Aa
+            </div>
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Code &amp; syntax palette (constant across themes, §2.3)</h2>
+    <div class="grid">
+      {
+        syntaxTokens.map((t) => (
+          <div class="swatch">
+            <div
+              class="swatch-fill"
+              style={`background: var(--code-chrome-bg); color: var(${t}); display: flex; align-items: center; justify-content: center; font: var(--t-code);`}
+            >
+              Aa1
+            </div>
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Code chrome</h2>
+    <div class="grid">
+      {
+        codeChromeTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Diff (these two hues appear nowhere else in the system, §2.3)</h2>
+    <div class="grid">
+      {
+        diffTokens.map((t) => (
+          <div class="swatch">
+            <div class="swatch-fill" style={`background: var(${t})`} />
+            <div class="swatch-name">{t}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Type scale</h2>
+    <div>
+      {
+        typeTokens.map((t) => (
+          <div class="type-row">
+            <span class="token-name">{t}</span>
+            <span class="sample" style={`font: var(${t})`}>
+              The quick brown fox — Größe, Übung
+            </span>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Spacing — canonical scale (§2.6)</h2>
+    <div class="ruler">
+      {
+        spacingCanonical.map((t) => (
+          <div class="ruler-row">
+            <span class="ruler-label">{t}</span>
+            <div class="ruler-bar" style={`width: var(${t})`} />
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Spacing — responsive steps (§3.3, mobile-only additions)</h2>
+    <div class="ruler">
+      {
+        spacingResponsive.map((t) => (
+          <div class="ruler-row">
+            <span class="ruler-label">{t}</span>
+            <div class="ruler-bar" style={`width: var(${t})`} />
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Spacing — component interior sub-steps (E13, inside components only)</h2>
+    <div class="ruler">
+      {
+        spacingComponentSub.map((t) => (
+          <div class="ruler-row">
+            <span class="ruler-label">{t}</span>
+            <div class="ruler-bar" style={`width: var(${t})`} />
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>Spacing — the one exception (E1)</h2>
+    <div class="ruler">
+      <div class="ruler-row">
+        <span class="ruler-label">--grid-gap</span>
+        <div class="ruler-bar" style="width: var(--grid-gap)"></div>
+      </div>
+    </div>
+
+    <h2>Borders &amp; radius (§2.8, §2.9)</h2>
+    <div class="grid">
+      <div class="swatch">
+        <div class="border-demo" style="border: var(--bw) solid var(--c-rule);">1px</div>
+        <div class="swatch-name">--bw</div>
+      </div>
+      <div class="swatch">
+        <div
+          class="border-demo"
+          style="border-left: var(--bw-marker) solid var(--c-accent);"
+        >
+          2px
+        </div>
+        <div class="swatch-name">--bw-marker (marker only)</div>
+      </div>
+      <div class="swatch">
+        <div
+          class="border-demo"
+          style="border: var(--bw) solid var(--c-rule); border-radius: var(--radius); background: var(--c-code-bg);"
+        >
+        </div>
+        <div class="swatch-name">--radius (4px)</div>
+      </div>
+      <div class="swatch">
+        <div
+          class="border-demo"
+          style="border: var(--bw) solid var(--c-rule); border-radius: var(--radius-sm); background: var(--c-sunken);"
+        >
+        </div>
+        <div class="swatch-name">--radius-sm (3px)</div>
+      </div>
+      <div class="swatch">
+        <div
+          class="border-demo"
+          style="border-radius: 50%; background: var(--c-ok); width: 24px; height: 24px;"
+        >
+        </div>
+        <div class="swatch-name">50% (status dot only)</div>
+      </div>
+    </div>
+
+    <h2>Motion (§2.12, §17.5 — hover, or check with reduced-motion on)</h2>
+    <div class="motion-demo"></div>
+
+    <h2>Focus (§2.13 — tab to this button)</h2>
+    <button id="focus-demo" style="font: var(--t-ui); padding: 8px 14px;">
+      tab to me
+    </button>
+
+    <h2>Glyphs (§2.11)</h2>
+    <div class="glyph-row">
+      {
+        glyphs.map((g) => (
+          <div class="glyph">
+            <span class="char">{g.char}</span>
+            <span class="desc">{g.name}</span>
+          </div>
+        ))
+      }
+    </div>
+
+    <h2>ADR-0007a resolutions — the three glyphs no font in the stack has</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      <code>●</code>
+      <code>○</code>
+      <code>◐</code> are absent from every font file (see docs/reference/glyph-coverage.md).
+      These are the drawn substitutes, next to real body text, so a mismatch in size or alignment
+      is visible before any real component depends on them.
+    </p>
+    <p style="font: var(--t-body);">
+      <span class="status-dot live"></span>active — the live status dot, filled
+    </p>
+    <p style="font: var(--t-body);">
+      <span class="status-dot archived"></span>archived — hollow, 1px border
+    </p>
+    <p style="font: var(--t-body);">
+      <svg class="theme-glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
+        ></circle>
+        <path d="M8 1a7 7 0 0 1 0 14z"></path>
+      </svg>
+      theme control — inline SVG half-circle, uses currentColor
+    </p>
+
+    <script>
+      const readout = document.getElementById('theme-readout')!;
+      const toggle = document.getElementById('theme-toggle')!;
+      readout.textContent = window.__themeInit.currentEffectiveTheme();
+      toggle.addEventListener('click', () => {
+        window.__themeInit.toggleTheme();
+        readout.textContent = window.__themeInit.currentEffectiveTheme();
+      });
+    </script>
+  </body>
+</html>
