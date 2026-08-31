@@ -1,0 +1,89 @@
+---
+// Phase 1.2 verification page. Lives at src/pages/dev/ (no underscore —
+// see ADR-0014). Not a real site page; excluded from what ships via the
+// deploy-time `rm -rf dist/dev` step (IMPLEMENTATION_PLAN.md §10), not via
+// Astro's routing. Delete once the real specimen page (Phase 1.7) supersedes it.
+import '../../styles/fonts-test.css';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body {
+        margin: 0;
+        padding: 2rem;
+        background: #fff;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+      .sample {
+        font-size: 24px;
+        line-height: 1.5;
+        /* A horizontal ruler every line-height so any mismatch between the
+           two columns' cap-height/baseline is visible at a glance, without
+           needing to measure anything by hand. */
+        background-image: repeating-linear-gradient(
+          to bottom,
+          #eee 0,
+          #eee 1px,
+          transparent 1px,
+          transparent 36px
+        );
+      }
+      .label {
+        font-family: monospace;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+      /* Column A — the REAL font stack: real file, then its matched
+         fallback, then a generic. In a normal network load this is what
+         every real component uses. */
+      .real {
+        font-family: 'Source Serif 4 Var', 'Source Serif 4 Fallback', Georgia, serif;
+      }
+      /* Column B — the fallback face FORCED, bypassing the real font file
+         entirely. This isolates whether the metric-override math from 1.2
+         is correct, independent of network timing. If the overrides are
+         right, this column's text sits on the same ruler lines as column A
+         even though the letterforms (Georgia vs Source Serif) look different. */
+      .forced-fallback {
+        font-family: 'Source Serif 4 Fallback', serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="font-family: monospace; font-size: 16px;">
+      Font metric check — compare row by row
+    </h1>
+
+    <div class="row">
+      <div>
+        <div class="label">A — real stack (Source Serif 4 Var)</div>
+        <p class="sample real">
+          The quick brown fox jumps over the lazy dog. Größe, Öffnung, Übung — testing
+          German glyphs too. 1234567890.
+        </p>
+      </div>
+      <div>
+        <div class="label">B — fallback FORCED (Georgia, overridden)</div>
+        <p class="sample forced-fallback">
+          The quick brown fox jumps over the lazy dog. Größe, Öffnung, Übung — testing
+          German glyphs too. 1234567890.
+        </p>
+      </div>
+    </div>
+
+    <p style="font-family: monospace; font-size: 12px; color: #666; max-width: 60ch;">
+      If 1.2's math is right, both paragraphs' text sits on the same background ruler
+      lines and looks roughly the same SIZE, despite different letterforms. A visible size
+      jump or baseline drift between A and B means an override value is off — check
+      size-adjust first, it has the largest effect.
+    </p>
+  </body>
+</html>
