@@ -56,8 +56,17 @@
        rem so a reader's browser font-size setting is honoured, and every
        --fs-* token computes to its documented px value only at the
        browser's own default. Overriding root font-size here would quietly
-       break that. */
-    color-scheme: light dark;
+       break that.
+
+       Also deliberately NOT setting color-scheme here — tokens.css already
+       owns that completely (the default AND the data-theme overrides).
+       Setting it again here, even to the same "light dark" value, would sit
+       in the `base` layer, which has HIGHER cascade priority than the
+       `tokens` layer. That would silently beat tokens.css's
+       `:root[data-theme="dark"] { color-scheme: dark }` override — not
+       because of specificity, but because cascade layer order wins BEFORE
+       specificity is even considered. This exact mistake shipped once
+       already; it's called out here so it doesn't ship again. */
   }
 
   body {

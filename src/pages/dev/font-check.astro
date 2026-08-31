@@ -1,19 +1,40 @@
 ---
-// Phase 1.2 verification page. Lives at src/pages/dev/ (no underscore —
+// Phase 1.2/1.5 verification page. Lives at src/pages/dev/ (no underscore —
 // see ADR-0014). Not a real site page; excluded from what ships via the
 // deploy-time `rm -rf dist/dev` step (IMPLEMENTATION_PLAN.md §10), not via
 // Astro's routing. Delete once the real specimen page (Phase 1.7) supersedes it.
-import '../../styles/fonts.css';
+import '../../styles/global.css';
+
+// `?raw` pulls the file's literal source text at build time, as a string —
+// no execution, no transformation. Combined with `is:inline` + `set:html`
+// below, this guarantees theme-init.js reaches the page byte-for-byte,
+// exactly as the file on disk reads. Astro must NOT be allowed to touch
+// this script (no bundling, no `type="module"`, see the 1.5 write-up for
+// why that specifically breaks the no-flash guarantee) while still keeping
+// ONE real, unit-tested source file rather than a duplicated inline copy.
+import themeInitSource from '../../lib/theme-init.js?raw';
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Must run before anything else in <head> that could cause a paint,
+         and must be genuinely inline (see import comment above). This is
+         the entire no-flash guarantee, in one script tag. -->
+    <script is:inline set:html={themeInitSource} />
     <style>
+      /* Everything below reads from the real tokens (var(--c-*)) instead of
+         hardcoded hex. This was the actual bug: the first version of this
+         page used #fff/#666/#eee directly, so toggling data-theme changed
+         nothing visible — there was nothing on the page listening to the
+         theme at all. It's also almost certainly why the page looked overly
+         bright: it forced a stark white background regardless of theme or
+         the reader's OS preference. */
       body {
         margin: 0;
         padding: 2rem;
-        background: #fff;
+        background: var(--c-bg);
+        color: var(--c-text);
       }
       .row {
         display: grid;
@@ -24,28 +45,39 @@ import '../../styles/fonts.css';
       .sample {
         font-size: 24px;
         line-height: 1.5;
+        color: var(--c-text);
         /* A horizontal ruler every line-height so any mismatch between the
            two columns' cap-height/baseline is visible at a glance, without
-           needing to measure anything by hand. */
+           needing to measure anything by hand. --c-rule-in is the "hairline
+           between rows inside an already-opened group" token — a subtle,
+           low-contrast line is exactly what a ruler background wants to be
+           in both themes, not a hardcoded #eee that vanishes or glares
+           depending on which theme is active. */
         background-image: repeating-linear-gradient(
           to bottom,
-          #eee 0,
-          #eee 1px,
+          var(--c-rule-in) 0,
+          var(--c-rule-in) 1px,
           transparent 1px,
           transparent 36px
         );
       }
       .label {
-        font-family: monospace;
+        font-family: var(--font-mono, monospace);
         font-size: 12px;
-        color: #666;
+        color: var(--c-muted);
         margin-bottom: 0.5rem;
+      }
+      .note {
+        font-family: var(--font-mono, monospace);
+        font-size: 12px;
+        color: var(--c-muted);
+        max-width: 60ch;
       }
       /* Column A — the REAL font stack: real file, then its matched
          fallback, then a generic. In a normal network load this is what
          every real component uses. */
       .real {
-        font-family: 'Source Serif 4 Var', 'Source Serif 4 Fallback', Georgia, serif;
+        font-family: "Source Serif 4 Var", "Source Serif 4 Fallback", Georgia, serif;
       }
       /* Column B — the fallback face FORCED, bypassing the real font file
          entirely. This isolates whether the metric-override math from 1.2
@@ -53,14 +85,29 @@ import '../../styles/fonts.css';
          right, this column's text sits on the same ruler lines as column A
          even though the letterforms (Georgia vs Source Serif) look different. */
       .forced-fallback {
-        font-family: 'Source Serif 4 Fallback', serif;
+        font-family: "Source Serif 4 Fallback", serif;
+      }
+      #theme-toggle {
+        font: inherit;
+        padding: 6px 10px;
+        cursor: pointer;
+        color: var(--c-text);
+        background: var(--c-surface);
+        border: 1px solid var(--c-rule);
       }
     </style>
   </head>
   <body>
-    <h1 style="font-family: monospace; font-size: 16px;">
+    <h1 style="font-family: var(--font-mono, monospace); font-size: 16px;">
       Font metric check — compare row by row
     </h1>
+
+    <p class="note">
+      <button id="theme-toggle">toggle theme</button>
+      &nbsp; effective theme: <strong id="theme-readout">?</strong>
+      &nbsp; (hard-reload after choosing one, per the guidance below, to check
+      for a flash)
+    </p>
 
     <div class="row">
       <div>
@@ -79,11 +126,31 @@ import '../../styles/fonts.css';
       </div>
     </div>
 
-    <p style="font-family: monospace; font-size: 12px; color: #666; max-width: 60ch;">
+    <p class="note">
       If 1.2's math is right, both paragraphs' text sits on the same background ruler
       lines and looks roughly the same SIZE, despite different letterforms. A visible size
       jump or baseline drift between A and B means an override value is off — check
       size-adjust first, it has the largest effect.
     </p>
+
+    <script>
+      // This script's own timing does NOT need to be inline/synchronous —
+      // it only wires up a button click and a readout, both of which happen
+      // long after paint regardless. Only the theme-DECISION script above
+      // has the before-paint constraint.
+      //
+      // Both getElementById calls are asserted non-null (`!`) rather than
+      // null-checked defensively — this is a throwaway dev-only page with
+      // fixed, known markup right above, not a component that needs to
+      // tolerate a missing element.
+      const readout = document.getElementById('theme-readout')!;
+      const toggle = document.getElementById('theme-toggle')!;
+
+      readout.textContent = window.__themeInit.currentEffectiveTheme();
+      toggle.addEventListener('click', () => {
+        window.__themeInit.toggleTheme();
+        readout.textContent = window.__themeInit.currentEffectiveTheme();
+      });
+    </script>
   </body>
 </html>
