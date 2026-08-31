@@ -2,7 +2,7 @@
 
 **Authoritative design specification — reverse-engineered from the existing design.**
 
-Version 1.0 · Derived from: *Ledger Design System* (token & component specification), *Ledger Pages* (seven page templates at 1320 / 900 / 390), *Ledger Responsive* (thirteen responsive studies, twelve edge cases, responsive rule set and audit).
+Version 1.0 · Derived from: _Ledger Design System_ (token & component specification), _Ledger Pages_ (seven page templates at 1320 / 900 / 390), _Ledger Responsive_ (thirteen responsive studies, twelve edge cases, responsive rule set and audit).
 
 This document is implementation-agnostic. It contains no framework code, no markup and no stylesheets. Token names are given in the form the design already uses (`--token`) so that names survive into any implementation; values are authoritative.
 
@@ -52,17 +52,17 @@ The design reads as **typeset**, not composed: there is one frame, one measure, 
 
 These are the design's own stated principles and they decide every later question. All subsequent sections are consequences of them.
 
-| # | Principle | Consequence |
-|---|---|---|
-| 01 | **Editorial first** | The article page is the most refined page on the site. Where reading comfort and visual interest conflict, reading wins — without exception. |
-| 02 | **Timeless over trendy** | No glass, gradient mesh, glow, 3D, or landing-page hero. If a device would look dated in five years, it is not in the system. |
-| 03 | **Engineering precision** | One grid, one spacing scale, hairlines instead of boxes, monospace for anything a machine could have produced. |
-| 04 | **Restrained personality** | One accent, used for links, numbering and state only. Character comes from typography, density and writing. |
-| 05 | **The work is the visual identity** | Diagrams, screenshots, code, tables and data supply the colour and texture. The interface never manufactures visual interest to compensate for a thin page — a thin page is a content problem. |
+| #   | Principle                           | Consequence                                                                                                                                                                                    |
+| --- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01  | **Editorial first**                 | The article page is the most refined page on the site. Where reading comfort and visual interest conflict, reading wins — without exception.                                                   |
+| 02  | **Timeless over trendy**            | No glass, gradient mesh, glow, 3D, or landing-page hero. If a device would look dated in five years, it is not in the system.                                                                  |
+| 03  | **Engineering precision**           | One grid, one spacing scale, hairlines instead of boxes, monospace for anything a machine could have produced.                                                                                 |
+| 04  | **Restrained personality**          | One accent, used for links, numbering and state only. Character comes from typography, density and writing.                                                                                    |
+| 05  | **The work is the visual identity** | Diagrams, screenshots, code, tables and data supply the colour and texture. The interface never manufactures visual interest to compensate for a thin page — a thin page is a content problem. |
 
 ## 1.3 Emotional impression
 
-Intended: *competent, unhurried, honest, legible.* The reader should feel they have arrived at something written by a person who measures things. Precision without coldness — the warm hue in every ground is what stops the engineering register from reading as a terminal.
+Intended: _competent, unhurried, honest, legible._ The reader should feel they have arrived at something written by a person who measures things. Precision without coldness — the warm hue in every ground is what stops the engineering register from reading as a terminal.
 
 Explicitly not intended: impressive, energetic, playful, premium, "designed".
 
@@ -70,15 +70,15 @@ Explicitly not intended: impressive, energetic, playful, premium, "designed".
 
 Three families with **strict, non-overlapping roles**, which is the single strongest identity carrier in the system:
 
-- **Serif** = *the thing itself.* Prose, titles, leads, quotes, callout bodies, item titles.
-- **Sans** = *the interface around the thing.* Chrome, index descriptions, UI text, small labels in lists.
-- **Mono** = *facts about the thing.* Every date, count, tag, status, section number, caption, and all code.
+- **Serif** = _the thing itself._ Prose, titles, leads, quotes, callout bodies, item titles.
+- **Sans** = _the interface around the thing._ Chrome, index descriptions, UI text, small labels in lists.
+- **Mono** = _facts about the thing._ Every date, count, tag, status, section number, caption, and all code.
 
 A reader learns this within one page. It means metadata never needs decoration to be recognised as metadata, and it means the serif never has to work below 15px. Two of the three families (Plex Sans and Plex Mono) share a skeleton, so the instrumentation never reads as a foreign face pasted onto the page.
 
 ## 1.5 Density and whitespace
 
-Dense at the row level, generous at the band level. Index rows are 14–15px of vertical padding — deliberately tight, so forty articles read as a table of contents rather than a feed. Between page bands the system spends 40–72px. Whitespace is used to separate *kinds* of content, never to make a small amount of content look substantial.
+Dense at the row level, generous at the band level. Index rows are 14–15px of vertical padding — deliberately tight, so forty articles read as a table of contents rather than a feed. Between page bands the system spends 40–72px. Whitespace is used to separate _kinds_ of content, never to make a small amount of content look substantial.
 
 The measure never widens to fill a large display; surplus width goes to the metadata gutter and the aside. Prose length is a fixed quantity in this design.
 
@@ -88,7 +88,7 @@ The measure never widens to fill a large display; surplus width goes to the meta
 - **One accent** (terracotta in light, clay in dark), used only for: link underlines, numbering, active state, tags, and the highlight marker in code.
 - **Two semantic hues** (warn, ok) which may only appear alongside a word — never as the sole carrier of meaning.
 - **Accent budget:** at most three accented elements visible in one viewport.
-- Links inside prose inherit text colour and take an accent *underline*. The accent never colours the word itself, so a paragraph with nine links does not become a rash.
+- Links inside prose inherit text colour and take an accent _underline_. The accent never colours the word itself, so a paragraph with nine links does not become a rash.
 
 ## 1.7 Borders, radius, elevation
 
@@ -120,7 +120,7 @@ Weight does almost no work: serif runs at 400 and 600 only, sans at 400/500/600,
 
 Accessibility is a design constraint, not a review pass. Three rules are load-bearing on the visual system:
 
-- **Never colour alone.** Status carries a word *and* a dot shape; diffs carry `+`/`−` glyphs; callouts carry a label word; highlighted code lines carry a position marker; links carry a permanent underline.
+- **Never colour alone.** Status carries a word _and_ a dot shape; diffs carry `+`/`−` glyphs; callouts carry a label word; highlighted code lines carry a position marker; links carry a permanent underline.
 - **One focus ring**, identical on every focusable element in both themes.
 - **Nothing below 4.5:1**, including disabled and placeholder states.
 
@@ -130,25 +130,25 @@ These are not stylistic preferences; introducing any of them breaks the system.
 
 **Never introduce:**
 
-| Anti-pattern | Why it breaks the system |
-|---|---|
-| Card grids for lists | Peers in a sequence get a shared rule and shared alignment. Six projects are one list, not six objects. |
-| Shadows or elevation of any kind | Layering is ground colour. A shadow immediately reads as a different design language. |
-| Gradient backgrounds, mesh, glow, glass, blur | Principle 02. The only gradients in the system are 24–28px scroll-edge fades. |
-| A hero section, a value proposition, a pitch | The homepage is a front page: four lines of introduction, then the work. |
-| Accent-filled buttons | The solid button is ink; the accent is for links, numbers and state. |
-| Tag chips / pills | Chips add twenty boxes to an index page for no information gain. Tags are `#hashed` mono text. |
-| Underline-on-hover for links | Hides the affordance. Underlines are permanent. |
-| Icon fonts, icon libraries, logo marks, favicon rows | The glyph *is* the affordance (`→`, `↗`). There is no logo — the wordmark is the name in sans 600. |
-| Newsletter boxes, social icon rows, share widgets | The footer is two tracks of mono facts. |
-| Numbered pagination ("page 3 of 7") | Sequence navigation (prev/next by article number) and an archive-by-year list. |
-| Scroll-triggered reveals, parallax, counters, smooth-scroll hijack, sticky-header shrink | §17. Nothing animates on first paint. |
-| Reflowing tables into stacked key/value cards on mobile | Destroys column comparison, which is the only reason a technical table exists. |
-| Wrapping code lines | A wrapped shell command is a broken shell command. |
-| Truncating content to fit | The only permitted truncation in the entire system is a middle-truncated opaque machine identifier (a digest), plus the code block's filename label. |
-| Emoji | Not part of the voice. |
-| A second accent, or a decorative colour | One accent, budget of three per viewport. |
-| Any new component for a single page | If a page needs something not in the inventory, the page is wrong before the component is. |
+| Anti-pattern                                                                             | Why it breaks the system                                                                                                                             |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Card grids for lists                                                                     | Peers in a sequence get a shared rule and shared alignment. Six projects are one list, not six objects.                                              |
+| Shadows or elevation of any kind                                                         | Layering is ground colour. A shadow immediately reads as a different design language.                                                                |
+| Gradient backgrounds, mesh, glow, glass, blur                                            | Principle 02. The only gradients in the system are 24–28px scroll-edge fades.                                                                        |
+| A hero section, a value proposition, a pitch                                             | The homepage is a front page: four lines of introduction, then the work.                                                                             |
+| Accent-filled buttons                                                                    | The solid button is ink; the accent is for links, numbers and state.                                                                                 |
+| Tag chips / pills                                                                        | Chips add twenty boxes to an index page for no information gain. Tags are `#hashed` mono text.                                                       |
+| Underline-on-hover for links                                                             | Hides the affordance. Underlines are permanent.                                                                                                      |
+| Icon fonts, icon libraries, logo marks, favicon rows                                     | The glyph _is_ the affordance (`→`, `↗`). There is no logo — the wordmark is the name in sans 600.                                                   |
+| Newsletter boxes, social icon rows, share widgets                                        | The footer is two tracks of mono facts.                                                                                                              |
+| Numbered pagination ("page 3 of 7")                                                      | Sequence navigation (prev/next by article number) and an archive-by-year list.                                                                       |
+| Scroll-triggered reveals, parallax, counters, smooth-scroll hijack, sticky-header shrink | §17. Nothing animates on first paint.                                                                                                                |
+| Reflowing tables into stacked key/value cards on mobile                                  | Destroys column comparison, which is the only reason a technical table exists.                                                                       |
+| Wrapping code lines                                                                      | A wrapped shell command is a broken shell command.                                                                                                   |
+| Truncating content to fit                                                                | The only permitted truncation in the entire system is a middle-truncated opaque machine identifier (a digest), plus the code block's filename label. |
+| Emoji                                                                                    | Not part of the voice.                                                                                                                               |
+| A second accent, or a decorative colour                                                  | One accent, budget of three per viewport.                                                                                                            |
+| Any new component for a single page                                                      | If a page needs something not in the inventory, the page is wrong before the component is.                                                           |
 
 ---
 
@@ -158,57 +158,57 @@ Tokens are declared once and overridden wholesale for the dark theme. Colour is 
 
 ## 2.1 Colour — semantic roles, light theme ("paper")
 
-| Token | Value | Role | Contrast on `--c-bg` |
-|---|---|---|---|
-| `--c-bg` | `oklch(0.982 0.006 75)` | Page ground | — |
-| `--c-surface` | `oklch(0.962 0.007 75)` | Beside the page: footer band, table header, row hover, sticky header on scroll | — |
-| `--c-sunken` | `oklch(0.945 0.008 75)` | Below the page: inline code, callout ground, figure placeholder | — |
-| `--c-text` | `oklch(0.26 0.012 75)` | Prose, titles, current-page nav | 13.4:1 |
-| `--c-text-2` | `oklch(0.40 0.012 75)` | Leads, descriptions, secondary prose | 8.1:1 |
-| `--c-muted` | `oklch(0.58 0.012 75)` | Metadata, labels, captions | 4.6:1 |
-| `--c-faint` | `oklch(0.72 0.012 75)` | Third-level mono data in the gutter, "client work", "… 26 more" | — |
-| `--c-rule` | `oklch(0.90 0.008 75)` | Every hairline: section bands, rows, tables, frames | — |
-| `--c-rule-2` | `oklch(0.82 0.008 75)` | Group opener: table top rule, start of a numbered list, quote marker | — |
-| `--c-rule-in` | `oklch(0.93 0.008 75)` | Hairline *between* rows inside an already-opened group | — |
-| `--c-accent` | `oklch(0.55 0.14 40)` | Link underline, numbering, tags, active state | 5.1:1 |
-| `--c-accent-hi` | `oklch(0.47 0.15 40)` | Hover / active on accent | 7.2:1 |
-| `--c-warn` | `oklch(0.50 0.10 70)` | Warning label, warning rule, a bad number in a table | — |
-| `--c-warn-bg` | `oklch(0.955 0.030 85)` | Warning callout ground | — |
-| `--c-ok` | `oklch(0.48 0.09 150)` | Status: active / maintained / ok | — |
-| `--c-code-bg` | `oklch(0.20 0.010 75)` | Code block ground — **dark in both themes** | — |
-| `--c-term-bg` | `oklch(0.155 0.008 75)` | Terminal block ground — one step below code | — |
-| `--c-nav` | `oklch(0.45 0.012 75)` | Inactive navigation link, chrome labels on frames | — |
+| Token           | Value                   | Role                                                                           | Contrast on `--c-bg` |
+| --------------- | ----------------------- | ------------------------------------------------------------------------------ | -------------------- |
+| `--c-bg`        | `oklch(0.982 0.006 75)` | Page ground                                                                    | —                    |
+| `--c-surface`   | `oklch(0.962 0.007 75)` | Beside the page: footer band, table header, row hover, sticky header on scroll | —                    |
+| `--c-sunken`    | `oklch(0.945 0.008 75)` | Below the page: inline code, callout ground, figure placeholder                | —                    |
+| `--c-text`      | `oklch(0.26 0.012 75)`  | Prose, titles, current-page nav                                                | 13.4:1               |
+| `--c-text-2`    | `oklch(0.40 0.012 75)`  | Leads, descriptions, secondary prose                                           | 8.1:1                |
+| `--c-muted`     | `oklch(0.58 0.012 75)`  | Metadata, labels, captions                                                     | 4.6:1                |
+| `--c-faint`     | `oklch(0.72 0.012 75)`  | Third-level mono data in the gutter, "client work", "… 26 more"                | —                    |
+| `--c-rule`      | `oklch(0.90 0.008 75)`  | Every hairline: section bands, rows, tables, frames                            | —                    |
+| `--c-rule-2`    | `oklch(0.82 0.008 75)`  | Group opener: table top rule, start of a numbered list, quote marker           | —                    |
+| `--c-rule-in`   | `oklch(0.93 0.008 75)`  | Hairline _between_ rows inside an already-opened group                         | —                    |
+| `--c-accent`    | `oklch(0.55 0.14 40)`   | Link underline, numbering, tags, active state                                  | 5.1:1                |
+| `--c-accent-hi` | `oklch(0.47 0.15 40)`   | Hover / active on accent                                                       | 7.2:1                |
+| `--c-warn`      | `oklch(0.50 0.10 70)`   | Warning label, warning rule, a bad number in a table                           | —                    |
+| `--c-warn-bg`   | `oklch(0.955 0.030 85)` | Warning callout ground                                                         | —                    |
+| `--c-ok`        | `oklch(0.48 0.09 150)`  | Status: active / maintained / ok                                               | —                    |
+| `--c-code-bg`   | `oklch(0.20 0.010 75)`  | Code block ground — **dark in both themes**                                    | —                    |
+| `--c-term-bg`   | `oklch(0.155 0.008 75)` | Terminal block ground — one step below code                                    | —                    |
+| `--c-nav`       | `oklch(0.45 0.012 75)`  | Inactive navigation link, chrome labels on frames                              | —                    |
 
 There is no `error` role and no `success` role beyond `--c-ok`; the publication has no transactional states. There is no `link` colour token: links take `--c-text` with an `--c-accent` underline.
 
 ## 2.2 Colour — semantic roles, dark theme ("ink")
 
-Dark is **a second design, not an inversion**. Same hue family (75), chroma pulled to 0.008–0.012, and the accent *moves* rather than brightens.
+Dark is **a second design, not an inversion**. Same hue family (75), chroma pulled to 0.008–0.012, and the accent _moves_ rather than brightens.
 
-| Token | Value | Role |
-|---|---|---|
-| `--c-bg` | `oklch(0.185 0.008 75)` | Page ground — warm-neutral, not black |
-| `--c-surface` | `oklch(0.215 0.008 75)` | Footer, table header, callout ground |
-| `--c-sunken` | `oklch(0.155 0.008 75)` | Inline code, terminal ground — recessed, same metaphor |
-| `--c-text` | `oklch(0.90 0.008 75)` | Prose, titles. Never pure white (see below) |
-| `--c-text-prose` | `oklch(0.88 0.008 75)` | Article running text specifically, one step under headings |
-| `--c-text-2` | `oklch(0.72 0.012 75)` | Lead, descriptions — 7.9:1 |
-| `--c-muted` | `oklch(0.60 0.012 75)` | Metadata — 5.2:1 |
-| `--c-faint` | `oklch(0.65 0.012 75)` | Disclosure labels, third-level data |
-| `--c-rule` | `oklch(0.30 0.008 75)` | Hairlines — proportionally stronger than light, or they vanish |
-| `--c-rule-in` | `oklch(0.27 0.008 75)` | Inner row hairline |
-| `--c-accent` | `oklch(0.72 0.120 45)` | Lifted 0.17 in lightness and turned 5° warmer |
-| `--c-warn` | `oklch(0.80 0.115 85)` | Warning label |
-| `--c-warn-bg` | `oklch(0.24 0.035 85)` | Warning callout ground |
-| `--c-ok` | `oklch(0.75 0.105 155)` | Status: active |
-| `--c-code-bg` | `oklch(0.20 0.010 75)` | **Unchanged from light theme** |
-| `--c-term-bg` | `oklch(0.155 0.008 75)` | Unchanged |
+| Token            | Value                   | Role                                                           |
+| ---------------- | ----------------------- | -------------------------------------------------------------- |
+| `--c-bg`         | `oklch(0.185 0.008 75)` | Page ground — warm-neutral, not black                          |
+| `--c-surface`    | `oklch(0.215 0.008 75)` | Footer, table header, callout ground                           |
+| `--c-sunken`     | `oklch(0.155 0.008 75)` | Inline code, terminal ground — recessed, same metaphor         |
+| `--c-text`       | `oklch(0.90 0.008 75)`  | Prose, titles. Never pure white (see below)                    |
+| `--c-text-prose` | `oklch(0.88 0.008 75)`  | Article running text specifically, one step under headings     |
+| `--c-text-2`     | `oklch(0.72 0.012 75)`  | Lead, descriptions — 7.9:1                                     |
+| `--c-muted`      | `oklch(0.60 0.012 75)`  | Metadata — 5.2:1                                               |
+| `--c-faint`      | `oklch(0.65 0.012 75)`  | Disclosure labels, third-level data                            |
+| `--c-rule`       | `oklch(0.30 0.008 75)`  | Hairlines — proportionally stronger than light, or they vanish |
+| `--c-rule-in`    | `oklch(0.27 0.008 75)`  | Inner row hairline                                             |
+| `--c-accent`     | `oklch(0.72 0.120 45)`  | Lifted 0.17 in lightness and turned 5° warmer                  |
+| `--c-warn`       | `oklch(0.80 0.115 85)`  | Warning label                                                  |
+| `--c-warn-bg`    | `oklch(0.24 0.035 85)`  | Warning callout ground                                         |
+| `--c-ok`         | `oklch(0.75 0.105 155)` | Status: active                                                 |
+| `--c-code-bg`    | `oklch(0.20 0.010 75)`  | **Unchanged from light theme**                                 |
+| `--c-term-bg`    | `oklch(0.155 0.008 75)` | Unchanged                                                      |
 
 ### The seven deliberate deviations from a straight inversion
 
 1. **Text tops out at 90% lightness.** Pure white on a dark ground makes a serif bloom and vibrate; 0.90 holds the letterforms.
 2. **The accent moves, not just brightens.** Terracotta at L 0.55 becomes clay at L 0.72 / hue 45 — five degrees warmer to keep the same perceived temperature against a cool-reading dark ground.
-3. **Rules are relatively stronger.** `--c-rule` sits 0.115 *above* the ground in dark, rather than 0.082 *below* it in light.
+3. **Rules are relatively stronger.** `--c-rule` sits 0.115 _above_ the ground in dark, rather than 0.082 _below_ it in light.
 4. **Metadata brightens more than body text.** Muted goes from 4.6:1 to 5.2:1 — small mono at low contrast is the first thing to fail on a dark screen.
 5. **Code stays put.** The code ground is identical in both themes; only its border changes (a visible hairline in light, none in dark — the block is self-evidently a separate object on a dark page).
 6. **Images are dimmed, screenshots are not.** Photographs and diagrams are dimmed to ~92% brightness; UI screenshots are shown as captured on a sunken ground with a rule, because dimming them misrepresents the software.
@@ -220,37 +220,37 @@ Dark is **a second design, not an inversion**. Same hue family (75), chroma pull
 
 Constant across both themes. Five semantic roles only, held at a consistent 0.78–0.82 lightness so no token shouts. Punctuation and operators stay at body colour.
 
-| Role | Value |
-|---|---|
-| Code foreground | `oklch(0.86 0.008 75)` |
-| Terminal foreground | `oklch(0.82 0.008 75)` |
-| Comment | `oklch(0.60 0.012 75)` |
-| Keyword / key | `oklch(0.80 0.09 90)` |
-| String | `oklch(0.78 0.09 155)` |
-| Literal / boolean | `oklch(0.74 0.12 300)` |
-| Number | `oklch(0.80 0.09 60)` |
-| Function / identifier | `oklch(0.82 0.09 200)` |
-| Prompt glyph (`$`) | `oklch(0.72 0.12 45)` |
-| Success token in output | `oklch(0.75 0.105 155)` |
-| Line-number gutter | `oklch(0.45 0.010 75)` |
-| Code chrome bar ground | `oklch(0.235 0.010 75)` |
-| Code chrome rule | `oklch(0.30 0.010 75)` |
-| Code control border | `oklch(0.34 0.010 75)` |
-| Terminal chrome rule | `oklch(0.28 0.008 75)` |
-| Highlight ground | accent at 16–18% alpha |
-| Highlight marker | 2px inset bar, `oklch(0.72 0.12 45)` |
-| Diff removed | text `oklch(0.80 0.075 25)` on `oklch(0.55 0.14 25 / 0.14)` |
-| Diff added | text `oklch(0.80 0.08 155)` on `oklch(0.55 0.12 155 / 0.13)` |
+| Role                    | Value                                                        |
+| ----------------------- | ------------------------------------------------------------ |
+| Code foreground         | `oklch(0.86 0.008 75)`                                       |
+| Terminal foreground     | `oklch(0.82 0.008 75)`                                       |
+| Comment                 | `oklch(0.60 0.012 75)`                                       |
+| Keyword / key           | `oklch(0.80 0.09 90)`                                        |
+| String                  | `oklch(0.78 0.09 155)`                                       |
+| Literal / boolean       | `oklch(0.74 0.12 300)`                                       |
+| Number                  | `oklch(0.80 0.09 60)`                                        |
+| Function / identifier   | `oklch(0.82 0.09 200)`                                       |
+| Prompt glyph (`$`)      | `oklch(0.72 0.12 45)`                                        |
+| Success token in output | `oklch(0.75 0.105 155)`                                      |
+| Line-number gutter      | `oklch(0.45 0.010 75)`                                       |
+| Code chrome bar ground  | `oklch(0.235 0.010 75)`                                      |
+| Code chrome rule        | `oklch(0.30 0.010 75)`                                       |
+| Code control border     | `oklch(0.34 0.010 75)`                                       |
+| Terminal chrome rule    | `oklch(0.28 0.008 75)`                                       |
+| Highlight ground        | accent at 16–18% alpha                                       |
+| Highlight marker        | 2px inset bar, `oklch(0.72 0.12 45)`                         |
+| Diff removed            | text `oklch(0.80 0.075 25)` on `oklch(0.55 0.14 25 / 0.14)`  |
+| Diff added              | text `oklch(0.80 0.08 155)` on `oklch(0.55 0.12 155 / 0.13)` |
 
 These two diff hues appear nowhere else on the site.
 
 ## 2.4 Typography — families
 
-| Token | Family | Fallbacks | Axes / weights used | Role |
-|---|---|---|---|---|
-| `--font-serif` | Source Serif 4 (variable) | Georgia, serif | opsz 8–60, wght 300–700; used at 400, 600, 400 italic | Prose, titles, leads, quotes, item titles, callout bodies |
-| `--font-sans` | IBM Plex Sans (variable) | system-ui, sans-serif | 400, 500, 600 | Chrome, index descriptions, UI text, wordmark |
-| `--font-mono` | IBM Plex Mono | monospace | 400, 500 | All metadata, all code, labels, captions, numerals in tables |
+| Token          | Family                    | Fallbacks             | Axes / weights used                                   | Role                                                         |
+| -------------- | ------------------------- | --------------------- | ----------------------------------------------------- | ------------------------------------------------------------ |
+| `--font-serif` | Source Serif 4 (variable) | Georgia, serif        | opsz 8–60, wght 300–700; used at 400, 600, 400 italic | Prose, titles, leads, quotes, item titles, callout bodies    |
+| `--font-sans`  | IBM Plex Sans (variable)  | system-ui, sans-serif | 400, 500, 600                                         | Chrome, index descriptions, UI text, wordmark                |
+| `--font-mono`  | IBM Plex Mono             | monospace             | 400, 500                                              | All metadata, all code, labels, captions, numerals in tables |
 
 All three are libre, self-hostable, variable and subsettable — no third-party font requests at runtime.
 
@@ -262,40 +262,40 @@ All three are libre, self-hostable, variable and subsettable — no third-party 
 
 Desktop values (≥1100). Responsive values in §3.4.
 
-| Token | Family / weight | Size | Line height | Tracking | Use |
-|---|---|---|---|---|---|
-| `--t-display` | serif 400 | 42 | 1.20 | −0.015em | Article and project-detail `h1` |
-| `--t-title` | serif 400 | 34 | 1.24 | −0.013em | Page title on index, about, 404 |
-| `--t-h2` | serif 600 | 25 | 1.30 | −0.010em | Section heading in an article |
-| `--t-h3` | serif 600 | 19.5 | 1.40 | −0.006em | Subsection heading |
-| `--t-lead` | serif 400, `--c-text-2` | 20 | 1.62 | 0 | The standfirst under a title — one paragraph, never two |
-| `--t-body` | serif 400 | 18.5 | 1.72 | 0 | Running prose. The size the whole system is tuned around |
-| `--t-ui` | sans 400 | 15 | 1.55 | 0 | Index rows, nav, buttons, descriptions in lists |
-| `--t-small` | sans 400 | 13.5 | 1.55 | 0 | Secondary UI text, deks, notes in specs |
-| `--t-meta` | mono 400, `--c-muted` | 12 | 1.50 | 0 | Every metadata datum |
-| `--t-label` | mono 500, uppercase, `--c-muted` | 10.5 | 1.00 | +0.12em | Section labels, table heads, callout kind |
-| `--t-code` | mono 400 | 13.5 | 1.75 | 0 | Code blocks; inline code at 0.86em of parent |
+| Token         | Family / weight                  | Size | Line height | Tracking | Use                                                      |
+| ------------- | -------------------------------- | ---- | ----------- | -------- | -------------------------------------------------------- |
+| `--t-display` | serif 400                        | 42   | 1.20        | −0.015em | Article and project-detail `h1`                          |
+| `--t-title`   | serif 400                        | 34   | 1.24        | −0.013em | Page title on index, about, 404                          |
+| `--t-h2`      | serif 600                        | 25   | 1.30        | −0.010em | Section heading in an article                            |
+| `--t-h3`      | serif 600                        | 19.5 | 1.40        | −0.006em | Subsection heading                                       |
+| `--t-lead`    | serif 400, `--c-text-2`          | 20   | 1.62        | 0        | The standfirst under a title — one paragraph, never two  |
+| `--t-body`    | serif 400                        | 18.5 | 1.72        | 0        | Running prose. The size the whole system is tuned around |
+| `--t-ui`      | sans 400                         | 15   | 1.55        | 0        | Index rows, nav, buttons, descriptions in lists          |
+| `--t-small`   | sans 400                         | 13.5 | 1.55        | 0        | Secondary UI text, deks, notes in specs                  |
+| `--t-meta`    | mono 400, `--c-muted`            | 12   | 1.50        | 0        | Every metadata datum                                     |
+| `--t-label`   | mono 500, uppercase, `--c-muted` | 10.5 | 1.00        | +0.12em  | Section labels, table heads, callout kind                |
+| `--t-code`    | mono 400                         | 13.5 | 1.75        | 0        | Code blocks; inline code at 0.86em of parent             |
 
 ### Derived and component-local type values
 
 These recur across the design and are part of the system even though they are not top-level scale steps. They exist because item titles must sit between `--t-h3` and `--t-ui`.
 
-| Context | Value |
-|---|---|
-| Featured entry title (blog index) | serif 600 · 28 / 1.26 / −0.012em |
-| Featured entry title (homepage) | serif 600 · 27 / 1.26 / −0.012em |
-| Project index item title | serif 600 · 21 / 1.30 / −0.009em |
-| Project item title (in a list on another page) | serif 600 · 18–19 / −0.008em |
-| Index row title | serif 600 · 17–17.5 / −0.006em |
-| Related / prev-next title | serif 600 · 14–17 / 1.35 |
-| Homepage opening statement | serif 400 · 24 / 1.50 / −0.008em |
-| Callout body | serif 400 · 16 / 1.62 |
-| Quote | serif 400 **italic** · 18–19 / 1.60 |
-| Wordmark | sans 600 · 14.5 / −0.01em |
-| Nav link | sans 400 · 13.5 |
-| Metadata, small (captions, footer, TOC, project instrument track) | mono 400 · 11.5 |
-| Metadata, smallest (gutter label, prev/next kicker) | mono 400 · 10.5–11 |
-| Table cell | mono 400 · 13 |
+| Context                                                           | Value                               |
+| ----------------------------------------------------------------- | ----------------------------------- |
+| Featured entry title (blog index)                                 | serif 600 · 28 / 1.26 / −0.012em    |
+| Featured entry title (homepage)                                   | serif 600 · 27 / 1.26 / −0.012em    |
+| Project index item title                                          | serif 600 · 21 / 1.30 / −0.009em    |
+| Project item title (in a list on another page)                    | serif 600 · 18–19 / −0.008em        |
+| Index row title                                                   | serif 600 · 17–17.5 / −0.006em      |
+| Related / prev-next title                                         | serif 600 · 14–17 / 1.35            |
+| Homepage opening statement                                        | serif 400 · 24 / 1.50 / −0.008em    |
+| Callout body                                                      | serif 400 · 16 / 1.62               |
+| Quote                                                             | serif 400 **italic** · 18–19 / 1.60 |
+| Wordmark                                                          | sans 600 · 14.5 / −0.01em           |
+| Nav link                                                          | sans 400 · 13.5                     |
+| Metadata, small (captions, footer, TOC, project instrument track) | mono 400 · 11.5                     |
+| Metadata, smallest (gutter label, prev/next kicker)               | mono 400 · 10.5–11                  |
+| Table cell                                                        | mono 400 · 13                       |
 
 ### Typographic laws
 
@@ -310,61 +310,61 @@ These recur across the design and are part of the system even though they are no
 
 **Base unit 4px.** Canonical scale, with the permitted use of each step:
 
-| Step | Permitted use |
-|---|---|
-| 4 | Baseline nudges only — superscripts, icon optical alignment |
-| 8 | Tag padding-y, gap between tag and value, label→value |
-| 12 | List-item gaps, `h3` → following paragraph, gutter label internal leading |
-| 16 | `h2` → following paragraph, callout padding-y, code padding-y |
-| 20 | Rule → content, **mobile page margin**, code padding-x, quote indent |
-| 24 | **Paragraph → paragraph** — the most-used value on the site. Also: metadata row gap, footer padding-y |
-| 32 | Prose → block element (code, figure, table). Index row padding-y ×2 |
-| 40 | **Tablet section band padding.** Article footer apparatus spacing |
-| 56 | Paragraph → next `h2`; **desktop page margin**; desktop section band padding |
-| 72 | Page-level band separation; article header → body |
-| 96 | End of article body → footer apparatus |
-| 128 | Reserved: page top on the homepage and the 404 only |
+| Step | Permitted use                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------- |
+| 4    | Baseline nudges only — superscripts, icon optical alignment                                           |
+| 8    | Tag padding-y, gap between tag and value, label→value                                                 |
+| 12   | List-item gaps, `h3` → following paragraph, gutter label internal leading                             |
+| 16   | `h2` → following paragraph, callout padding-y, code padding-y                                         |
+| 20   | Rule → content, **mobile page margin**, code padding-x, quote indent                                  |
+| 24   | **Paragraph → paragraph** — the most-used value on the site. Also: metadata row gap, footer padding-y |
+| 32   | Prose → block element (code, figure, table). Index row padding-y ×2                                   |
+| 40   | **Tablet section band padding.** Article footer apparatus spacing                                     |
+| 56   | Paragraph → next `h2`; **desktop page margin**; desktop section band padding                          |
+| 72   | Page-level band separation; article header → body                                                     |
+| 96   | End of article body → footer apparatus                                                                |
+| 128  | Reserved: page top on the homepage and the 404 only                                                   |
 
 **The grid-gap exception.** The gap between gutter, measure and aside is **44px** — the single value outside the scale, set by the 12-column arithmetic of the 1320px frame. It is a layout constant, not a spacing step.
 
 **Responsive spacing steps.** The responsive pass adds three intermediate steps, all on the 4px base: **26** (mobile prose→block), **36** (mobile paragraph→h2), **48** (tablet paragraph→h2). Spacing shrinks by exactly one step per breakpoint, never two, so vertical rhythm stays recognisable.
 
-**Component interior sub-steps.** Inside a component, even 2px sub-steps are permitted where a control or row needs optical rather than rhythmic spacing: **14, 18, 22, 28**. These appear as callout padding (14/18), code chrome padding (9/14), index row padding-y (14–15), header padding-y (14/18/20), section band padding (22–34) and card-frame padding (16/18). They are bounded: they may only be used *inside* a component, never between components, and never on a page band.
+**Component interior sub-steps.** Inside a component, even 2px sub-steps are permitted where a control or row needs optical rather than rhythmic spacing: **14, 18, 22, 28**. These appear as callout padding (14/18), code chrome padding (9/14), index row padding-y (14–15), header padding-y (14/18/20), section band padding (22–34) and card-frame padding (16/18). They are bounded: they may only be used _inside_ a component, never between components, and never on a page band.
 
 ## 2.7 Sizing
 
-| Token / dimension | Value | Notes |
-|---|---|---|
-| `--page-max` | 1320px | Outer frame; header, footer and grid all align to it |
-| Page margin | 56 / 32 / 20 | desktop / tablet / mobile |
-| `--gutter-w` | 148px | Left metadata column, ≥1100 only |
-| `--measure` | 680px (≈68ch) | Hard cap on any line of running prose |
-| `--aside-w` | 200px | Right column: TOC/share/progress, ≥1100 only |
-| `--grid-gap` | 44px | Between the three article tracks |
-| Article header content width | 760px | The header block may exceed the measure |
-| Lead paragraph width | 62ch | Narrower than the measure, deliberately |
-| List description width | 58ch | Project descriptions, homepage work items |
-| Long-form spec prose | 68–72ch | Explanatory paragraphs in a spec context |
-| About / experience description | 66ch | |
-| Masthead height | 60px | Fixed at ≥1100 |
-| Footer band padding-y | 24px | |
-| Index row minimum height | 48px | Touch target; the whole row is the target |
-| Any interactive element | ≥44px on touch | |
-| Image height cap | 65vh | So a tall screenshot cannot occupy the whole screen |
-| Portrait, about page | 200 × 220 | |
-| Portrait, article author block | 88 × 88 | |
-| Figure placeholder heights | 170 / 200 / 230 / 250 | By role: homepage lead / index lead / case-study / article diagram |
-| Mobile TOC scroll cap | 150px | Only above 20 sections |
-| Code / table scroll fade | 24–28px | |
-| Project instrument track | 190–210px | Right-hand column in a project item |
+| Token / dimension              | Value                 | Notes                                                              |
+| ------------------------------ | --------------------- | ------------------------------------------------------------------ |
+| `--page-max`                   | 1320px                | Outer frame; header, footer and grid all align to it               |
+| Page margin                    | 56 / 32 / 20          | desktop / tablet / mobile                                          |
+| `--gutter-w`                   | 148px                 | Left metadata column, ≥1100 only                                   |
+| `--measure`                    | 680px (≈68ch)         | Hard cap on any line of running prose                              |
+| `--aside-w`                    | 200px                 | Right column: TOC/share/progress, ≥1100 only                       |
+| `--grid-gap`                   | 44px                  | Between the three article tracks                                   |
+| Article header content width   | 760px                 | The header block may exceed the measure                            |
+| Lead paragraph width           | 62ch                  | Narrower than the measure, deliberately                            |
+| List description width         | 58ch                  | Project descriptions, homepage work items                          |
+| Long-form spec prose           | 68–72ch               | Explanatory paragraphs in a spec context                           |
+| About / experience description | 66ch                  |                                                                    |
+| Masthead height                | 60px                  | Fixed at ≥1100                                                     |
+| Footer band padding-y          | 24px                  |                                                                    |
+| Index row minimum height       | 48px                  | Touch target; the whole row is the target                          |
+| Any interactive element        | ≥44px on touch        |                                                                    |
+| Image height cap               | 65vh                  | So a tall screenshot cannot occupy the whole screen                |
+| Portrait, about page           | 200 × 220             |                                                                    |
+| Portrait, article author block | 88 × 88               |                                                                    |
+| Figure placeholder heights     | 170 / 200 / 230 / 250 | By role: homepage lead / index lead / case-study / article diagram |
+| Mobile TOC scroll cap          | 150px                 | Only above 20 sections                                             |
+| Code / table scroll fade       | 24–28px               |                                                                    |
+| Project instrument track       | 190–210px             | Right-hand column in a project item                                |
 
 ## 2.8 Borders
 
-| Property | Value |
-|---|---|
-| Weight | **1px** everywhere. `2px` only as a left marker. Never 3px. |
-| Colours | `--c-rule` default · `--c-rule-2` to open a group · `--c-rule-in` between rows inside a group |
-| Style | Solid. Dashed appears **only** in specification diagrams (grid overlays), never in the product. |
+| Property | Value                                                                                           |
+| -------- | ----------------------------------------------------------------------------------------------- |
+| Weight   | **1px** everywhere. `2px` only as a left marker. Never 3px.                                     |
+| Colours  | `--c-rule` default · `--c-rule-2` to open a group · `--c-rule-in` between rows inside a group   |
+| Style    | Solid. Dashed appears **only** in specification diagrams (grid overlays), never in the product. |
 
 **Where borders are used:** page band separators (full frame width), row separators in every list, table head and body rules, figure frames, code block frames (light theme), the TOC spine, the masthead bottom rule, the footer top rule, framed controls (copy, theme, disclosure).
 
@@ -374,12 +374,12 @@ These recur across the design and are part of the system even though they are no
 
 ## 2.9 Radius
 
-| Token | Value | Applies to |
-|---|---|---|
-| `--radius` | 4px | Code block, terminal block, button, callout (3 corners: `0 4 4 0`), framed panel, disclosure frame |
-| `--radius-sm` | 3px | Inline code, copy control, theme control, small framed labels |
-| — | 0 | Everything else: figures, tables, rows, bands, quotes, images, screenshots |
-| — | 50% | Status dot only (6px) |
+| Token         | Value | Applies to                                                                                         |
+| ------------- | ----- | -------------------------------------------------------------------------------------------------- |
+| `--radius`    | 4px   | Code block, terminal block, button, callout (3 corners: `0 4 4 0`), framed panel, disclosure frame |
+| `--radius-sm` | 3px   | Inline code, copy control, theme control, small framed labels                                      |
+| —             | 0     | Everything else: figures, tables, rows, bands, quotes, images, screenshots                         |
+| —             | 50%   | Status dot only (6px)                                                                              |
 
 **Rule:** radius requires a fill. A bordered-but-unfilled box is square. At <760 the code block loses its radius entirely (it goes full-bleed and is bounded by two hairlines instead).
 
@@ -389,59 +389,59 @@ These recur across the design and are part of the system even though they are no
 
 Depth is expressed by ground colour only:
 
-| Perceived depth | Ground |
-|---|---|
-| Below the page | `--c-sunken` |
-| The page | `--c-bg` |
-| Beside the page (a band, a header row) | `--c-surface` |
-| A different kind of object entirely | `--c-code-bg` / `--c-term-bg` |
+| Perceived depth                        | Ground                        |
+| -------------------------------------- | ----------------------------- |
+| Below the page                         | `--c-sunken`                  |
+| The page                               | `--c-bg`                      |
+| Beside the page (a band, a header row) | `--c-surface`                 |
+| A different kind of object entirely    | `--c-code-bg` / `--c-term-bg` |
 
-Shadow-shaped effects are used twice as *drawing* devices, never as depth: an underline drawn as an offset shadow (so it survives a mid-URL line break without changing line height), and the 2px accent tick on the TOC spine.
+Shadow-shaped effects are used twice as _drawing_ devices, never as depth: an underline drawn as an offset shadow (so it survives a mid-URL line break without changing line height), and the 2px accent tick on the TOC spine.
 
 ## 2.11 Icons
 
 **There is no icon set, no icon font, and no icon library.** The system uses a closed set of typographic glyphs, set in the surrounding font at the surrounding size.
 
-| Glyph | Meaning | Placement |
-|---|---|---|
-| `→` | Internal forward navigation | Trailing, after a hair space |
-| `↗` | External link | Trailing, muted |
-| `←` | Previous in sequence | Leading |
-| `·` | Datum separator inside a mono string | Between tokens |
-| `/` | Breadcrumb separator | Between path segments |
-| `#` | Tag prefix | Leading, part of the token |
-| `●` / `○` | Status: filled = live, hollow = archived (6px) | Leading the status word |
-| `◐` | Theme control | In a hairline frame |
-| `+` / `−` | Disclosure closed / open; also diff markers | Trailing (disclosure), leading (diff) |
-| `sup` numeral | Footnote reference | Superscript mono 11, accent |
+| Glyph         | Meaning                                        | Placement                             |
+| ------------- | ---------------------------------------------- | ------------------------------------- |
+| `→`           | Internal forward navigation                    | Trailing, after a hair space          |
+| `↗`           | External link                                  | Trailing, muted                       |
+| `←`           | Previous in sequence                           | Leading                               |
+| `·`           | Datum separator inside a mono string           | Between tokens                        |
+| `/`           | Breadcrumb separator                           | Between path segments                 |
+| `#`           | Tag prefix                                     | Leading, part of the token            |
+| `●` / `○`     | Status: filled = live, hollow = archived (6px) | Leading the status word               |
+| `◐`           | Theme control                                  | In a hairline frame                   |
+| `+` / `−`     | Disclosure closed / open; also diff markers    | Trailing (disclosure), leading (diff) |
+| `sup` numeral | Footnote reference                             | Superscript mono 11, accent           |
 
 **Rules for glyphs with text:** the glyph is separated by a hair space or a 5–6px gap, inherits the text's colour unless it is a status dot, is never boxed, never coloured for decoration, and is never the only content of an interactive element. A status dot is 6px, sits 6px before its word, and the word is always present.
 
 ## 2.12 Motion tokens
 
-| Token | Value |
-|---|---|
-| `--dur` | 120ms — state change on an element the pointer is already on |
+| Token          | Value                                                        |
+| -------------- | ------------------------------------------------------------ |
+| `--dur`        | 120ms — state change on an element the pointer is already on |
 | `--dur-layout` | 160ms — anything that changes layout (disclosure open/close) |
-| Ceiling | 200ms. Nothing exceeds it. |
-| `--ease` | `cubic-bezier(.2, 0, 0, 1)` — one curve for everything |
+| Ceiling        | 200ms. Nothing exceeds it.                                   |
+| `--ease`       | `cubic-bezier(.2, 0, 0, 1)` — one curve for everything       |
 
 ## 2.13 Focus token
 
-| Token | Value |
-|---|---|
+| Token     | Value                                              |
+| --------- | -------------------------------------------------- |
 | `--focus` | 2px solid `--c-accent`, 2px offset, square corners |
 
 Identical on every focusable element in both themes, shown on keyboard focus only. Nothing removes it without replacing it.
 
 ## 2.14 Breakpoint tokens
 
-| Token | Query | Turns on |
-|---|---|---|
-| *base* | 0–759 | Single column, 20px margins, full-bleed blocks, disclosure nav, stacked rows |
-| `--bp-rows` | ≥ 760 | Multi-track rows return, inline nav returns, blocks re-enter the measure, margins → 32 |
-| `--bp-gutter` | ≥ 1100 | The 148px metadata gutter and 200px aside appear, margins → 56, frame caps at 1320 |
-| *container* | container < 700 | Figures, code and tables consult their own container rather than the viewport |
+| Token         | Query           | Turns on                                                                               |
+| ------------- | --------------- | -------------------------------------------------------------------------------------- |
+| _base_        | 0–759           | Single column, 20px margins, full-bleed blocks, disclosure nav, stacked rows           |
+| `--bp-rows`   | ≥ 760           | Multi-track rows return, inline nav returns, blocks re-enter the measure, margins → 32 |
+| `--bp-gutter` | ≥ 1100          | The 148px metadata gutter and 200px aside appear, margins → 56, frame caps at 1320     |
+| _container_   | container < 700 | Figures, code and tables consult their own container rather than the viewport          |
 
 ---
 
@@ -449,11 +449,11 @@ Identical on every focusable element in both themes, shown on keyboard focus onl
 
 ## 3.1 Viewport categories
 
-| Category | Range | Reference width | Character |
-|---|---|---|---|
-| **Desktop** | ≥ 1100 | 1320 | Three tracks: gutter, measure, aside. The full instrument panel. |
-| **Tablet** | 760–1099 | 900 | One column capped at the measure. Gutter content becomes running heads; aside content relocates. |
-| **Mobile** | < 760 | 390 | One fluid column. Rules go full-bleed, text keeps its margin, machine content scrolls. |
+| Category    | Range    | Reference width | Character                                                                                        |
+| ----------- | -------- | --------------- | ------------------------------------------------------------------------------------------------ |
+| **Desktop** | ≥ 1100   | 1320            | Three tracks: gutter, measure, aside. The full instrument panel.                                 |
+| **Tablet**  | 760–1099 | 900             | One column capped at the measure. Gutter content becomes running heads; aside content relocates. |
+| **Mobile**  | < 760    | 390             | One fluid column. Rules go full-bleed, text keeps its margin, machine content scrolls.           |
 
 Mobile is the base layer; both breakpoints are additive `min-width` queries. Mobile is **not** the desktop design shrunk: the measure is re-tuned, the gutter's content is relocated rather than dropped, and code and figures break out of the margins so a 92-character line of YAML stays readable.
 
@@ -461,83 +461,83 @@ Mobile is the base layer; both breakpoints are additive `min-width` queries. Mob
 
 Four rules cover every component in the system, which is why there are no page-specific responsive exceptions.
 
-| # | Law | Detail |
-|---|---|---|
-| 01 | **Substance before instrumentation** | When two tracks stack, the serif content leads and the mono data follows. One sanctioned exception: project status, where "is it alive" outranks the description. |
-| 02 | **Relocate, never delete** | A datum may move, abbreviate or wrap. Only the dek on index rows may disappear, because the title already carries it. |
-| 03 | **Machine content scrolls, prose reflows** | Code, tables and wide diagrams keep their true dimensions inside a contained scroll region; text always reflows. The page scrolls in one axis only, at every width. |
-| 04 | **Rules go full-bleed, text keeps its margin** | Below 760, every hairline spans the viewport while text stays inside 20px. This single move is most of why the phone layout still looks engineered rather than boxed-in. |
+| #   | Law                                            | Detail                                                                                                                                                                   |
+| --- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 01  | **Substance before instrumentation**           | When two tracks stack, the serif content leads and the mono data follows. One sanctioned exception: project status, where "is it alive" outranks the description.        |
+| 02  | **Relocate, never delete**                     | A datum may move, abbreviate or wrap. Only the dek on index rows may disappear, because the title already carries it.                                                    |
+| 03  | **Machine content scrolls, prose reflows**     | Code, tables and wide diagrams keep their true dimensions inside a contained scroll region; text always reflows. The page scrolls in one axis only, at every width.      |
+| 04  | **Rules go full-bleed, text keeps its margin** | Below 760, every hairline spans the viewport while text stays inside 20px. This single move is most of why the phone layout still looks engineered rather than boxed-in. |
 
 ## 3.3 Grid and spacing across breakpoints
 
-| | ≥1100 | 760–1099 | <760 |
-|---|---|---|---|
-| Frame / margin | 1320 max / 56 | fluid / 32 | fluid / 20 |
-| Columns | 12 × 24 gutter | 8 × 20 gutter | 4 × 16 gutter |
-| Article shape | 148 / 680 / 200, 44 gaps | one column, max 680 | one column, fluid |
-| Section band padding-y | 56 | 40 | 32 |
-| Paragraph → `h2` | 56 | 48 | 36 |
-| Prose → block element | 32 | 32 | 26 |
-| Paragraph → paragraph | 24 | 24 | 20–22 |
+|                        | ≥1100                    | 760–1099            | <760              |
+| ---------------------- | ------------------------ | ------------------- | ----------------- |
+| Frame / margin         | 1320 max / 56            | fluid / 32          | fluid / 20        |
+| Columns                | 12 × 24 gutter           | 8 × 20 gutter       | 4 × 16 gutter     |
+| Article shape          | 148 / 680 / 200, 44 gaps | one column, max 680 | one column, fluid |
+| Section band padding-y | 56                       | 40                  | 32                |
+| Paragraph → `h2`       | 56                       | 48                  | 36                |
+| Prose → block element  | 32                       | 32                  | 26                |
+| Paragraph → paragraph  | 24                       | 24                  | 20–22             |
 
 Every value is a step on the existing 4px scale — the responsive pass introduced no new numbers.
 
 ## 3.4 Typography across breakpoints
 
-| Token | ≥1100 | 760–1099 | <760 |
-|---|---|---|---|
-| `--t-display` | 42 / 1.20 | 36 / 1.22 | 28 / 1.24 — **26 above 90 characters** |
-| `--t-title` | 34 / 1.24 | 30 / 1.24 | 26 / 1.26 |
-| `--t-h2` | 25 / 1.30 | 24 / 1.30 | 21 / 1.30 |
-| `--t-h3` | 19.5 / 1.40 | 19 / 1.40 | 18 / 1.40 |
-| `--t-lead` | 20 / 1.62 | 19 / 1.60 | 17 / 1.60 |
-| `--t-body` | 18.5 / 1.72 | 18.5 / 1.72 | 17 / 1.70 |
-| `--t-code` | 13.5 / 1.75 | 13.5 / 1.75 | 12.5 / 1.75 |
-| `--t-meta` | 12 | 12 | 11.5 |
-| `--t-ui` | 15 | 14.5 | 14 |
-| `--t-label` | 10.5 | 10.5 | 10.5 |
+| Token         | ≥1100       | 760–1099    | <760                                   |
+| ------------- | ----------- | ----------- | -------------------------------------- |
+| `--t-display` | 42 / 1.20   | 36 / 1.22   | 28 / 1.24 — **26 above 90 characters** |
+| `--t-title`   | 34 / 1.24   | 30 / 1.24   | 26 / 1.26                              |
+| `--t-h2`      | 25 / 1.30   | 24 / 1.30   | 21 / 1.30                              |
+| `--t-h3`      | 19.5 / 1.40 | 19 / 1.40   | 18 / 1.40                              |
+| `--t-lead`    | 20 / 1.62   | 19 / 1.60   | 17 / 1.60                              |
+| `--t-body`    | 18.5 / 1.72 | 18.5 / 1.72 | 17 / 1.70                              |
+| `--t-code`    | 13.5 / 1.75 | 13.5 / 1.75 | 12.5 / 1.75                            |
+| `--t-meta`    | 12          | 12          | 11.5                                   |
+| `--t-ui`      | 15          | 14.5        | 14                                     |
+| `--t-label`   | 10.5        | 10.5        | 10.5                                   |
 
 **Reasoning.** Body drops 1.5px and nothing else moves much: at ~350px of measure, 17px yields 38–40 characters per line — the phone's equivalent of the 68-character desktop measure — and Source Serif holds its optical size at that setting.
 
 **Type floors** (not curve points — hard minimums):
 
-| Floor | Value | Reason |
-|---|---|---|
-| Metadata | 11.5px | Below this the mono loses its slashed zero |
-| Code | 12.5px | Same |
-| Body | 17px | Reading comfort |
-| Label | 10.5px | Uppercase + tracking keeps it legible |
-| Touch target | 44px (rows 48px) | — |
+| Floor        | Value            | Reason                                     |
+| ------------ | ---------------- | ------------------------------------------ |
+| Metadata     | 11.5px           | Below this the mono loses its slashed zero |
+| Code         | 12.5px           | Same                                       |
+| Body         | 17px             | Reading comfort                            |
+| Label        | 10.5px           | Uppercase + tracking keeps it legible      |
+| Touch target | 44px (rows 48px) | —                                          |
 
 ## 3.5 System behaviour across breakpoints
 
-| System | ≥1100 | 760–1099 | <760 |
-|---|---|---|---|
-| **Metadata** | 148px gutter column, sticky per section | Uppercase mono running head above each section, rule under it | Two-line block under the title; short running head per section |
-| **Navigation** | Name + role + 4 links + theme | Name + 4 links + theme | Name + `menu` disclosure, in flow, counts in mono; theme moves inside the panel |
-| **TOC** | Sticky gutter list | Open disclosure, two columns | Closed disclosure; 150px scroll cap above 20 sections |
-| **Progress** | In the aside, with share links | 2px bar under the header | 2px bar under the header; share moves to the article end |
-| **Code** | In measure, radius 4, full border | Same | Full-bleed, two hairlines, no radius; numbers pinned, content scrolls |
-| **Tables** | In measure | In measure; scroll region if >5 columns | Always a full-bleed scroll region, first column sticky, fade + `scroll →` |
-| **Images** | In measure, hairline, 65vh cap | Same | Full-bleed; caption keeps the text margin; wide diagrams tap to full-size |
-| **Multi-track rows** | Full tracks (5 on the blog index, 2 on projects) | Reduced tracks; secondary data joins line 2 | Stacked: title first, one wrapped mono line, full-bleed hairline, 48px target |
-| **Footer** | Two tracks, left/right | Two tracks | Stacked, left-aligned, same mono 11.5 |
-| **Buttons** | Inline row, 10/14 padding | Same | Full width if a primary action, 44px height |
-| **Aside** | 200px sticky column | Contents relocate (see §3.6) | Contents relocate |
+| System               | ≥1100                                            | 760–1099                                                      | <760                                                                            |
+| -------------------- | ------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| **Metadata**         | 148px gutter column, sticky per section          | Uppercase mono running head above each section, rule under it | Two-line block under the title; short running head per section                  |
+| **Navigation**       | Name + role + 4 links + theme                    | Name + 4 links + theme                                        | Name + `menu` disclosure, in flow, counts in mono; theme moves inside the panel |
+| **TOC**              | Sticky gutter list                               | Open disclosure, two columns                                  | Closed disclosure; 150px scroll cap above 20 sections                           |
+| **Progress**         | In the aside, with share links                   | 2px bar under the header                                      | 2px bar under the header; share moves to the article end                        |
+| **Code**             | In measure, radius 4, full border                | Same                                                          | Full-bleed, two hairlines, no radius; numbers pinned, content scrolls           |
+| **Tables**           | In measure                                       | In measure; scroll region if >5 columns                       | Always a full-bleed scroll region, first column sticky, fade + `scroll →`       |
+| **Images**           | In measure, hairline, 65vh cap                   | Same                                                          | Full-bleed; caption keeps the text margin; wide diagrams tap to full-size       |
+| **Multi-track rows** | Full tracks (5 on the blog index, 2 on projects) | Reduced tracks; secondary data joins line 2                   | Stacked: title first, one wrapped mono line, full-bleed hairline, 48px target   |
+| **Footer**           | Two tracks, left/right                           | Two tracks                                                    | Stacked, left-aligned, same mono 11.5                                           |
+| **Buttons**          | Inline row, 10/14 padding                        | Same                                                          | Full width if a primary action, 44px height                                     |
+| **Aside**            | 200px sticky column                              | Contents relocate (see §3.6)                                  | Contents relocate                                                               |
 
 ## 3.6 Where each gutter and aside job goes
 
 The gutter is the strongest desktop signature, so its dissolution is specified job by job. **The column is what goes; the data never does.**
 
-| Gutter job | ≥1100 | 760–1099 | <760 |
-|---|---|---|---|
-| Article TOC | Sticky column list | Open disclosure, two columns | Closed disclosure |
-| Section label | Gutter | Running head above the section | Running head, compressed to two tokens |
-| Index year header | Gutter | Sticky row spanning the list | Sticky row spanning the list |
-| Article number + series | Gutter | Right side of the running-head row | First line of the two-line metadata block |
-| Right aside: share | Sticky column | Moves to the end of the article | Moves to the end of the article |
-| Right aside: progress | Sticky column, with percentage | 2px bar under the header | 2px bar under the header |
-| Project status | Right track | Right track, narrower | First line of the item's mono block |
+| Gutter job              | ≥1100                          | 760–1099                           | <760                                      |
+| ----------------------- | ------------------------------ | ---------------------------------- | ----------------------------------------- |
+| Article TOC             | Sticky column list             | Open disclosure, two columns       | Closed disclosure                         |
+| Section label           | Gutter                         | Running head above the section     | Running head, compressed to two tokens    |
+| Index year header       | Gutter                         | Sticky row spanning the list       | Sticky row spanning the list              |
+| Article number + series | Gutter                         | Right side of the running-head row | First line of the two-line metadata block |
+| Right aside: share      | Sticky column                  | Moves to the end of the article    | Moves to the end of the article           |
+| Right aside: progress   | Sticky column, with percentage | 2px bar under the header           | 2px bar under the header                  |
+| Project status          | Right track                    | Right track, narrower              | First line of the item's mono block       |
 
 **Why no inline gutter at 390.** A 90px column beside a 260px measure would ruin the reading, which is the one thing that may never be traded.
 
@@ -547,13 +547,13 @@ The gutter is the strongest desktop signature, so its dissolution is specified j
 
 Three rules respond to content length rather than to viewport width:
 
-| Trigger | Behaviour |
-|---|---|
-| Title over 90 characters at <760 | Display type steps 28 → 26px. The only length-conditional type rule in the system. |
-| More than 20 sections | Mobile TOC gains a 150px internal scroll cap. |
-| Over 8,000 words | The article is split into numbered parts with series navigation. A length rule, not a layout rule. |
-| Fewer than three `h2`s | No TOC at all. Article apparatus is conditional on there being an article to support. |
-| More than 5 table columns at tablet | The table becomes a scroll region early. |
+| Trigger                             | Behaviour                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Title over 90 characters at <760    | Display type steps 28 → 26px. The only length-conditional type rule in the system.                 |
+| More than 20 sections               | Mobile TOC gains a 150px internal scroll cap.                                                      |
+| Over 8,000 words                    | The article is split into numbered parts with series navigation. A length rule, not a layout rule. |
+| Fewer than three `h2`s              | No TOC at all. Article apparatus is conditional on there being an article to support.              |
+| More than 5 table columns at tablet | The table becomes a scroll region early.                                                           |
 
 ---
 
@@ -563,16 +563,16 @@ Three rules respond to content length rather than to viewport width:
 
 The system has exactly two breakpoints, and neither is named after a device. Each exists because a **specific layout structure stops fitting**, which is a content-driven, not device-driven, definition.
 
-| Token | Value | Why *this* number |
-|---|---|---|
-| `--bp-rows` | 760 | Below this width a multi-track row cannot hold its tracks: a 5-track index row (number, date, title+dek, tag, reading time) has no room for a serif title of usable length once the mono tracks take their fixed widths. 760 is also where an inline nav of four links plus a wordmark stops fitting comfortably at 13.5px. |
-| `--bp-gutter` | 1100 | This is the width at which `148 + 44 + 680 + 44 + 200 = 1016` plus 2 × 32 margins can be honoured. Below it, the three-track article shape cannot exist without stealing from the measure — and the measure is never negotiable. |
+| Token         | Value | Why _this_ number                                                                                                                                                                                                                                                                                                           |
+| ------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--bp-rows`   | 760   | Below this width a multi-track row cannot hold its tracks: a 5-track index row (number, date, title+dek, tag, reading time) has no room for a serif title of usable length once the mono tracks take their fixed widths. 760 is also where an inline nav of four links plus a wordmark stops fitting comfortably at 13.5px. |
+| `--bp-gutter` | 1100  | This is the width at which `148 + 44 + 680 + 44 + 200 = 1016` plus 2 × 32 margins can be honoured. Below it, the three-track article shape cannot exist without stealing from the measure — and the measure is never negotiable.                                                                                            |
 
-Everything else that changes at these two thresholds is a *consequence* of those two structural facts, not an independent decision. That is why there are no page-specific breakpoints and no third breakpoint: no other component in the inventory fails at any other width.
+Everything else that changes at these two thresholds is a _consequence_ of those two structural facts, not an independent decision. That is why there are no page-specific breakpoints and no third breakpoint: no other component in the inventory fails at any other width.
 
 ## 4.2 The one container query
 
-**Exception to the two-breakpoint rule:** figures, code blocks and tables consult **their own container** (< 700) rather than the viewport, so an article body embedded anywhere — a narrower page, a preview, a two-column context — behaves correctly. This is the only place the system reasons about available space rather than viewport width, and it is exactly the set of elements whose behaviour depends on how much room *they* have rather than how much room the *page* has.
+**Exception to the two-breakpoint rule:** figures, code blocks and tables consult **their own container** (< 700) rather than the viewport, so an article body embedded anywhere — a narrower page, a preview, a two-column context — behaves correctly. This is the only place the system reasons about available space rather than viewport width, and it is exactly the set of elements whose behaviour depends on how much room _they_ have rather than how much room the _page_ has.
 
 ## 4.3 Direction and philosophy
 
@@ -626,13 +626,13 @@ Within prose, the rhythm is: 24 between paragraphs, 16 from `h2` to its first pa
 
 ## 5.5 Full-bleed vs constrained
 
-| Element | Desktop | Mobile |
-|---|---|---|
-| Prose, lists, quotes, headings | Constrained to the measure | Constrained to the 20px text margin |
-| Code, terminal, tables, figures | Constrained to the measure | **Full-bleed** — spans the viewport, bounded by two hairlines |
-| Hairlines and band separators | Full frame width | **Full viewport width** |
-| Captions | Aligned to the measure | Aligned to the 20px text margin, *not* to the full-bleed block |
-| Page bands with a ground colour (header, footer) | Full frame, content on the frame | Full viewport, content at 20px |
+| Element                                          | Desktop                          | Mobile                                                         |
+| ------------------------------------------------ | -------------------------------- | -------------------------------------------------------------- |
+| Prose, lists, quotes, headings                   | Constrained to the measure       | Constrained to the 20px text margin                            |
+| Code, terminal, tables, figures                  | Constrained to the measure       | **Full-bleed** — spans the viewport, bounded by two hairlines  |
+| Hairlines and band separators                    | Full frame width                 | **Full viewport width**                                        |
+| Captions                                         | Aligned to the measure           | Aligned to the 20px text margin, _not_ to the full-bleed block |
+| Page bands with a ground colour (header, footer) | Full frame, content on the frame | Full viewport, content at 20px                                 |
 
 The caption rule is deliberate: it is what keeps a full-bleed table visibly attached to the article while its content moves.
 
@@ -667,18 +667,18 @@ Components 01–04 are specified in §7 and §8; 14 in §15; 19–20 in §13; 12
 
 **Variants.**
 
-| Variant | Tracks | Used on |
-|---|---|---|
-| Index row, full | 5 | Blog index |
-| Index row, compact | 4 (number, date, title+dek, reading time) | Homepage "latest writing" |
-| Featured entry | Not a row — a block: metadata row, 27–28px serif title, lead paragraph, optional series line, paired with a lead figure | Blog index, homepage |
-| Related item | Title 16.5 + one mono line | Article footer apparatus |
+| Variant            | Tracks                                                                                                                  | Used on                   |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| Index row, full    | 5                                                                                                                       | Blog index                |
+| Index row, compact | 4 (number, date, title+dek, reading time)                                                                               | Homepage "latest writing" |
+| Featured entry     | Not a row — a block: metadata row, 27–28px serif title, lead paragraph, optional series line, paired with a lead figure | Blog index, homepage      |
+| Related item       | Title 16.5 + one mono line                                                                                              | Article footer apparatus  |
 
 **Typography.** Number mono 11.5 accent · date mono 11.5 muted · title serif 600 17–17.5 / −0.006em · dek sans 13.5 `--c-text-2` on the same line, joined by an em dash · tag mono 11.5 accent · reading time mono 11.5 muted.
 
 **Spacing.** 14–15px padding-y, 20px track gap, one hairline (`--c-rule`) between rows, `--c-rule-2` opening the group.
 
-**States.** Default as above. **Hover:** row ground shifts to `--c-surface` *and* the title takes its accent underline — no lift, no scale, no shadow. **Focus:** the token ring on the whole row. **Visited:** no distinct treatment. **Current:** not applicable (a row never represents the current page).
+**States.** Default as above. **Hover:** row ground shifts to `--c-surface` _and_ the title takes its accent underline — no lift, no scale, no shadow. **Focus:** the token ring on the whole row. **Visited:** no distinct treatment. **Current:** not applicable (a row never represents the current page).
 
 **Interaction.** The entire row is the hit target, minimum 48px tall.
 
@@ -715,11 +715,11 @@ Instruments: status (dot + word) → period → primary link (`case study →`) 
 
 **Variants.**
 
-| Variant | Difference |
-|---|---|
-| Projects index item | Full: 3 tracks, 190–210px instrument track, 26px padding-y, description up to two paragraphs |
-| Selected-work item (homepage) | 2 tracks, title 19, description 14 capped at 58ch, 22px padding-y, shorter instrument list |
-| Compact project item | Number + title inline, one description line, one stack line, tags below |
+| Variant                       | Difference                                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| Projects index item           | Full: 3 tracks, 190–210px instrument track, 26px padding-y, description up to two paragraphs |
+| Selected-work item (homepage) | 2 tracks, title 19, description 14 capped at 58ch, 22px padding-y, shorter instrument list   |
+| Compact project item          | Number + title inline, one description line, one stack line, tags below                      |
 
 **Typography.** Number mono 11.5–12 accent · title serif 600 18–21 / −0.007…−0.009em · description sans 14–14.5 / 1.62–1.65 `--c-text-2` · stack mono 11.5 muted, middot-joined · instruments mono 11.5 / 1.9–2.0 muted.
 
@@ -757,7 +757,7 @@ Instruments: status (dot + word) → period → primary link (`case study →`) 
 
 **Anatomy.** A wrapping flex row of mono tokens in **fixed order**, with a hairline above it.
 
-**Fixed order:** *number → date → effort → revision → taxonomy.*
+**Fixed order:** _number → date → effort → revision → taxonomy._
 Canonical form: `038  2026-07-28  14 min  3,180 words  upd 2026-08-02  #ansible  #linux`
 
 **Typography.** Mono 400 12 (11.5 at mobile) `--c-muted`; number and tags in `--c-accent`.
@@ -766,21 +766,21 @@ Canonical form: `038  2026-07-28  14 min  3,180 words  upd 2026-08-02  #ansible 
 
 **Datum specification.**
 
-| Datum | Rendering | Rule |
-|---|---|---|
-| Date | `2026-07-28` | ISO 8601 always, never "Jul 28". Sortable, unambiguous, and it looks like a log line. |
-| Updated | `upd 2026-08-02` | Only when it differs from publication by more than a day. |
-| Article number | `038` | Three digits, zero-padded, accent, monotonic by publication. Doubles as the permalink `/w/038`. |
-| Reading time | `14 min · 3,180 words` | Word count sits beside it — for technical readers it is the more honest number. |
-| Tag | `#ansible` | Lowercase, hash-prefixed, accent, no chip. Max three. |
-| Technologies | `ansible · debian · postgres` | Middot-joined, muted, **not links**. A stack is a fact, not navigation. |
-| Project status | `● active` / `○ archived` | Four states: active · maintained · paused · archived. Dot filled or hollow **and** the word always present — never colour alone. |
-| Section label | `SELECTED WORK` | `--t-label`. Lives in the gutter on desktop, paired with a count or date beneath it. |
-| Series | `series: declarative homelab · 2 of 4` | Muted mono, below the lead or in the gutter. |
-| Internal link | `Case study →` | Trailing arrow, accent underline on the text. |
-| External link | `GitHub ↗` | North-east arrow, muted. The glyph is the affordance. |
-| Repo line | `github.com/mo/homelab ↗` | Full path, not the word "GitHub", when the repository is the artifact. |
-| Progress | `read 38%` + a 2px bar | Aside on desktop; a bar under the header below 1100. |
+| Datum          | Rendering                              | Rule                                                                                                                             |
+| -------------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Date           | `2026-07-28`                           | ISO 8601 always, never "Jul 28". Sortable, unambiguous, and it looks like a log line.                                            |
+| Updated        | `upd 2026-08-02`                       | Only when it differs from publication by more than a day.                                                                        |
+| Article number | `038`                                  | Three digits, zero-padded, accent, monotonic by publication. Doubles as the permalink `/w/038`.                                  |
+| Reading time   | `14 min · 3,180 words`                 | Word count sits beside it — for technical readers it is the more honest number.                                                  |
+| Tag            | `#ansible`                             | Lowercase, hash-prefixed, accent, no chip. Max three.                                                                            |
+| Technologies   | `ansible · debian · postgres`          | Middot-joined, muted, **not links**. A stack is a fact, not navigation.                                                          |
+| Project status | `● active` / `○ archived`              | Four states: active · maintained · paused · archived. Dot filled or hollow **and** the word always present — never colour alone. |
+| Section label  | `SELECTED WORK`                        | `--t-label`. Lives in the gutter on desktop, paired with a count or date beneath it.                                             |
+| Series         | `series: declarative homelab · 2 of 4` | Muted mono, below the lead or in the gutter.                                                                                     |
+| Internal link  | `Case study →`                         | Trailing arrow, accent underline on the text.                                                                                    |
+| External link  | `GitHub ↗`                             | North-east arrow, muted. The glyph is the affordance.                                                                            |
+| Repo line      | `github.com/mo/homelab ↗`              | Full path, not the word "GitHub", when the repository is the artifact.                                                           |
+| Progress       | `read 38%` + a 2px bar                 | Aside on desktop; a bar under the header below 1100.                                                                             |
 
 **Responsive.** Wraps to two lines below 760 **in the same fixed order** — never truncates, never re-orders, never drops a datum. Only the two sanctioned abbreviations in §3.6 are permitted.
 
@@ -794,11 +794,11 @@ Canonical form: `038  2026-07-28  14 min  3,180 words  upd 2026-08-02  #ansible 
 
 **Variants — three only:**
 
-| Kind | Marker + label | Ground |
-|---|---|---|
-| Note | `--c-accent` | `--c-sunken` |
-| Warning | `--c-warn` | `--c-warn-bg` |
-| Correction | `--c-warn` | `--c-warn-bg` |
+| Kind       | Marker + label | Ground        |
+| ---------- | -------------- | ------------- |
+| Note       | `--c-accent`   | `--c-sunken`  |
+| Warning    | `--c-warn`     | `--c-warn-bg` |
+| Correction | `--c-warn`     | `--c-warn-bg` |
 
 **Typography.** Label `--t-label` in the marker colour; body serif 400 16 / 1.62 in `--c-text` at 0.30 lightness (light) / 0.88 (dark). Mobile body 15.5.
 
@@ -838,11 +838,11 @@ Canonical form: `038  2026-07-28  14 min  3,180 words  upd 2026-08-02  #ansible 
 
 **Responsive.**
 
-| Width | Form |
-|---|---|
-| ≥1100 | Sticky list in the gutter |
-| 760–1099 | Open disclosure below the lead, two columns, with a `CONTENTS — 6 SECTIONS` summary row in a hairline frame |
-| <760 | **Closed** disclosure in a hairline frame; `+` when closed, `−` when open; 150px internal scroll cap above 20 sections |
+| Width    | Form                                                                                                                   |
+| -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| ≥1100    | Sticky list in the gutter                                                                                              |
+| 760–1099 | Open disclosure below the lead, two columns, with a `CONTENTS — 6 SECTIONS` summary row in a hairline frame            |
+| <760     | **Closed** disclosure in a hairline frame; `+` when closed, `−` when open; 150px internal scroll cap above 20 sections |
 
 **Conditional:** absent entirely below three `h2`s.
 
@@ -907,14 +907,14 @@ There is **no logo and no logotype** — the wordmark is the name set in the int
 
 ## 7.2 Navigation link states (component 02)
 
-| State | Treatment |
-|---|---|
-| Default | `--c-nav` (0.45 lightness), no underline |
-| Current page | `--c-text` at full strength **plus** a 1px accent underline, 2px below the baseline |
-| Hover | Underline appears in `--c-accent-hi` over 120ms; **the text does not move** |
-| Focus-visible | The token ring (2px accent, 2px offset, square) |
-| Active (pressed) | `--c-accent-hi` text |
-| Visited | No distinct treatment (these are site sections, not documents) |
+| State            | Treatment                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| Default          | `--c-nav` (0.45 lightness), no underline                                            |
+| Current page     | `--c-text` at full strength **plus** a 1px accent underline, 2px below the baseline |
+| Hover            | Underline appears in `--c-accent-hi` over 120ms; **the text does not move**         |
+| Focus-visible    | The token ring (2px accent, 2px offset, square)                                     |
+| Active (pressed) | `--c-accent-hi` text                                                                |
+| Visited          | No distinct treatment (these are site sections, not documents)                      |
 
 There are no dropdowns, no mega-menus, no submenus anywhere in the system.
 
@@ -939,7 +939,7 @@ The links collapse to a single mono `menu` control in a hairline frame (7/9 padd
 - The current page keeps its accent underline in the panel.
 - A final row carries `rss ↗ · github ↗ · pgp ↗` on the left and the `◐ theme` control on the right — **the theme control moves into the panel** at <760 rather than competing with the menu control in the masthead.
 
-**Why counts.** The rows carry the same instrumentation the desktop index uses, which is what makes the panel read as *this* publication rather than a generic mobile menu.
+**Why counts.** The rows carry the same instrumentation the desktop index uses, which is what makes the panel read as _this_ publication rather than a generic mobile menu.
 
 ## 7.6 Sticky and fixed behaviour
 
@@ -953,19 +953,19 @@ The masthead is sticky. Its only scroll behaviour is acquiring the `--c-surface`
 
 Exactly **two variants**, and no more may be added.
 
-| | Primary (solid ink) | Secondary (hairline) |
-|---|---|---|
-| Ground | `--c-text` | none |
-| Text | `--c-bg` | `--c-text` |
-| Border | none | 1px `--c-rule-2` |
-| Type | mono **500** 12.5 / 1 | mono **400** 12.5 / 1 |
-| Padding | 10–11 / 14–15 | 10–11 / 14–15 |
-| Radius | 4 | 4 |
-| Height | ~34 desktop; **44 minimum on touch** | same |
-| Hover | ground → `--c-accent-hi`… **no**: ground lightens one step; label unchanged | border → `--c-text`, ground → `--c-surface` |
-| Focus | token ring | token ring |
-| Active | ground one step darker | ground `--c-sunken` |
-| Disabled | 55% opacity, no pointer, contrast still ≥4.5:1 | same |
+|          | Primary (solid ink)                                                         | Secondary (hairline)                        |
+| -------- | --------------------------------------------------------------------------- | ------------------------------------------- |
+| Ground   | `--c-text`                                                                  | none                                        |
+| Text     | `--c-bg`                                                                    | `--c-text`                                  |
+| Border   | none                                                                        | 1px `--c-rule-2`                            |
+| Type     | mono **500** 12.5 / 1                                                       | mono **400** 12.5 / 1                       |
+| Padding  | 10–11 / 14–15                                                               | 10–11 / 14–15                               |
+| Radius   | 4                                                                           | 4                                           |
+| Height   | ~34 desktop; **44 minimum on touch**                                        | same                                        |
+| Hover    | ground → `--c-accent-hi`… **no**: ground lightens one step; label unchanged | border → `--c-text`, ground → `--c-surface` |
+| Focus    | token ring                                                                  | token ring                                  |
+| Active   | ground one step darker                                                      | ground `--c-sunken`                         |
+| Disabled | 55% opacity, no pointer, contrast still ≥4.5:1                              | same                                        |
 
 **Rules.** One solid button per page maximum. **No accent-filled button exists anywhere in the system.** Button labels are lowercase mono with a trailing glyph (`read the article →`, `source ↗`) — never uppercase, never sentence-case sans. Buttons appear only at the end of a case study and in the article apparatus; they are never used for navigation that a text link could carry.
 
@@ -989,16 +989,16 @@ Exactly **two variants**, and no more may be added.
 
 ## 8.3 Link inventory summary
 
-| Kind | Family / size | Colour | Underline | Trailing glyph |
-|---|---|---|---|---|
-| Inline prose | serif, inherits | `--c-text` | permanent accent | — |
-| External, in prose | serif, inherits | `--c-text` | permanent accent | `↗` |
-| Mono navigation | mono 12 | `--c-text` | permanent accent | `→` |
-| External, in metadata | mono 11.5–12 | `--c-muted` | none | `↗` |
-| Title | serif 600 | `--c-text` | on hover (permanent if featured) | — |
-| Nav | sans 13.5 | `--c-nav` | current + hover only | — |
-| Tag | mono 12 | `--c-accent` | on hover | — |
-| Footnote reference | mono 11 superscript | `--c-accent` | none | — |
+| Kind                  | Family / size       | Colour       | Underline                        | Trailing glyph |
+| --------------------- | ------------------- | ------------ | -------------------------------- | -------------- |
+| Inline prose          | serif, inherits     | `--c-text`   | permanent accent                 | —              |
+| External, in prose    | serif, inherits     | `--c-text`   | permanent accent                 | `↗`            |
+| Mono navigation       | mono 12             | `--c-text`   | permanent accent                 | `→`            |
+| External, in metadata | mono 11.5–12        | `--c-muted`  | none                             | `↗`            |
+| Title                 | serif 600           | `--c-text`   | on hover (permanent if featured) | —              |
+| Nav                   | sans 13.5           | `--c-nav`    | current + hover only             | —              |
+| Tag                   | mono 12             | `--c-accent` | on hover                         | —              |
+| Footnote reference    | mono 11 superscript | `--c-accent` | none                             | —              |
 
 ---
 
@@ -1013,25 +1013,27 @@ This is the single most consequential structural decision in the design, so it i
 Apply this before creating any bounded container.
 
 **A box is justified when:**
+
 - the content has a **different reading mode** from the prose around it (code, terminal output, a callout you may skip), **or**
 - it is **interactive as a whole unit** (a button).
 
 **A rule is correct when:**
+
 - items are **peers in a sequence** — index rows, project entries, table rows, footnotes, experience entries, references, section bands. Peers get a shared rule and shared alignment, never individual containers.
 
 ## 9.3 The bounded surfaces that do exist
 
-| Surface | Ground | Border | Radius | Purpose |
-|---|---|---|---|---|
-| Code block | `--c-code-bg` | 1px `--c-rule` (light only) | 4 (0 at <760) | Different reading mode |
-| Terminal block | `--c-term-bg` | 1px `--c-rule` (light only) | 4 (0 at <760) | Different reading mode |
-| Callout | `--c-sunken` / `--c-warn-bg` | 2px left marker only | `0 4 4 0` | Skippable passage |
-| Button | `--c-text` / none | none / 1px | 4 | Interactive unit |
-| Disclosure frame (TOC, menu summary) | none | 1px `--c-rule` | 4 | Interactive unit |
-| Framed control (copy, theme) | none | 1px | 3 | Interactive unit |
-| Figure | `--c-sunken` (placeholder hatch) | 1px `--c-rule` | **0** | Frames media, is not a card |
-| Footer band | `--c-surface` | 1px top | 0 | A band, not a card |
-| Row hover | `--c-surface` | — | 0 | A state, not a surface |
+| Surface                              | Ground                           | Border                      | Radius        | Purpose                     |
+| ------------------------------------ | -------------------------------- | --------------------------- | ------------- | --------------------------- |
+| Code block                           | `--c-code-bg`                    | 1px `--c-rule` (light only) | 4 (0 at <760) | Different reading mode      |
+| Terminal block                       | `--c-term-bg`                    | 1px `--c-rule` (light only) | 4 (0 at <760) | Different reading mode      |
+| Callout                              | `--c-sunken` / `--c-warn-bg`     | 2px left marker only        | `0 4 4 0`     | Skippable passage           |
+| Button                               | `--c-text` / none                | none / 1px                  | 4             | Interactive unit            |
+| Disclosure frame (TOC, menu summary) | none                             | 1px `--c-rule`              | 4             | Interactive unit            |
+| Framed control (copy, theme)         | none                             | 1px                         | 3             | Interactive unit            |
+| Figure                               | `--c-sunken` (placeholder hatch) | 1px `--c-rule`              | **0**         | Frames media, is not a card |
+| Footer band                          | `--c-surface`                    | 1px top                     | 0             | A band, not a card          |
+| Row hover                            | `--c-surface`                    | —                           | 0             | A state, not a surface      |
 
 ## 9.4 Content that must never be placed in a card
 
@@ -1062,29 +1064,29 @@ The article page is the reference implementation of the entire design. Every oth
 
 ## 10.2 Header
 
-| Element | Specification |
-|---|---|
-| Breadcrumb | mono 11.5 muted, slash-separated, current segment `--c-text`, 22px below |
-| `h1` | `--t-display` — serif 400 42 / 1.20 / −0.015em, pretty wrapping, 20px below |
-| Lead (dek) | `--t-lead` — serif 400 20 / 1.62, `--c-text-2`, capped at **62ch**, one paragraph only, 28px below |
-| Metadata row | hairline above, 16px gap, mono 12, fixed order, 24px gaps |
-| Gutter | article number (accent) / section name / series (`--c-faint`), mono 11 / 1.6 |
-| Band padding | 56 top, 40 bottom, closed by a hairline |
+| Element      | Specification                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| Breadcrumb   | mono 11.5 muted, slash-separated, current segment `--c-text`, 22px below                           |
+| `h1`         | `--t-display` — serif 400 42 / 1.20 / −0.015em, pretty wrapping, 20px below                        |
+| Lead (dek)   | `--t-lead` — serif 400 20 / 1.62, `--c-text-2`, capped at **62ch**, one paragraph only, 28px below |
+| Metadata row | hairline above, 16px gap, mono 12, fixed order, 24px gaps                                          |
+| Gutter       | article number (accent) / section name / series (`--c-faint`), mono 11 / 1.6                       |
+| Band padding | 56 top, 40 bottom, closed by a hairline                                                            |
 
 ## 10.3 Body typography and spacing
 
-| Relationship | Value |
-|---|---|
-| Body text | serif 400 18.5 / 1.72, `--c-text`, pretty wrapping |
-| Paragraph → paragraph | 24 |
-| Paragraph → `h2` | 56 |
-| `h2` → paragraph | 16 |
-| `h3` → paragraph | 12 |
-| Prose → block element (code, figure, table, callout, quote, list) | 32 |
-| Block → prose | 32 (via the caption's own 32px bottom margin) |
-| List item → list item | 12 |
-| List indent | 26px, 4px item padding-left |
-| Body → apparatus | 96 |
+| Relationship                                                      | Value                                              |
+| ----------------------------------------------------------------- | -------------------------------------------------- |
+| Body text                                                         | serif 400 18.5 / 1.72, `--c-text`, pretty wrapping |
+| Paragraph → paragraph                                             | 24                                                 |
+| Paragraph → `h2`                                                  | 56                                                 |
+| `h2` → paragraph                                                  | 16                                                 |
+| `h3` → paragraph                                                  | 12                                                 |
+| Prose → block element (code, figure, table, callout, quote, list) | 32                                                 |
+| Block → prose                                                     | 32 (via the caption's own 32px bottom margin)      |
+| List item → list item                                             | 12                                                 |
+| List indent                                                       | 26px, 4px item padding-left                        |
+| Body → apparatus                                                  | 96                                                 |
 
 ## 10.4 Lists
 
@@ -1098,7 +1100,7 @@ Ordered and unordered lists use the browser's markers, serif at body size, 26px 
 
 ## 10.6 Author block
 
-A hairline above and below, `88px` grid track for a square portrait, 20px gap, then name (sans 600 14.5), a bio paragraph (sans 13.5 / 1.6 `--c-text-2`, max 64ch), and a mono 11.5 contact line with 16px gaps. Appears on articles only, never on the about page (which *is* the author).
+A hairline above and below, `88px` grid track for a square portrait, 20px gap, then name (sans 600 14.5), a bio paragraph (sans 13.5 / 1.6 `--c-text-2`, max 64ch), and a mono 11.5 contact line with 16px gaps. Appears on articles only, never on the about page (which _is_ the author).
 
 ## 10.7 Prev/next and related
 
@@ -1113,37 +1115,37 @@ A sticky 200px column, mono 11.5 / 1.9 muted: `share ↗`, `reply by email ↗`,
 
 This is the highest-priority responsive case in the system.
 
-| Element | At <760 |
-|---|---|
-| Header | Breadcrumb shortens to two segments; `h1` 28px (26 above 90 chars); lead 17 / 1.60; metadata wraps to **two lines in fixed order** |
-| TOC | Closed disclosure in a hairline frame, `+` / `−`, 150px scroll cap above 20 sections |
-| Section label | A compressed uppercase mono running head (two tokens) with a hairline under it, above its section |
-| Body | 17 / 1.70 → 38–40 characters per line |
-| `h2` | 21 / 1.30, 36 above / 14 below |
-| Code, terminal, figures, tables | **Full-bleed** (−20px each side), bounded by two hairlines, no radius |
-| Captions | Stay inside the 20px text margin |
-| Callouts and quotes | Stay inside the text margin (they are prose) |
-| Progress | 2px bar under the masthead |
-| Share | Moves to the end of the article |
-| Apparatus | Prev/next stacks, related stacks, author block stacks with the portrait above |
-| Consecutive blocks | Keep **24–26px of page ground** and their caption lines between them, so a sequence never fuses into one dark slab |
+| Element                         | At <760                                                                                                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Header                          | Breadcrumb shortens to two segments; `h1` 28px (26 above 90 chars); lead 17 / 1.60; metadata wraps to **two lines in fixed order** |
+| TOC                             | Closed disclosure in a hairline frame, `+` / `−`, 150px scroll cap above 20 sections                                               |
+| Section label                   | A compressed uppercase mono running head (two tokens) with a hairline under it, above its section                                  |
+| Body                            | 17 / 1.70 → 38–40 characters per line                                                                                              |
+| `h2`                            | 21 / 1.30, 36 above / 14 below                                                                                                     |
+| Code, terminal, figures, tables | **Full-bleed** (−20px each side), bounded by two hairlines, no radius                                                              |
+| Captions                        | Stay inside the 20px text margin                                                                                                   |
+| Callouts and quotes             | Stay inside the text margin (they are prose)                                                                                       |
+| Progress                        | 2px bar under the masthead                                                                                                         |
+| Share                           | Moves to the end of the article                                                                                                    |
+| Apparatus                       | Prev/next stacks, related stacks, author block stacks with the portrait above                                                      |
+| Consecutive blocks              | Keep **24–26px of page ground** and their caption lines between them, so a sequence never fuses into one dark slab                 |
 
 ## 10.10 The eight difficult article cases, and their rules
 
 Derived directly from the twelve stress tests at 390.
 
-| Case | Rule |
-|---|---|
-| **Long title** (148 chars) | Steps 28 → 26px above 90 characters; pretty wrapping plus automatic hyphenation; wraps to as many lines as needed. Never truncated, never clamped. |
-| **Long URL in prose** | Mono spans in flow break at any character; the underline is drawn as an offset rule so both fragments keep it and the line height never changes. |
-| **Long code line** (210 chars) | The block scrolls horizontally; the page never does. No wrapping — a wrapped shell command is a broken shell command. |
-| **Wide table** (7 columns) | Full-bleed contained scroll region, first column sticky, edge fade + `scroll →` marker. Never reflowed to cards. |
-| **Very short article** (90 words) | No TOC (under three `h2`s), no author block, no related list. Article apparatus is conditional on there being an article to support. |
-| **Very long article** (34 sections, 9,400 words) | TOC gains its 150px scroll cap; above 8,000 words the article splits into numbered parts with series navigation. |
-| **Large image** (3840 × 2160) | Served at 780w in a modern format, lazy; capped at 65vh; tap opens a full-size view. |
-| **No images at all** | Nothing is inserted to compensate. Rhythm comes from headings, a quote and the rules — an image-free article is normal, not a gap to fill. |
-| **Four code blocks in a row** | 24px of page ground and a caption line between each; terminal grounds alternate with code grounds so the reader can see where the machine answers. |
-| **Long caption** | No length limit; stays mono 11–11.5. Captions carry the argument. |
+| Case                                             | Rule                                                                                                                                               |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Long title** (148 chars)                       | Steps 28 → 26px above 90 characters; pretty wrapping plus automatic hyphenation; wraps to as many lines as needed. Never truncated, never clamped. |
+| **Long URL in prose**                            | Mono spans in flow break at any character; the underline is drawn as an offset rule so both fragments keep it and the line height never changes.   |
+| **Long code line** (210 chars)                   | The block scrolls horizontally; the page never does. No wrapping — a wrapped shell command is a broken shell command.                              |
+| **Wide table** (7 columns)                       | Full-bleed contained scroll region, first column sticky, edge fade + `scroll →` marker. Never reflowed to cards.                                   |
+| **Very short article** (90 words)                | No TOC (under three `h2`s), no author block, no related list. Article apparatus is conditional on there being an article to support.               |
+| **Very long article** (34 sections, 9,400 words) | TOC gains its 150px scroll cap; above 8,000 words the article splits into numbered parts with series navigation.                                   |
+| **Large image** (3840 × 2160)                    | Served at 780w in a modern format, lazy; capped at 65vh; tap opens a full-size view.                                                               |
+| **No images at all**                             | Nothing is inserted to compensate. Rhythm comes from headings, a quote and the rules — an image-free article is normal, not a gap to fill.         |
+| **Four code blocks in a row**                    | 24px of page ground and a caption line between each; terminal grounds alternate with code grounds so the reader can see where the machine answers. |
+| **Long caption**                                 | No length limit; stays mono 11–11.5. Captions carry the argument.                                                                                  |
 
 ## 10.11 Horizontal scrolling policy
 
@@ -1161,7 +1163,7 @@ Derived directly from the twelve stress tests at 390.
 
 **Content order inside an item.** Number → title → what it is (one paragraph) → optionally `**Why.**` (one sentence, the motivation) → stack line. Instruments, right-aligned: status → period → primary link → source-or-absence.
 
-**Deliberate consistency:** every project states *what it is, why it exists, and what it is built from*, in that order. An absent source is stated explicitly (`client work · no source`) rather than omitted, in `--c-faint`.
+**Deliberate consistency:** every project states _what it is, why it exists, and what it is built from_, in that order. An absent source is stated explicitly (`client work · no source`) rather than omitted, in `--c-faint`.
 
 ## 11.2 Project detail (case study)
 
@@ -1176,13 +1178,13 @@ Derived directly from the twelve stress tests at 390.
 
 **Section content conventions.**
 
-| Section | Contains |
-|---|---|
-| Problem & motivation | Prose. States the cost of the status quo in concrete units ("a weekend" → "twelve minutes"). |
-| Architecture | Prose + one architecture diagram (230px, hairline framed, `Fig. n` caption). |
-| Implementation | Prose + screenshots (200px, on `--c-sunken` with a hairline — never a rounded browser mock). |
-| Technical decisions | A three-column table: **Decision · Alternative · Why**. Decision and alternative in mono 13; the "why" column in sans 13.5 `--c-text-2`. Caption states what the table omits. |
-| Results & lessons | Prose with measured numbers, then the two buttons (`read the article →` solid, `source ↗` hairline). |
+| Section              | Contains                                                                                                                                                                      |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Problem & motivation | Prose. States the cost of the status quo in concrete units ("a weekend" → "twelve minutes").                                                                                  |
+| Architecture         | Prose + one architecture diagram (230px, hairline framed, `Fig. n` caption).                                                                                                  |
+| Implementation       | Prose + screenshots (200px, on `--c-sunken` with a hairline — never a rounded browser mock).                                                                                  |
+| Technical decisions  | A three-column table: **Decision · Alternative · Why**. Decision and alternative in mono 13; the "why" column in sans 13.5 `--c-text-2`. Caption states what the table omits. |
+| Results & lessons    | Prose with measured numbers, then the two buttons (`read the article →` solid, `source ↗` hairline).                                                                          |
 
 **Responsive.** Identical to the article page (§10.9). The status band collapses from four columns to two at tablet and to a stacked two-line mono block at mobile; the gutter's `Project 01 / active` relocates to the first line of that block.
 
@@ -1194,13 +1196,13 @@ Derived directly from the twelve stress tests at 390.
 
 ## 12.1 The interactive controls that do exist
 
-| Control | Anatomy | States |
-|---|---|---|
-| **Copy** (code chrome) | Hairline frame (`oklch(0.34 0.010 75)`), radius 3, mono 11, muted label `copy`, 44px target | Hover: border and label lighten. Active/confirmed: label swaps to `copied` for 1.2s and the border takes the accent — a **text change**, not a toast, not an animation. Announced politely to assistive technology. |
-| **Theme** | Hairline frame, radius 3, `◐` glyph, mono 11 | Hover: border → `--c-text`. Focus: token ring. Moves into the menu panel below 760. |
-| **Disclosure** (TOC, mobile menu) | Hairline frame, radius 4, mono uppercase summary + `+` / `−` | Open/close animates height over 160ms. Open pushes content; never overlays. |
-| **Menu row** | 48px row, sans 16 label + mono 11 count, hairline below | Hover: ground → `--c-surface`. Current: accent underline on the label. |
-| **Scroll region** (code, table) | — | Focusable, arrow-scrollable, labelled by its caption. |
+| Control                           | Anatomy                                                                                     | States                                                                                                                                                                                                              |
+| --------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Copy** (code chrome)            | Hairline frame (`oklch(0.34 0.010 75)`), radius 3, mono 11, muted label `copy`, 44px target | Hover: border and label lighten. Active/confirmed: label swaps to `copied` for 1.2s and the border takes the accent — a **text change**, not a toast, not an animation. Announced politely to assistive technology. |
+| **Theme**                         | Hairline frame, radius 3, `◐` glyph, mono 11                                                | Hover: border → `--c-text`. Focus: token ring. Moves into the menu panel below 760.                                                                                                                                 |
+| **Disclosure** (TOC, mobile menu) | Hairline frame, radius 4, mono uppercase summary + `+` / `−`                                | Open/close animates height over 160ms. Open pushes content; never overlays.                                                                                                                                         |
+| **Menu row**                      | 48px row, sans 16 label + mono 11 count, hairline below                                     | Hover: ground → `--c-surface`. Current: accent underline on the label.                                                                                                                                              |
+| **Scroll region** (code, table)   | —                                                                                           | Focusable, arrow-scrollable, labelled by its caption.                                                                                                                                                               |
 
 ## 12.2 If a form is ever required
 
@@ -1228,6 +1230,7 @@ A light code block on a light page needs a border to exist; a dark one is self-e
 ## 13.2 Code block (component 19)
 
 **Anatomy.**
+
 1. **Filename bar** — `--c-code-bg` lightened to `oklch(0.235 0.010 75)`, bottom hairline `oklch(0.30 0.010 75)`, 9/14 padding. Left: the **full repo-relative path** (mono 11.5, `oklch(0.70 0.012 75)`), not just the basename. Right: the language token (mono 10.5 muted) then the copy control.
 2. **Line-number gutter** (conditional) — a separate track, right-aligned, mono at code size, `oklch(0.45 0.010 75)`, non-selectable, 16px left padding. **Appears only above twelve lines.**
 3. **Code area** — mono 13.5 / 1.75, foreground `oklch(0.86 0.008 75)`, 16px padding-y / 18px padding-x, horizontal scroll.
@@ -1236,7 +1239,7 @@ A light code block on a light page needs a border to exist; a dark one is self-e
 
 **Syntax highlighting.** Five roles only — comment, keyword, string, literal, identifier — all held at 0.78–0.82 lightness so no token shouts. Punctuation and operators stay at foreground colour. Values in §2.3.
 
-**Line highlighting.** An accent-tinted row (16–18% alpha) **plus** a 2px accent inset bar on the left edge — position *and* tint, so it survives greyscale and colour-blind vision. The tint spans the full scroll width and the bar is inset on the line rather than the container, so it remains visible at any scroll offset.
+**Line highlighting.** An accent-tinted row (16–18% alpha) **plus** a 2px accent inset bar on the left edge — position _and_ tint, so it survives greyscale and colour-blind vision. The tint spans the full scroll width and the bar is inset on the line rather than the container, so it remains visible at any scroll offset.
 
 **Diff.** Leading `+` / `−` glyphs are **mandatory**; the tint is secondary. The two diff hues appear nowhere else in the system.
 
@@ -1250,16 +1253,16 @@ A light code block on a light page needs a border to exist; a dark one is self-e
 
 A distinct component, not a variant.
 
-| Property | Value |
-|---|---|
-| Ground | `--c-term-bg` `oklch(0.155 0.008 75)` — one step below code |
-| Chrome | An uppercase mono host label (`TERMINAL — PI-02`), 10.5–11px, +0.1em, muted, above a `oklch(0.28 0.008 75)` hairline. No filename, no language token. |
-| Prompt | `$` in `oklch(0.72 0.12 45)` (the dark-theme accent, at both themes) |
-| Foreground | `oklch(0.82 0.008 75)` |
-| Success token | `oklch(0.75 0.105 155)` |
-| Line numbers | **None** |
-| Copy control | **None** — output is not reusable |
-| Type | mono 13 / 1.8 (12.5 at <760) |
+| Property      | Value                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ground        | `--c-term-bg` `oklch(0.155 0.008 75)` — one step below code                                                                                           |
+| Chrome        | An uppercase mono host label (`TERMINAL — PI-02`), 10.5–11px, +0.1em, muted, above a `oklch(0.28 0.008 75)` hairline. No filename, no language token. |
+| Prompt        | `$` in `oklch(0.72 0.12 45)` (the dark-theme accent, at both themes)                                                                                  |
+| Foreground    | `oklch(0.82 0.008 75)`                                                                                                                                |
+| Success token | `oklch(0.75 0.105 155)`                                                                                                                               |
+| Line numbers  | **None**                                                                                                                                              |
+| Copy control  | **None** — output is not reusable                                                                                                                     |
+| Type          | mono 13 / 1.8 (12.5 at <760)                                                                                                                          |
 
 **Identical at every width**, because output is not reusable at any size.
 
@@ -1269,15 +1272,15 @@ Mono at **0.86em of the parent** (so it matches whether it sits in prose, a capt
 
 ## 13.5 Code at <760
 
-| Rule | Detail |
-|---|---|
-| **Full-bleed, two hairlines** | The radius and side borders are dropped; the block spans the viewport bounded top and bottom. This buys ~40px of code width — two or three tokens. |
-| **13.5 → 12.5px** | The single typographic concession on mobile, and the floor: below 12.5 the slashed zero stops being legible. Never wrap. |
-| **Numbers pin, code scrolls** | The gutter is a separate track *outside* the scroll container with a hairline on its right, so line 4 is still line 4 sixty columns in. Numbers still appear only above twelve lines. |
-| **Highlights survive scrolling** | Tint spans the full scroll width; the 2px bar is inset on the line, not the container. |
-| **Chrome stays put** | The filename truncates with an ellipsis (the only truncation permitted besides digests); the language token and copy control never shrink and never wrap. Copy targets 44px. |
-| **Terminal unchanged** | Same ground, label, prompt, no numbers, no copy. |
-| **Sequences breathe** | Consecutive blocks keep 24px of page ground and their caption lines between them. |
+| Rule                             | Detail                                                                                                                                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full-bleed, two hairlines**    | The radius and side borders are dropped; the block spans the viewport bounded top and bottom. This buys ~40px of code width — two or three tokens.                                    |
+| **13.5 → 12.5px**                | The single typographic concession on mobile, and the floor: below 12.5 the slashed zero stops being legible. Never wrap.                                                              |
+| **Numbers pin, code scrolls**    | The gutter is a separate track _outside_ the scroll container with a hairline on its right, so line 4 is still line 4 sixty columns in. Numbers still appear only above twelve lines. |
+| **Highlights survive scrolling** | Tint spans the full scroll width; the 2px bar is inset on the line, not the container.                                                                                                |
+| **Chrome stays put**             | The filename truncates with an ellipsis (the only truncation permitted besides digests); the language token and copy control never shrink and never wrap. Copy targets 44px.          |
+| **Terminal unchanged**           | Same ground, label, prompt, no numbers, no copy.                                                                                                                                      |
+| **Sequences breathe**            | Consecutive blocks keep 24px of page ground and their caption lines between them.                                                                                                     |
 
 ---
 
@@ -1304,11 +1307,11 @@ Mono 11.5 (11 at mobile) `--c-muted`, 1.6 line height, 10px below the figure, nu
 
 ## 14.3 Constrained vs extended media
 
-| Width | Behaviour |
-|---|---|
-| ≥1100 | Inside the 680px measure, hairline framed, 65vh cap |
-| 760–1099 | Same, inside the measure |
-| <760 | **Full-bleed** (−20px each side), bounded by two hairlines; the **caption keeps the 20px text margin**; wide diagrams tap to a full-size view |
+| Width    | Behaviour                                                                                                                                     |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| ≥1100    | Inside the 680px measure, hairline framed, 65vh cap                                                                                           |
+| 760–1099 | Same, inside the measure                                                                                                                      |
+| <760     | **Full-bleed** (−20px each side), bounded by two hairlines; the **caption keeps the 20px text margin**; wide diagrams tap to a full-size view |
 
 Media never extends beyond the measure at desktop. There is no "wide figure" or "full-bleed figure" variant at desktop widths — the measure is the frame, and the gutter and aside are not available to media.
 
@@ -1328,34 +1331,34 @@ There is no gallery component. Multiple images are consecutive figures, each wit
 
 **Anatomy.** A `--c-rule-2` top rule → an uppercase mono head row → body rows separated by `--c-rule-in` hairlines → no bottom rule on the last row.
 
-| Property | Value |
-|---|---|
-| Head | `--t-label` (mono 500 10.5 uppercase +0.1em `--c-muted`), 9–10px padding-y, above a `--c-rule` hairline |
-| Cells | **mono 13** (12.5 at mobile) — so digits align |
-| Prose cells | Where a column carries an explanation rather than data, that cell only is sans 13.5 `--c-text-2` |
-| Row padding | 9–11px vertical |
-| Column gap | 16–20px |
-| Vertical rules | **None, ever** |
-| Zebra striping | **None** |
-| Alignment | Identifying column left; numeric and date columns **right** |
+| Property        | Value                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| Head            | `--t-label` (mono 500 10.5 uppercase +0.1em `--c-muted`), 9–10px padding-y, above a `--c-rule` hairline   |
+| Cells           | **mono 13** (12.5 at mobile) — so digits align                                                            |
+| Prose cells     | Where a column carries an explanation rather than data, that cell only is sans 13.5 `--c-text-2`          |
+| Row padding     | 9–11px vertical                                                                                           |
+| Column gap      | 16–20px                                                                                                   |
+| Vertical rules  | **None, ever**                                                                                            |
+| Zebra striping  | **None**                                                                                                  |
+| Alignment       | Identifying column left; numeric and date columns **right**                                               |
 | Semantic colour | A bad number takes `--c-warn`; an ok state takes `--c-ok`; both alongside their value, never replacing it |
-| Caption | `Table n —` mono 11.5 muted below, 32px to the following prose |
+| Caption         | `Table n —` mono 11.5 muted below, 32px to the following prose                                            |
 
-**Hover.** Table rows do **not** have a hover state (they are data, not targets). Only *interactive* rows — index and project rows — take the `--c-surface` hover.
+**Hover.** Table rows do **not** have a hover state (they are data, not targets). Only _interactive_ rows — index and project rows — take the `--c-surface` hover.
 
 ## 15.2 Tables at <760 — one treatment only
 
 Tables do **not** shrink and do **not** reflow.
 
-| Rule | Detail |
-|---|---|
-| **Full-bleed, contained** | The scroll region spans the viewport (−20px each side), bounded by two hairlines. Only that element scrolls; the page never scrolls sideways. |
-| **First column sticks** | The identifying column pins to the left edge on the page ground, so a value is never orphaned from its row label. |
-| **Two affordances** | A 24–28px ground-coloured fade on the overflowing edge, and a mono `scroll →` marker on the caption line that flips to `← scroll` at the end. Both disappear when everything fits. |
-| **No reflow to cards** | Stacked key/value cards destroy column comparison, which is the only reason a technical table exists. |
-| **Cell type floor** | mono 12.5, never smaller. |
-| **Caption anchors it** | The caption sits inside the 20px text margin, *outside* the scroll region, so the table stays visibly attached to the article while its content moves. |
-| **Keyboard** | The region is focusable and arrow-scrollable, exposed as a labelled region with the caption as its accessible name. |
+| Rule                      | Detail                                                                                                                                                                             |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full-bleed, contained** | The scroll region spans the viewport (−20px each side), bounded by two hairlines. Only that element scrolls; the page never scrolls sideways.                                      |
+| **First column sticks**   | The identifying column pins to the left edge on the page ground, so a value is never orphaned from its row label.                                                                  |
+| **Two affordances**       | A 24–28px ground-coloured fade on the overflowing edge, and a mono `scroll →` marker on the caption line that flips to `← scroll` at the end. Both disappear when everything fits. |
+| **No reflow to cards**    | Stacked key/value cards destroy column comparison, which is the only reason a technical table exists.                                                                              |
+| **Cell type floor**       | mono 12.5, never smaller.                                                                                                                                                          |
+| **Caption anchors it**    | The caption sits inside the 20px text margin, _outside_ the scroll region, so the table stays visibly attached to the article while its content moves.                             |
+| **Keyboard**              | The region is focusable and arrow-scrollable, exposed as a labelled region with the caption as its accessible name.                                                                |
 
 **At tablet:** in the measure normally; becomes a scroll region early if it has more than five columns.
 
@@ -1371,35 +1374,35 @@ Opaque machine identifiers (content digests, hashes) may be **middle-truncated**
 
 Interaction feedback is deliberately narrow: **colour and ground change; nothing moves.** No element translates, scales, lifts, rotates or gains a shadow on any state.
 
-| State | Universal treatment |
-|---|---|
-| **Default** | As specified per component |
-| **Hover** | The smallest possible change: an underline appears, a text colour steps to `--c-accent-hi`, or a row ground steps to `--c-surface`. 120ms, one curve. Text never moves. |
-| **Focus-visible** | The single focus token: 2px `--c-accent`, 2px offset, square. Identical everywhere, both themes. Never removed without replacement. |
-| **Active (pressed)** | One step further in the hover direction: `--c-accent-hi` text, or a ground one step darker. Instant. |
-| **Current / selected** | Full-strength text **plus** an accent marker (nav underline, TOC spine tick, index filter underline). Never a filled background. |
-| **Visited** | No distinct treatment anywhere. |
-| **Disabled** | 55% opacity, no pointer affordance, contrast maintained above 4.5:1. |
-| **Loading** | Does not exist. The site is static; navigation is a document load. No skeletons, no spinners, no shimmer. |
-| **Success** | A **text change** (`copy` → `copied`, 1.2s) or `--c-ok` **plus a word**. Never a toast. |
-| **Error / warning** | `--c-warn` **plus a word** (a callout label, a table value). No banners. |
+| State                  | Universal treatment                                                                                                                                                     |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Default**            | As specified per component                                                                                                                                              |
+| **Hover**              | The smallest possible change: an underline appears, a text colour steps to `--c-accent-hi`, or a row ground steps to `--c-surface`. 120ms, one curve. Text never moves. |
+| **Focus-visible**      | The single focus token: 2px `--c-accent`, 2px offset, square. Identical everywhere, both themes. Never removed without replacement.                                     |
+| **Active (pressed)**   | One step further in the hover direction: `--c-accent-hi` text, or a ground one step darker. Instant.                                                                    |
+| **Current / selected** | Full-strength text **plus** an accent marker (nav underline, TOC spine tick, index filter underline). Never a filled background.                                        |
+| **Visited**            | No distinct treatment anywhere.                                                                                                                                         |
+| **Disabled**           | 55% opacity, no pointer affordance, contrast maintained above 4.5:1.                                                                                                    |
+| **Loading**            | Does not exist. The site is static; navigation is a document load. No skeletons, no spinners, no shimmer.                                                               |
+| **Success**            | A **text change** (`copy` → `copied`, 1.2s) or `--c-ok` **plus a word**. Never a toast.                                                                                 |
+| **Error / warning**    | `--c-warn` **plus a word** (a callout label, a table value). No banners.                                                                                                |
 
 ## 16.2 Hover state inventory
 
-| Element | Hover |
-|---|---|
-| Prose link | Text and underline → `--c-accent-hi` |
-| Nav link | Underline appears in `--c-accent-hi` |
-| Index row | Ground → `--c-surface`, title gains its accent underline |
-| Project title | Accent underline appears |
-| Tag | Accent underline appears |
-| Primary button | Ground steps one level |
-| Secondary button | Border → `--c-text`, ground → `--c-surface` |
-| Copy control | Border and label lighten |
-| TOC item | Accent underline appears |
-| Menu row | Ground → `--c-surface` |
-| Table data row | **No hover** |
-| Figure, caption, metadata, status | **No hover** |
+| Element                           | Hover                                                    |
+| --------------------------------- | -------------------------------------------------------- |
+| Prose link                        | Text and underline → `--c-accent-hi`                     |
+| Nav link                          | Underline appears in `--c-accent-hi`                     |
+| Index row                         | Ground → `--c-surface`, title gains its accent underline |
+| Project title                     | Accent underline appears                                 |
+| Tag                               | Accent underline appears                                 |
+| Primary button                    | Ground steps one level                                   |
+| Secondary button                  | Border → `--c-text`, ground → `--c-surface`              |
+| Copy control                      | Border and label lighten                                 |
+| TOC item                          | Accent underline appears                                 |
+| Menu row                          | Ground → `--c-surface`                                   |
+| Table data row                    | **No hover**                                             |
+| Figure, caption, metadata, status | **No hover**                                             |
 
 ## 16.3 Touch
 
@@ -1424,11 +1427,11 @@ Page loads · scroll reveals · headings · images · the TOC active state · nu
 
 ## 17.3 Duration and easing
 
-| Case | Duration |
-|---|---|
-| State change on an element the pointer is already on | **120ms** |
-| Anything that changes layout | **160ms** |
-| Ceiling | **200ms** — nothing exceeds it |
+| Case                                                 | Duration                       |
+| ---------------------------------------------------- | ------------------------------ |
+| State change on an element the pointer is already on | **120ms**                      |
+| Anything that changes layout                         | **160ms**                      |
+| Ceiling                                              | **200ms** — nothing exceeds it |
 
 One easing curve for everything: `cubic-bezier(.2, 0, 0, 1)`. No bounce, no spring, no per-component curve.
 
@@ -1446,13 +1449,13 @@ Honoured globally: when a reduced-motion preference is set, all transition and a
 
 ## 18.1 Contrast
 
-| Role | Light | Dark |
-|---|---|---|
-| Body text | 13.4:1 | ≈13:1 |
-| Secondary text | 8.1:1 | 7.9:1 |
+| Role             | Light                 | Dark  |
+| ---------------- | --------------------- | ----- |
+| Body text        | 13.4:1                | ≈13:1 |
+| Secondary text   | 8.1:1                 | 7.9:1 |
 | Muted / metadata | 4.6:1 at 12px minimum | 5.2:1 |
-| Accent | 5.1:1 | ≥5:1 |
-| Accent hover | 7.2:1 | — |
+| Accent           | 5.1:1                 | ≥5:1  |
+| Accent hover     | 7.2:1                 | —     |
 
 All AA or better, most AAA. **Nothing on the site is below 4.5:1**, including placeholder and disabled states. Metadata brightens in dark mode specifically because small mono at low contrast is the first thing to fail on a dark screen.
 
@@ -1477,15 +1480,15 @@ All AA or better, most AAA. **Nothing on the site is below 4.5:1**, including pl
 
 Never colour alone, in every instance:
 
-| Signal | Redundant carrier |
-|---|---|
-| Project status | The word (`active`) **and** the dot shape (filled/hollow) |
-| Diff | Leading `+` / `−` glyphs |
-| Callout kind | The uppercase label word |
-| Highlighted code line | A 2px position marker on the left edge |
-| Links | A permanent underline |
-| Current nav item | Full-strength text plus an underline |
-| Warning value in a table | Alongside the value, which remains readable |
+| Signal                   | Redundant carrier                                         |
+| ------------------------ | --------------------------------------------------------- |
+| Project status           | The word (`active`) **and** the dot shape (filled/hollow) |
+| Diff                     | Leading `+` / `−` glyphs                                  |
+| Callout kind             | The uppercase label word                                  |
+| Highlighted code line    | A 2px position marker on the left edge                    |
+| Links                    | A permanent underline                                     |
+| Current nav item         | Full-strength text plus an underline                      |
+| Warning value in a table | Alongside the value, which remains readable               |
 
 ## 18.5 Targets, typography, motion
 
@@ -1510,14 +1513,14 @@ Component specifications are not repeated here; each page is described as a comp
 
 **Bands, in order:**
 
-| Band | Gutter label | Content |
-|---|---|---|
-| Index | `Index / 2026-08` | An opening statement (serif 400 **24** / 1.50 / −0.008em) then one paragraph of context (serif 17.5 `--c-text-2`), paired with a mono "Now" panel on a left hairline: a current-work sentence in sans 13.5, then three live facts (`homelab uptime 214 d`, `11 services ok`, `last deploy 2026-08-19`) |
-| Featured | `Featured / 038` | Featured entry (§9.5) + lead figure 170px |
-| Latest writing | `Latest writing / 38 total` | Four compact index rows + an `all writing →` / `rss ↗` line |
-| Selected work | `Selected work / 3 of 6` | Three selected-work project items + `all projects (6) →` |
-| Interests | `Interests / —` | One middot-joined line, sans 15 / **2.0**, `--c-text-2` |
-| About & contact | `About & contact / —` | One paragraph (max 600px) + the email address in serif 22 with an accent underline, and a mono link line |
+| Band            | Gutter label                | Content                                                                                                                                                                                                                                                                                                |
+| --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Index           | `Index / 2026-08`           | An opening statement (serif 400 **24** / 1.50 / −0.008em) then one paragraph of context (serif 17.5 `--c-text-2`), paired with a mono "Now" panel on a left hairline: a current-work sentence in sans 13.5, then three live facts (`homelab uptime 214 d`, `11 services ok`, `last deploy 2026-08-19`) |
+| Featured        | `Featured / 038`            | Featured entry (§9.5) + lead figure 170px                                                                                                                                                                                                                                                              |
+| Latest writing  | `Latest writing / 38 total` | Four compact index rows + an `all writing →` / `rss ↗` line                                                                                                                                                                                                                                            |
+| Selected work   | `Selected work / 3 of 6`    | Three selected-work project items + `all projects (6) →`                                                                                                                                                                                                                                               |
+| Interests       | `Interests / —`             | One middot-joined line, sans 15 / **2.0**, `--c-text-2`                                                                                                                                                                                                                                                |
+| About & contact | `About & contact / —`       | One paragraph (max 600px) + the email address in serif 22 with an accent underline, and a mono link line                                                                                                                                                                                               |
 
 **Container behaviour.** Every band is layout B (`148 / 1fr`, 44px gap). Band padding 44–64px; the first band uses the reserved 128px top step at page level. Each band is closed by a full-frame hairline.
 
@@ -1559,7 +1562,7 @@ See §11.2. Layout A, exactly the article grid, plus a status band.
 3. **Experience** — gutter `Experience / selected`; **the same row system as the blog index**: a `150px` mono period track (`2024 — now`) beside a role title (sans 600 15) and a description (sans 13.5 / 1.6, max 66ch). Three rows, hairline-separated.
 4. **Elsewhere** — a four-column grid of `LABEL` over value in mono 12 / 1.9: Email · Code · Social · Keys.
 
-**No author block** (this page *is* the author), no CV download, no skill bars, no timeline graphic.
+**No author block** (this page _is_ the author), no CV download, no skill bars, no timeline graphic.
 
 **Responsive.** Portrait drops below the intro paragraphs; the experience rows stack period-above-role; the Elsewhere grid goes four → two → one column.
 
@@ -1601,9 +1604,9 @@ These are worked examples of the rules above, not separate designs. Every change
 
 **Desktop (1320).** Wordmark 14.5 + role text mono 11 + three links at 13.5 with 26px gaps + theme control. 60px tall, bottom hairline, 56px margins.
 
-**Tablet (900).** Role text removed; margins 32, padding-y 18, link gaps 22, links 13, wordmark 14. Everything else identical. *Rule applied: law 02 — the role text is the one datum whose information is fully carried by the wordmark beside it.*
+**Tablet (900).** Role text removed; margins 32, padding-y 18, link gaps 22, links 13, wordmark 14. Everything else identical. _Rule applied: law 02 — the role text is the one datum whose information is fully carried by the wordmark beside it._
 
-**Mobile (390).** Wordmark 13.5 + a framed mono `menu` control. Padding 14/20. Open: an in-flow disclosure pushing content down, 48px rows carrying destination + count, theme control inside the panel. *Rules applied: law 04 (rules full-bleed), and the disclosure-not-drawer decision in §7.5.*
+**Mobile (390).** Wordmark 13.5 + a framed mono `menu` control. Padding 14/20. Open: an in-flow disclosure pushing content down, 48px rows carrying destination + count, theme control inside the panel. _Rules applied: law 04 (rules full-bleed), and the disclosure-not-drawer decision in §7.5._
 
 ## 20.2 Article page
 
@@ -1613,7 +1616,7 @@ These are worked examples of the rules above, not separate designs. Every change
 
 **Mobile (390, shown in dark).** Margins 20. Progress bar under the masthead. Breadcrumb shortens. Title 28/1.24. Lead 17/1.60. Metadata **wraps to two lines in fixed order**. TOC is a **closed** framed disclosure. A compressed running head (`SECURITY · EXPLOITATION`) sits above the section over a hairline. Body 17/1.70. Code, terminal and table go **full-bleed** with two hairlines, 12.5px type, pinned line numbers, and `scroll →` markers on their caption lines. Callouts and quotes stay in the 20px margin. Prev/next stacks.
 
-*What changes and why:* one column is lost (law: the column was never the identity); every datum survives (law 02); machine content scrolls while prose reflows (law 03); every hairline spans the viewport while text keeps 20px (law 04).
+_What changes and why:_ one column is lost (law: the column was never the identity); every datum survives (law 02); machine content scrolls while prose reflows (law 03); every hairline spans the viewport while text keeps 20px (law 04).
 
 ## 20.3 Blog index
 
@@ -1659,19 +1662,19 @@ These rules exist because the visual system depends on them. They are the design
 
 ## 21.1 Length budgets
 
-| Content | Recommended | Hard behaviour beyond it |
-|---|---|---|
-| Article title | 45–75 characters | Wraps freely; steps 28 → 26px above 90 characters at mobile; never truncated |
-| Article dek / lead | One paragraph, 25–40 words, ≤62ch per line | **Never two paragraphs** |
-| Index row dek | 4–10 words | Dropped entirely below 760 |
-| Project title | 30–60 characters | Wraps to three lines rather than shrinking further |
-| Project description | 25–45 words, capped at 58ch | A second paragraph is permitted only for the `**Why.**` sentence |
-| Navigation label | One word | Four destinations maximum |
-| Section heading | 2–6 words | — |
-| Caption | No limit | Stays mono 11–11.5; carries the argument |
-| Stack line | 3–6 technologies, middot-joined | Wraps |
-| Interests / working-on line | One middot-joined line, 6–10 items | Wraps at 2.0 line height |
-| Experience description | 15–30 words, max 66ch | — |
+| Content                     | Recommended                                | Hard behaviour beyond it                                                     |
+| --------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- |
+| Article title               | 45–75 characters                           | Wraps freely; steps 28 → 26px above 90 characters at mobile; never truncated |
+| Article dek / lead          | One paragraph, 25–40 words, ≤62ch per line | **Never two paragraphs**                                                     |
+| Index row dek               | 4–10 words                                 | Dropped entirely below 760                                                   |
+| Project title               | 30–60 characters                           | Wraps to three lines rather than shrinking further                           |
+| Project description         | 25–45 words, capped at 58ch                | A second paragraph is permitted only for the `**Why.**` sentence             |
+| Navigation label            | One word                                   | Four destinations maximum                                                    |
+| Section heading             | 2–6 words                                  | —                                                                            |
+| Caption                     | No limit                                   | Stays mono 11–11.5; carries the argument                                     |
+| Stack line                  | 3–6 technologies, middot-joined            | Wraps                                                                        |
+| Interests / working-on line | One middot-joined line, 6–10 items         | Wraps at 2.0 line height                                                     |
+| Experience description      | 15–30 words, max 66ch                      | —                                                                            |
 
 ## 21.2 Metadata rules
 
@@ -1697,13 +1700,13 @@ The design assumes prose that admits cost, states measurements, and names dead e
 
 ## 21.5 Density expectations
 
-| Surface | Target |
-|---|---|
-| Blog index | 20–40 rows visible per year group without feeling crowded |
-| Projects index | 4–8 items; each with two paragraphs maximum |
-| Homepage | Six bands; four rows of writing; three projects |
-| About | Three experience rows; four Elsewhere columns |
-| Article | 5–8 `h2` sections at ~3,000 words |
+| Surface        | Target                                                    |
+| -------------- | --------------------------------------------------------- |
+| Blog index     | 20–40 rows visible per year group without feeling crowded |
+| Projects index | 4–8 items; each with two paragraphs maximum               |
+| Homepage       | Six bands; four rows of writing; three projects           |
+| About          | Three experience rows; four Elsewhere columns             |
+| Article        | 5–8 `h2` sections at ~3,000 words                         |
 
 ---
 
@@ -1712,36 +1715,20 @@ The design assumes prose that admits cost, states measurements, and names dead e
 A checklist for anyone adding a component or a page.
 
 **Tokens**
+
 1. Prefer an existing token over a new value, always.
 2. Never introduce a colour outside §2.1–2.3. If a new semantic role is genuinely needed, it must be added to the token tables for **both** themes with a stated contrast ratio.
 3. Never introduce a spacing value outside the 4px scale in §2.6. If a gap looks wrong, the fix is the next step up or down, not a new number.
 4. Never introduce a type size outside §2.5 and its derived table. If a size is needed between two steps, use the nearer step.
 5. Never introduce a second radius scale, a border weight above 2px, or any shadow.
 
-**Components**
-6. Prefer an existing component over a new variant; prefer a new variant over a new component; prefer changing the page over adding a component.
-7. Every new component must state: purpose, anatomy, variants, all applicable states, responsive behaviour at all three widths, spacing, type tokens, colour roles, and when *not* to use it.
-8. If a component would appear on exactly one page, it does not belong in the system — and neither does the page as designed.
+**Components** 6. Prefer an existing component over a new variant; prefer a new variant over a new component; prefer changing the page over adding a component. 7. Every new component must state: purpose, anatomy, variants, all applicable states, responsive behaviour at all three widths, spacing, type tokens, colour roles, and when _not_ to use it. 8. If a component would appear on exactly one page, it does not belong in the system — and neither does the page as designed.
 
-**Layout**
-9. Use one of the three column structures in §5.2. Do not invent a fourth.
-10. Maintain the 680px measure. It does not grow, and it is never traded for anything.
-11. Every band gets a gutter label and a closing hairline.
-12. Peers get a shared rule, never individual containers (§9.2).
+**Layout** 9. Use one of the three column structures in §5.2. Do not invent a fourth. 10. Maintain the 680px measure. It does not grow, and it is never traded for anything. 11. Every band gets a gutter label and a closing hairline. 12. Peers get a shared rule, never individual containers (§9.2).
 
-**Responsive**
-13. Use the two named breakpoints. Do not add a third.
-14. Apply the four stacking laws (§3.2) instead of writing per-component responsive rules.
-15. Relocate, never delete — except the index-row dek.
-16. Machine content scrolls; prose reflows. The page never scrolls sideways.
-17. Respect the type floors: body 17, metadata 11.5, code 12.5, targets 44/48.
+**Responsive** 13. Use the two named breakpoints. Do not add a third. 14. Apply the four stacking laws (§3.2) instead of writing per-component responsive rules. 15. Relocate, never delete — except the index-row dek. 16. Machine content scrolls; prose reflows. The page never scrolls sideways. 17. Respect the type floors: body 17, metadata 11.5, code 12.5, targets 44/48.
 
-**Restraint**
-18. Do not add a decorative element without a stated purpose. There are no decorative elements in the current design.
-19. Do not manufacture visual interest for a thin page. A thin page is a content problem.
-20. Preserve article readability above every other consideration, without exception.
-21. Keep the accent budget: at most three accented elements per viewport.
-22. Never signal with colour alone.
+**Restraint** 18. Do not add a decorative element without a stated purpose. There are no decorative elements in the current design. 19. Do not manufacture visual interest for a thin page. A thin page is a content problem. 20. Preserve article readability above every other consideration, without exception. 21. Keep the accent budget: at most three accented elements per viewport. 22. Never signal with colour alone.
 
 ---
 
@@ -1755,23 +1742,23 @@ Everything in §2 (tokens), §3.2 (stacking laws), §16 (states), §17 (motion),
 
 ## 23.2 Registered exceptions
 
-| # | Exception | Scope | Why it is not a rule |
-|---|---|---|---|
-| E1 | **44px grid gap** | Layout | The only spacing value off the 4px scale. Set by the 12-column arithmetic of a 1320px frame, not by rhythm. |
-| E2 | **Code blocks stay dark in light mode** | Component 19, 20 | Deliberate: the reader's model of "the machine talking" must survive a theme switch. |
-| E3 | **Project status leads on mobile** | Component 07 | The single sanctioned inversion of stacking law 01 — "is it alive" outranks the description. |
-| E4 | **TOC gains a 150px scroll cap above 20 sections** | Component 15 | A content-length rule, not a width rule. |
-| E5 | **Display type steps 28 → 26px above 90 characters** | `--t-display` at <760 | The only length-conditional type rule in the system. |
-| E6 | **The container query for figures, code and tables** | Three components | The only place the system reasons about container width rather than viewport width. |
-| E7 | **Middle-truncated digests** | Table cells | The only truncation of content permitted anywhere; only for opaque machine identifiers. |
-| E8 | **Truncated filename in code chrome** | Component 19 at <760 | The only other truncation; the code itself never truncates. |
-| E9 | **Index-row dek may disappear at <760** | Component 05 | The only datum in the system permitted to be deleted rather than relocated. |
-| E10 | **Two metadata abbreviations** (`last deploy 2026-08-19` → `dep 08-19`; section label to two tokens) | Metadata row, gutter | The only compressions allowed; both stay mono, muted, and in fixed order. |
-| E11 | **Article header content may exceed the measure (760px)** | Article, project detail | The header is not running prose; the measure governs prose only. |
-| E12 | **The 128px spacing step is reserved** | Homepage and 404 only | It exists to make exactly two pages feel like a cover. |
-| E13 | **Component interior 2px sub-steps** (14, 18, 22, 28) | Inside components only | Optical padding for controls and rows; never used between components or on a band. |
-| E14 | **Above 8,000 words an article splits into parts** | Article | A length rule, not a layout rule. |
-| E15 | **Dark mode dims diagrams but not screenshots** | Media | Dimming a UI screenshot misrepresents the software. |
+| #   | Exception                                                                                            | Scope                   | Why it is not a rule                                                                                        |
+| --- | ---------------------------------------------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| E1  | **44px grid gap**                                                                                    | Layout                  | The only spacing value off the 4px scale. Set by the 12-column arithmetic of a 1320px frame, not by rhythm. |
+| E2  | **Code blocks stay dark in light mode**                                                              | Component 19, 20        | Deliberate: the reader's model of "the machine talking" must survive a theme switch.                        |
+| E3  | **Project status leads on mobile**                                                                   | Component 07            | The single sanctioned inversion of stacking law 01 — "is it alive" outranks the description.                |
+| E4  | **TOC gains a 150px scroll cap above 20 sections**                                                   | Component 15            | A content-length rule, not a width rule.                                                                    |
+| E5  | **Display type steps 28 → 26px above 90 characters**                                                 | `--t-display` at <760   | The only length-conditional type rule in the system.                                                        |
+| E6  | **The container query for figures, code and tables**                                                 | Three components        | The only place the system reasons about container width rather than viewport width.                         |
+| E7  | **Middle-truncated digests**                                                                         | Table cells             | The only truncation of content permitted anywhere; only for opaque machine identifiers.                     |
+| E8  | **Truncated filename in code chrome**                                                                | Component 19 at <760    | The only other truncation; the code itself never truncates.                                                 |
+| E9  | **Index-row dek may disappear at <760**                                                              | Component 05            | The only datum in the system permitted to be deleted rather than relocated.                                 |
+| E10 | **Two metadata abbreviations** (`last deploy 2026-08-19` → `dep 08-19`; section label to two tokens) | Metadata row, gutter    | The only compressions allowed; both stay mono, muted, and in fixed order.                                   |
+| E11 | **Article header content may exceed the measure (760px)**                                            | Article, project detail | The header is not running prose; the measure governs prose only.                                            |
+| E12 | **The 128px spacing step is reserved**                                                               | Homepage and 404 only   | It exists to make exactly two pages feel like a cover.                                                      |
+| E13 | **Component interior 2px sub-steps** (14, 18, 22, 28)                                                | Inside components only  | Optical padding for controls and rows; never used between components or on a band.                          |
+| E14 | **Above 8,000 words an article splits into parts**                                                   | Article                 | A length rule, not a layout rule.                                                                           |
+| E15 | **Dark mode dims diagrams but not screenshots**                                                      | Media                   | Dimming a UI screenshot misrepresents the software.                                                         |
 
 ## 23.3 Page-specific rules (not exceptions — local composition)
 
@@ -1781,21 +1768,21 @@ Everything in §2 (tokens), §3.2 (stacking laws), §16 (states), §17 (motion),
 - About: the 150px period track, the four-column Elsewhere grid, no author block.
 - 404: the route list.
 
-Each of these is a *composition* of existing components and tokens, not a new component.
+Each of these is a _composition_ of existing components and tokens, not a new component.
 
 ## 23.4 Components that look similar but behave differently
 
 Documented explicitly because they are easy to conflate:
 
-| Pair | Looks the same | Actually differs |
-|---|---|---|
-| Index row vs table row | Both are hairline-separated multi-track rows | The index row is a link with a hover ground and a 48px target; the table row is data with **no hover** and no target. |
-| Callout vs quote | Both have a 2px left marker | The callout has a ground, a radius, a label and serif roman at 16; the quote has no ground, no radius, no label, and serif **italic** at 18–19. The quote is prose; the callout is a different reading mode. |
-| Code block vs terminal block | Both dark, both mono, both scroll | Different ground (0.20 vs 0.155), different chrome (filename+language vs uppercase host label), and the terminal has **no line numbers and no copy control**. |
-| Figure vs card | Both are bordered rectangles | The figure has square corners, no ground of its own beyond the sunken placeholder, and is never interactive. There are no cards. |
-| Tag vs metadata token | Both mono, both small | The tag is accent-coloured, hash-prefixed and a link; the technology token is muted, middot-joined and **not** a link. |
-| Featured entry vs project item | Both a title plus a description | The featured entry has a permanent title underline and a paired figure; the project item has a status/instrument track and no figure. |
-| Disclosure summary vs button | Both a framed mono control | The disclosure toggles in-flow content and swaps `+`/`−`; the button navigates or acts and never changes shape. |
+| Pair                           | Looks the same                               | Actually differs                                                                                                                                                                                             |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Index row vs table row         | Both are hairline-separated multi-track rows | The index row is a link with a hover ground and a 48px target; the table row is data with **no hover** and no target.                                                                                        |
+| Callout vs quote               | Both have a 2px left marker                  | The callout has a ground, a radius, a label and serif roman at 16; the quote has no ground, no radius, no label, and serif **italic** at 18–19. The quote is prose; the callout is a different reading mode. |
+| Code block vs terminal block   | Both dark, both mono, both scroll            | Different ground (0.20 vs 0.155), different chrome (filename+language vs uppercase host label), and the terminal has **no line numbers and no copy control**.                                                |
+| Figure vs card                 | Both are bordered rectangles                 | The figure has square corners, no ground of its own beyond the sunken placeholder, and is never interactive. There are no cards.                                                                             |
+| Tag vs metadata token          | Both mono, both small                        | The tag is accent-coloured, hash-prefixed and a link; the technology token is muted, middot-joined and **not** a link.                                                                                       |
+| Featured entry vs project item | Both a title plus a description              | The featured entry has a permanent title underline and a paired figure; the project item has a status/instrument track and no figure.                                                                        |
+| Disclosure summary vs button   | Both a framed mono control                   | The disclosure toggles in-flow content and swaps `+`/`−`; the button navigates or acts and never changes shape.                                                                                              |
 
 ---
 
@@ -1822,47 +1809,47 @@ This specification was checked against every frame in the three source boards. T
 
 Each was classified and is now documented in §2.1–2.3.
 
-| Value | Classification | Resolution |
-|---|---|---|
-| `oklch(0.93 0.008 75)` | **Missing token** — used on every inner row hairline across all three boards | Added as `--c-rule-in` |
-| `oklch(0.72 0.012 75)` | **Missing token** — third-level mono data in the gutter, "client work", "… 26 more" | Added as `--c-faint` (light); is also `--c-text-2` in dark, which is intentional |
-| `oklch(0.45 0.012 75)` | **Missing token** — inactive nav link, frame chrome labels | Added as `--c-nav` |
-| `oklch(0.155 0.008 75)` | **Missing token** — terminal ground in light theme (it is `--c-sunken` in dark) | Added as `--c-term-bg` |
-| `oklch(0.30 0.012 75)` | **Component-specific** — callout body text | Documented under callout typography |
-| `oklch(0.35 0.012 75)` | **Component-specific** — quote text | Documented under quote typography |
-| `oklch(0.50 0.012 75)` | **Spec-document only** — the value column in token tables | Not part of the product palette |
-| `oklch(0.88 0.008 75)` (dark) | **Component-specific** — article running prose sits one step under headings in dark | Added as `--c-text-prose` (dark only) |
-| `oklch(0.27 0.008 75)` (dark) | **Missing token** — inner row hairline, dark | Added as dark `--c-rule-in` |
-| `0.235 / 0.30 / 0.34 / 0.28 / 0.45 0.010 75` | **Component-specific** — code and terminal chrome, borders, line numbers | Documented in §2.3 |
-| `0.82 0.09 200`, `0.80 0.09 60` | **Missing tokens** — function and number syntax roles (bringing the palette to seven rather than the stated five) | Documented in §2.3; see 25.4 |
+| Value                                        | Classification                                                                                                    | Resolution                                                                       |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `oklch(0.93 0.008 75)`                       | **Missing token** — used on every inner row hairline across all three boards                                      | Added as `--c-rule-in`                                                           |
+| `oklch(0.72 0.012 75)`                       | **Missing token** — third-level mono data in the gutter, "client work", "… 26 more"                               | Added as `--c-faint` (light); is also `--c-text-2` in dark, which is intentional |
+| `oklch(0.45 0.012 75)`                       | **Missing token** — inactive nav link, frame chrome labels                                                        | Added as `--c-nav`                                                               |
+| `oklch(0.155 0.008 75)`                      | **Missing token** — terminal ground in light theme (it is `--c-sunken` in dark)                                   | Added as `--c-term-bg`                                                           |
+| `oklch(0.30 0.012 75)`                       | **Component-specific** — callout body text                                                                        | Documented under callout typography                                              |
+| `oklch(0.35 0.012 75)`                       | **Component-specific** — quote text                                                                               | Documented under quote typography                                                |
+| `oklch(0.50 0.012 75)`                       | **Spec-document only** — the value column in token tables                                                         | Not part of the product palette                                                  |
+| `oklch(0.88 0.008 75)` (dark)                | **Component-specific** — article running prose sits one step under headings in dark                               | Added as `--c-text-prose` (dark only)                                            |
+| `oklch(0.27 0.008 75)` (dark)                | **Missing token** — inner row hairline, dark                                                                      | Added as dark `--c-rule-in`                                                      |
+| `0.235 / 0.30 / 0.34 / 0.28 / 0.45 0.010 75` | **Component-specific** — code and terminal chrome, borders, line numbers                                          | Documented in §2.3                                                               |
+| `0.82 0.09 200`, `0.80 0.09 60`              | **Missing tokens** — function and number syntax roles (bringing the palette to seven rather than the stated five) | Documented in §2.3; see 25.4                                                     |
 
 ## 25.2 Spacing values outside the stated twelve-step scale
 
-| Values | Classification | Resolution |
-|---|---|---|
-| 44 | **Intentional exception** (grid arithmetic) | E1 |
-| 26, 36, 48 | **Responsive scale steps** introduced by the responsive pass, all on the 4px base | Documented in §3.3 |
+| Values         | Classification                                                                             | Resolution                          |
+| -------------- | ------------------------------------------------------------------------------------------ | ----------------------------------- |
+| 44             | **Intentional exception** (grid arithmetic)                                                | E1                                  |
+| 26, 36, 48     | **Responsive scale steps** introduced by the responsive pass, all on the 4px base          | Documented in §3.3                  |
 | 14, 18, 22, 28 | **Component interior sub-steps** (callout, code chrome, index row, masthead, band padding) | E13, bounded to component interiors |
-| 34, 52, 64 | Band padding values on the specification boards themselves, not on product pages | Not normative |
+| 34, 52, 64     | Band padding values on the specification boards themselves, not on product pages           | Not normative                       |
 
 ## 25.3 Type values outside the stated eleven-step scale
 
-The scale covers eleven canonical tokens. The built pages use **fourteen additional serif sizes** for item titles (14, 16, 16.5, 17, 17.5, 18, 19, 21, 22, 24, 26, 27, 28, 36, 40) and several mono sizes (10, 10.5, 11, 11.5, 12.5, 13). These are not arbitrary: they form a consistent ladder for *titles of things inside lists* and for *metadata at three densities*. They are documented as the derived table in §2.5 rather than being flattened into the eleven tokens, because flattening them would misrepresent the design.
+The scale covers eleven canonical tokens. The built pages use **fourteen additional serif sizes** for item titles (14, 16, 16.5, 17, 17.5, 18, 19, 21, 22, 24, 26, 27, 28, 36, 40) and several mono sizes (10, 10.5, 11, 11.5, 12.5, 13). These are not arbitrary: they form a consistent ladder for _titles of things inside lists_ and for _metadata at three densities_. They are documented as the derived table in §2.5 rather than being flattened into the eleven tokens, because flattening them would misrepresent the design.
 
 **Two gaps in the original responsive type table** were filled from the built frames: `--t-title` (34 / 30 / 26) and `--t-h3` (19.5 / 19 / 18) had no responsive row; the mobile values are taken from the 390 frames, where page titles render at 26 and mobile `h2`s at 20–21.
 
 ## 25.4 Behavioural findings
 
-| Finding | Resolution |
-|---|---|
-| The syntax palette is described as "five roles" but the frames use **seven** (adding function/identifier and number) | Documented as seven in §2.3. The 0.78–0.82 lightness discipline holds across all seven, so the intent is intact. |
-| The original spec says tablet TOC is a "collapsed disclosure"; the responsive board specifies an **open, two-column** disclosure at tablet and closed only at mobile | The responsive board is later and more specific; §3.5 and §6/15 follow it. |
-| The original spec's grid table says "Aside (TOC): collapsed after the lead" for tablet; the responsive board splits TOC and aside into two separate relocations | Resolved in §3.6 as two independent jobs. |
-| Table rows and index rows share a visual language but only one has a hover state | Made explicit in §15.1 and §23.4. |
-| The masthead is specified at "height 60px fixed" but tablet and mobile frames render 56 and 48 | Documented as 60 desktop, with padding-y 18 (tablet) and 14 (mobile) producing the smaller heights. Height is a consequence of padding, not an independent token. |
-| Line numbers "appear only above twelve lines", yet several demo frames show them on 4–6 line blocks | The rule is normative; the demo frames are illustrating the number treatment. Implementations follow the rule. |
-| The mobile menu's theme control placement was unspecified in the original component note | Resolved from the responsive board: it moves into the panel at <760. |
-| Dark mode has no `--c-rule-2` equivalent | Confirmed intentional: dark uses `--c-rule` for group openers, since the dark hairline is already proportionally stronger. |
+| Finding                                                                                                                                                              | Resolution                                                                                                                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The syntax palette is described as "five roles" but the frames use **seven** (adding function/identifier and number)                                                 | Documented as seven in §2.3. The 0.78–0.82 lightness discipline holds across all seven, so the intent is intact.                                                  |
+| The original spec says tablet TOC is a "collapsed disclosure"; the responsive board specifies an **open, two-column** disclosure at tablet and closed only at mobile | The responsive board is later and more specific; §3.5 and §6/15 follow it.                                                                                        |
+| The original spec's grid table says "Aside (TOC): collapsed after the lead" for tablet; the responsive board splits TOC and aside into two separate relocations      | Resolved in §3.6 as two independent jobs.                                                                                                                         |
+| Table rows and index rows share a visual language but only one has a hover state                                                                                     | Made explicit in §15.1 and §23.4.                                                                                                                                 |
+| The masthead is specified at "height 60px fixed" but tablet and mobile frames render 56 and 48                                                                       | Documented as 60 desktop, with padding-y 18 (tablet) and 14 (mobile) producing the smaller heights. Height is a consequence of padding, not an independent token. |
+| Line numbers "appear only above twelve lines", yet several demo frames show them on 4–6 line blocks                                                                  | The rule is normative; the demo frames are illustrating the number treatment. Implementations follow the rule.                                                    |
+| The mobile menu's theme control placement was unspecified in the original component note                                                                             | Resolved from the responsive board: it moves into the panel at <760.                                                                                              |
+| Dark mode has no `--c-rule-2` equivalent                                                                                                                             | Confirmed intentional: dark uses `--c-rule` for group openers, since the dark hairline is already proportionally stronger.                                        |
 
 ## 25.5 Deliberate absences confirmed
 
@@ -1870,16 +1857,16 @@ No form system · no search · no card component · no shadow scale · no icon s
 
 ## 25.6 Final quality check
 
-| Criterion | Assessment |
-|---|---|
-| **Completeness** | All 20 components, both themes, three viewport categories, seven page types, twelve edge cases and fifteen registered exceptions are specified. |
-| **Consistency** | Every value traces to a token or a registered exception. The four unnamed colours and three unnamed spacing families found in the audit are now named. |
-| **Responsiveness** | Two breakpoints, one container query, four stacking laws, six responsive type rows, five type floors, and a per-job relocation table for the gutter and aside. Desktop, tablet and mobile behaviour is stated for every component. |
-| **Reusability** | Rules are expressed as laws over component classes (rows, blocks, prose, machine content), not as per-screen notes. |
-| **Fidelity** | No new design decisions were introduced. Where the sources disagreed (25.4), the later and more specific source was followed and the divergence recorded. |
-| **Practicality** | Remaining undocumented decisions are limited to: exact serif optical-size settings per size, the syntax-highlighter's mapping of language grammars onto the seven roles, and image art direction. All three are content or tooling decisions, not design decisions. |
-| **Content resilience** | Verified against twelve stress tests: 148-character titles, eight tags, 210-character code lines, seven-column tables, 90-word and 9,400-word articles, 4K screenshots, image-free articles, and four consecutive code blocks. |
+| Criterion              | Assessment                                                                                                                                                                                                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Completeness**       | All 20 components, both themes, three viewport categories, seven page types, twelve edge cases and fifteen registered exceptions are specified.                                                                                                                     |
+| **Consistency**        | Every value traces to a token or a registered exception. The four unnamed colours and three unnamed spacing families found in the audit are now named.                                                                                                              |
+| **Responsiveness**     | Two breakpoints, one container query, four stacking laws, six responsive type rows, five type floors, and a per-job relocation table for the gutter and aside. Desktop, tablet and mobile behaviour is stated for every component.                                  |
+| **Reusability**        | Rules are expressed as laws over component classes (rows, blocks, prose, machine content), not as per-screen notes.                                                                                                                                                 |
+| **Fidelity**           | No new design decisions were introduced. Where the sources disagreed (25.4), the later and more specific source was followed and the divergence recorded.                                                                                                           |
+| **Practicality**       | Remaining undocumented decisions are limited to: exact serif optical-size settings per size, the syntax-highlighter's mapping of language grammars onto the seven roles, and image art direction. All three are content or tooling decisions, not design decisions. |
+| **Content resilience** | Verified against twelve stress tests: 148-character titles, eight tags, 210-character code lines, seven-column tables, 90-word and 9,400-word articles, 4K screenshots, image-free articles, and four consecutive code blocks.                                      |
 
 ---
 
-*End of specification.*
+_End of specification._

@@ -18,6 +18,11 @@
      which is what T2's stylelint rule (Phase 1.6) checks for.
      ------------------------------------------------------------------------- */
   :focus {
+    /* stylelint-disable-next-line declaration-property-value-disallowed-list
+       -- paired immediately with the :focus-visible replacement below, which
+       IS the required replacement §18.2 asks for. See T2 in
+       IMPLEMENTATION_PLAN.md §8 for why outline:none is disallowed everywhere
+       else. */
     outline: none;
   }
 

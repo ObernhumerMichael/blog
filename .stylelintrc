@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json.schemastore.org/stylelintrc.json",
+
+  "//": [
+    "T2 from IMPLEMENTATION_PLAN.md §8 — every rule below is real and tested",
+    "(see docs/decisions or the commit history for the verification pass),",
+    "not copied from a generic config. Stylelint version matters here: this",
+    "was verified against stylelint 17.14.1 specifically — 'color-no-hex' and",
+    "similar rules have moved around across major versions before and may",
+    "again; re-verify against docs/reference if this config stops matching",
+    "reality after an upgrade.",
+    "",
+    "WHAT THIS FILE DOES NOT CATCH (see 'manual checklist' in",
+    "IMPLEMENTATION_PLAN.md §8 for the full list; two CSS-specific gaps",
+    "found while building this config, worth naming here):",
+    "  - @container value restriction to 700px (E6). Tested empirically:",
+    "    media-feature-name-value-allowed-list does NOT apply to @container,",
+    "    only @media. No built-in stylelint rule covers this; a custom",
+    "    plugin would be needed for one narrow, low-frequency check. Left",
+    "    for manual review rather than shipping a fragile custom rule for",
+    "    it.",
+    "  - text-transform: uppercase used outside a --t-label context. This",
+    "    requires knowing which selector corresponds to which type token —",
+    "    not a per-declaration value check stylelint can express.",
+    "  - Cross-file checks (every var(--x) used is actually defined; light",
+    "    and dark token sets have parity; no stray @layer names) are NOT",
+    "    stylelint's job — see scripts/verify-tokens.mjs, run separately as",
+    "    `pnpm check:tokens`.",
+    "  - Cascade LAYER PRIORITY bugs (a correct-looking rule in a",
+    "    higher-priority layer silently overriding a more specific rule in a",
+    "    lower one — see docs/decisions and the base.css color-scheme",
+    "    incident) are a semantic, cross-file cascade issue. No lint rule",
+    "    catches this; it was found by testing actual behavior, which is",
+    "    the only thing that reliably would."
+  ],
+
+  "rules": {
+    "color-no-hex": true,
+    "color-named": "never",
+    "function-disallowed-list": [
+      "rgb",
+      "rgba",
+      "hsl",
+      "hsla",
+      "hwb",
+      "lab",
+      "lch",
+      "oklab",
+      "oklch",
+      "color",
+      "light-dark"
+    ],
+
+    "property-disallowed-list": [
+      "box-shadow",
+      "-webkit-box-shadow",
+      "text-shadow",
+      "filter",
+      "backdrop-filter"
+    ],
+
+    "declaration-property-value-allowed-list": {
+      "border-width": ["/^(0|1px|2px)$/"],
+      "border-top-width": ["/^(0|1px|2px)$/"],
+      "border-right-width": ["/^(0|1px|2px)$/"],
+      "border-bottom-width": ["/^(0|1px|2px)$/"],
+      "border-left-width": ["/^(0|1px|2px)$/"],
+
+      "border-radius": ["/^(0|3px|4px|50%|0 4px 4px 0)$/"],
+
+      "transition-duration": ["/^var\\(--dur(-layout)?\\)$/"],
+      "animation-duration": ["/^var\\(--dur(-layout)?\\)$/"],
+      "transition-timing-function": ["/^var\\(--ease\\)$/"],
+      "animation-timing-function": ["/^var\\(--ease\\)$/"],
+
+      "font-family": ["/^var\\(--font-(serif|sans|mono)\\)$/"],
+      "font": ["/^var\\(--t-[a-z0-9-]+\\)$/", "/^inherit$/"],
+
+      "transition-property": [
+        "/^(color|background-color|border-color|outline-color|height)$/",
+        "/^(color|background-color|border-color|outline-color|height)(,\\s*(color|background-color|border-color|outline-color|height))*$/"
+      ]
+    },
+
+    "declaration-property-value-disallowed-list": {
+      "/^border/": ["/(?<!var\\(--[\\w-]*)\\b(?!0\\b|1px\\b|2px\\b)\\d+(\\.\\d+)?px\\b/"],
+      "outline": ["none"]
+    },
+
+    "media-feature-name-value-allowed-list": {
+      "min-width": ["/^(760px|1100px)$/"]
+    }
+  },
+
+  "overrides": [
+    {
+      "//": "tokens.css is the one file allowed to declare literal colours and use light-dark()/oklch() directly — every value in the entire design flows from here.",
+      "files": ["src/styles/tokens.css"],
+      "rules": {
+        "color-no-hex": null,
+        "color-named": null,
+        "function-disallowed-list": null
+      }
+    },
+    {
+      "//": "fonts.css is the one file allowed to write literal font-family names — @font-face is the only place a font's name gets declared in the first place; everywhere else must reference var(--font-*) instead.",
+      "files": ["src/styles/fonts.css"],
+      "rules": {
+        "declaration-property-value-allowed-list": null
+      }
+    },
+    {
+      "//": "Astro files need a DIFFERENT parser to extract <style> blocks out of the frontmatter/template structure. Scoped here, not passed as a global --custom-syntax CLI flag — tested and confirmed that applying postcss-html globally makes stylelint silently find ZERO violations in plain .css files (no error, just an empty, wrong result). Real, serious difference: this override touches only .astro files; .css files keep the default CSS parser.",
+      "files": ["**/*.astro"],
+      "customSyntax": "postcss-html"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Implementation Plan — Ledger
 
-Companion to `DESIGN_SYSTEM.md`. That document is authoritative for *appearance, structure and behaviour*; this one is authoritative for *how it gets built, in what order, and how compliance is proven*.
+Companion to `DESIGN_SYSTEM.md`. That document is authoritative for _appearance, structure and behaviour_; this one is authoritative for _how it gets built, in what order, and how compliance is proven_.
 
 Section references like §2.5 refer to `DESIGN_SYSTEM.md`.
 
@@ -39,7 +39,7 @@ Reasoning: §16.1 states loading does not exist and navigation is a document loa
 
 I previously recommended Tailwind + `@tailwindcss/typography`. Having read the spec, that is the wrong tool here. Reasons, in order of weight:
 
-1. **The type tokens are compound.** `--t-body` is *serif 400 / 18.5px / 1.72 / 0 tracking / `--c-text`*. §22.4 forbids introducing a size outside the scale. In utility form that token decomposes into four independent classes, and nothing stops a future edit from changing one of them — the token stops being a token. As a CSS custom property set applied by one rule, it stays atomic.
+1. **The type tokens are compound.** `--t-body` is _serif 400 / 18.5px / 1.72 / 0 tracking / `--c-text`_. §22.4 forbids introducing a size outside the scale. In utility form that token decomposes into four independent classes, and nothing stops a future edit from changing one of them — the token stops being a token. As a CSS custom property set applied by one rule, it stays atomic.
 2. **The most important page cannot use utilities at all.** The article body is generated from Markdown. You cannot put classes on those `<p>` and `<h2>` elements. §10 is explicitly the reference implementation of the entire design, so the highest-value surface would be styled by a descendant stylesheet regardless — which is what plain CSS already is.
 3. **`@tailwindcss/typography` would be near-totally overridden.** It ships its own scale, spacing, code styling, blockquote treatment and link colours; §10.3, §11, §13, §15 replace essentially all of it. You'd carry a dependency to fight it.
 4. **The design's value is restriction, not expressiveness.** One border weight, one radius, no shadows, no card system, one accent with a budget of three. Tailwind's benefit is fast composition from a large vocabulary; this system's benefit is a deliberately tiny vocabulary. The tool and the goal point in opposite directions.
@@ -59,17 +59,17 @@ I previously proposed `blog` / `ctf` / `projects`. The spec allows two.
 
 Collections:
 
-| Collection | Type | Contents |
-| --- | --- | --- |
-| `writing` | content | All articles including CTF writeups |
-| `projects` | content | Project entries; `caseStudy: true` ones also render a detail page |
-| `site` | data | Experience rows, Elsewhere links, interests, nav counts, Now-panel fallback |
+| Collection | Type    | Contents                                                                    |
+| ---------- | ------- | --------------------------------------------------------------------------- |
+| `writing`  | content | All articles including CTF writeups                                         |
+| `projects` | content | Project entries; `caseStudy: true` ones also render a detail page           |
+| `site`     | data    | Experience rows, Elsewhere links, interests, nav counts, Now-panel fallback |
 
 ## AD-04 · Markdown + remark directives, MDX only by exception
 
 Default `.md`. Callouts, figures and terminal blocks are authored as **remark container directives** (`:::note`, `:::figure`), not as imported components.
 
-Reasoning: §6 closes the component inventory at twenty and §22.8 says a component used on one page doesn't belong in the system. MDX makes arbitrary component injection into prose a one-line action, which is precisely the pressure the inventory exists to resist. Directives keep content portable (they're plain text, they survive a future engine change) and mean the *renderer* decides what a `:::note` looks like — one place, matching §10's callout spec.
+Reasoning: §6 closes the component inventory at twenty and §22.8 says a component used on one page doesn't belong in the system. MDX makes arbitrary component injection into prose a one-line action, which is precisely the pressure the inventory exists to resist. Directives keep content portable (they're plain text, they survive a future engine change) and mean the _renderer_ decides what a `:::note` looks like — one place, matching §10's callout spec.
 
 Enable MDX as an integration but treat any `.mdx` file as requiring a written justification. Realistic legitimate case: an interactive island inside the evolutionary-SVG article.
 
@@ -105,7 +105,7 @@ Three families (§2.4), all libre and self-hostable. **Verified 2026-08-25** by 
 
 **Resolution, not a `unicode-range` fallback:**
 
-- **Status dots (`●`/`○`)** — don't chase a fallback font for these. §2.9 already specifies them as a 6px, `radius: 50%` element, not running text — draw them as a plain `<span>` with `border-radius: 50%` and either a filled background (live) or a 1px border with transparent fill (archived). This is arguably *better* than a font glyph even where one exists: exact 6px sizing independent of the font's em-box and baseline quirks, and zero risk of a fallback font rendering a visibly different dot size next to the live one.
+- **Status dots (`●`/`○`)** — don't chase a fallback font for these. §2.9 already specifies them as a 6px, `radius: 50%` element, not running text — draw them as a plain `<span>` with `border-radius: 50%` and either a filled background (live) or a 1px border with transparent fill (archived). This is arguably _better_ than a font glyph even where one exists: exact 6px sizing independent of the font's em-box and baseline quirks, and zero risk of a fallback font rendering a visibly different dot size next to the live one.
 - **Theme control (`◐`)** — no self-hosted font in the stack has it, and pulling in a symbol font for one character costs more (an extra font request, or a bigger subset) than a single small inline SVG half-circle using `currentColor`, sized to match the surrounding text. This is a deliberate, narrow exception to §2.11's "closed set of typographic glyphs" framing — flagged here explicitly rather than silently substituted, since it's a judgement call worth being able to revisit. It is **not** the icon-library pattern §1.12 forbids: one bespoke shape, not an imported set.
 
 Subset to Latin + German (Ä Ö Ü ä ö ü ß, per OD-05) + the confirmed-present glyphs from §2.11 (`→ ↗ ← · / # + −`). `●`, `○`, `◐` are excluded from the subset entirely since they're never rendered as font glyphs.
@@ -122,7 +122,7 @@ See §2 below; this is genuinely a conflict between your two source documents an
 
 ## AD-10 · Permalinks
 
-§9 states the article number *is* the permalink: `/w/038`. Take it. It's unusual, it's stable forever, and it matches the numbering invariant in §19.9.
+§9 states the article number _is_ the permalink: `/w/038`. Take it. It's unusual, it's stable forever, and it matches the numbering invariant in §19.9.
 
 Add a slug alias `/writing/<slug>` issuing a 301 to `/w/<num>`, so shared links stay human-readable and SEO doesn't suffer from opaque URLs. Canonical tag always points at `/w/<num>`.
 
@@ -132,11 +132,11 @@ Routes: `/`, `/writing`, `/writing/tag/<tag>`, `/w/<num>`, `/projects`, `/projec
 
 No UI framework. Three pieces of client JS, total budget < 4 KB:
 
-| Island | Job | Notes |
-| --- | --- | --- |
-| Theme (inline, blocking) | Read stored preference, set `data-theme` before first paint | §2.2 requires no flash. Must be inline in `<head>`, not a module. |
-| TOC + progress | IntersectionObserver → active TOC item (§15) and `read n%` / 2px bar (§10.8) | No smooth scroll, no transition on the active state (§15) |
-| Copy control | Clipboard write, label swap to `copied` for 1.2s, `aria-live="polite"` | §13.2 — a text change, not a toast |
+| Island                   | Job                                                                          | Notes                                                             |
+| ------------------------ | ---------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Theme (inline, blocking) | Read stored preference, set `data-theme` before first paint                  | §2.2 requires no flash. Must be inline in `<head>`, not a module. |
+| TOC + progress           | IntersectionObserver → active TOC item (§15) and `read n%` / 2px bar (§10.8) | No smooth scroll, no transition on the active state (§15)         |
+| Copy control             | Clipboard write, label swap to `copied` for 1.2s, `aria-live="polite"`       | §13.2 — a text change, not a toast                                |
 
 The mobile menu and the TOC disclosure are native `<details>` (§7.5, §12.1) — no JS at all, which is also why §7.5 can say "no focus trap to get wrong."
 
@@ -158,32 +158,32 @@ Self-hosted Umami on your VPS, cookieless. No consent banner is needed for cooki
 
 **All five resolved, 2026-08-25.**
 
-| # | Resolution | Consequences |
-| --- | --- | --- |
-| OD-01 | **No search in v1.** | Pagefind dropped. Tag filter row + archive-by-year + find-in-page. Revisit ~80 articles. |
-| OD-02 | **CTF is a tag, not a section.** | Two collections. `section: Security`, tags `#ctf` / `#security` in the registry. Nav stays at three destinations. |
-| OD-03 | **Numbering starts at 001.** | Contiguity invariant enforceable from day one (drafts exempt — see §6). Counts read small and honest. |
+| #     | Resolution                                                                  | Consequences                                                                                                                                                                                        |
+| ----- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OD-01 | **No search in v1.**                                                        | Pagefind dropped. Tag filter row + archive-by-year + find-in-page. Revisit ~80 articles.                                                                                                            |
+| OD-02 | **CTF is a tag, not a section.**                                            | Two collections. `section: Security`, tags `#ctf` / `#security` in the registry. Nav stays at three destinations.                                                                                   |
+| OD-03 | **Numbering starts at 001.**                                                | Contiguity invariant enforceable from day one (drafts exempt — see §6). Counts read small and honest.                                                                                               |
 | OD-04 | **Industrial platform gets a case study, no code and no proprietary data.** | See §7.5. Leans on the Decision/Alternative/Why table and a redrawn architecture diagram; §10.10 explicitly permits an image-free article. Requires a written publication boundary before drafting. |
-| OD-05 | **German plausible later, not initially.** | Cheap preparations taken at Phase 1 and 5 (§11). Full i18n routing deferred. |
+| OD-05 | **German plausible later, not initially.**                                  | Cheap preparations taken at Phase 1 and 5 (§11). Full i18n routing deferred.                                                                                                                        |
 
 The original framing of each decision follows, for the record.
 
 **Two more surfaced while planning Phase 0** — not architectural, but blocking:
 
-| # | Decision | Status |
-| --- | --- | --- |
-| OD-06 | Code license (content stays proprietary regardless) | Recommendation: MIT for code, © all rights reserved for prose/images — confirm before first content commit |
-| OD-07 | Domain / `site` URL for Astro config, RSS, sitemap, canonical tags | Placeholder acceptable for Phase 0 exit; must resolve before Phase 5 (RSS) |
+| #     | Decision                                                           | Status                                                                                                     |
+| ----- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| OD-06 | Code license (content stays proprietary regardless)                | Recommendation: MIT for code, © all rights reserved for prose/images — confirm before first content commit |
+| OD-07 | Domain / `site` URL for Astro config, RSS, sitemap, canonical tags | Placeholder acceptable for Phase 0 exit; must resolve before Phase 5 (RSS)                                 |
 
 ### OD-01 · Search — **conflict between your two documents**
 
-Your content brief §11 lists Search as a blog UI requirement. `DESIGN_SYSTEM.md` §12 states: *"There is no search field"*, and §25.5 lists "no search" among deliberate absences confirmed by audit.
+Your content brief §11 lists Search as a blog UI requirement. `DESIGN_SYSTEM.md` §12 states: _"There is no search field"_, and §25.5 lists "no search" among deliberate absences confirmed by audit.
 
 The design system is the later, more specific document, and its own reconciliation rule (§25.4) is that the later and more specific source wins.
 
 **Recommendation: ship without search.** At 38 articles, the counted-tag filter row (§19.2) plus archive-by-year plus browser find-in-page covers navigation. Revisit past ~80 articles.
 
-If you decide you want it: Pagefind still works, but the UI must be *derived*, not invented — §12.2 already gives you the field, label, focus and error rules. It would be a new component (#21) and would follow the extension protocol in §12 of this document.
+If you decide you want it: Pagefind still works, but the UI must be _derived_, not invented — §12.2 already gives you the field, label, focus and error rules. It would be a new component (#21) and would follow the extension protocol in §12 of this document.
 
 ### OD-02 · CTF as a tag — confirm
 
@@ -356,22 +356,22 @@ Cascade layers, declared once in this order:
 
 `writing` frontmatter:
 
-| Field | Type | Validation |
-| --- | --- | --- |
-| `number` | int 1–999 | Unique across collection; rendered zero-padded (§9) |
-| `title` | string | Warn > 90 chars (triggers E5), never fails |
-| `lead` | string | **Must not contain a blank line** — §21.1: never two paragraphs |
-| `section` | enum | Gutter label + breadcrumb segment (§10.2) |
-| `date` | date | ISO 8601 (§21.2) |
-| `updated` | date? | Must be > `date` + 1 day, else rejected (§9) |
-| `tags` | string[] | 1–3, lowercase, no `#` in source (§21.2) |
-| `series` | `{id, part, total}`? | `part <= total`; drives §17 pagination |
-| `featured` | bool? | At most one `true` across the collection |
-| `draft` | bool | Excluded from prod build and from counts |
+| Field      | Type                 | Validation                                                      |
+| ---------- | -------------------- | --------------------------------------------------------------- |
+| `number`   | int 1–999            | Unique across collection; rendered zero-padded (§9)             |
+| `title`    | string               | Warn > 90 chars (triggers E5), never fails                      |
+| `lead`     | string               | **Must not contain a blank line** — §21.1: never two paragraphs |
+| `section`  | enum                 | Gutter label + breadcrumb segment (§10.2)                       |
+| `date`     | date                 | ISO 8601 (§21.2)                                                |
+| `updated`  | date?                | Must be > `date` + 1 day, else rejected (§9)                    |
+| `tags`     | string[]             | 1–3, lowercase, no `#` in source (§21.2)                        |
+| `series`   | `{id, part, total}`? | `part <= total`; drives §17 pagination                          |
+| `featured` | bool?                | At most one `true` across the collection                        |
+| `draft`    | bool                 | Excluded from prod build and from counts                        |
 
 Derived at build, never authored: `readingTime`, `wordCount` (§9 requires them paired), `toc` (null below three `h2`s, §15), `parts` (auto-split above 8,000 words, E14 — or at minimum a build **warning** telling you to split it manually).
 
-`projects` frontmatter: `number` (1–99, unique), `title`, `description` (≤ 58ch guidance), `why?`, `stack[]` (3–6, §21.1), `status` (enum of exactly four, §21.2), `period {from, to|null}`, `caseStudy` bool, `links {article?, source? }`, `sourceAbsence?` (string, e.g. `client work · no source` — §11.1 requires absence to be *stated*, so this field is required when `source` is missing).
+`projects` frontmatter: `number` (1–99, unique), `title`, `description` (≤ 58ch guidance), `why?`, `stack[]` (3–6, §21.1), `status` (enum of exactly four, §21.2), `period {from, to|null}`, `caseStudy` bool, `links {article?, source? }`, `sourceAbsence?` (string, e.g. `client work · no source` — §11.1 requires absence to be _stated_, so this field is required when `source` is missing).
 
 **Cross-entry invariants** (run as tests, fail the build):
 
@@ -419,13 +419,13 @@ Also: caption stays inside the 20px text margin while the figure goes full-bleed
 
 A case study with no code and no screenshots is not a degraded case study in this design — §10.10 states an image-free article is normal and that nothing is inserted to compensate. But §11.2's canonical section sequence assumes both, so the substitutions must be deliberate:
 
-| §11.2 section | Normally | Here |
-| --- | --- | --- |
-| Problem & motivation | Prose | Prose — the domain problem, stated generically |
-| Architecture | Prose + one architecture diagram | A **redrawn, anonymised** diagram: component roles, not systems, names or vendors |
-| Implementation | Prose + screenshots | Prose only. No `--c-sunken` screenshot frames on this page |
-| Technical decisions | Decision / Alternative / Why table | **This carries the page.** It needs no proprietary detail at all — it is pure reasoning |
-| Results & lessons | Measured numbers + buttons | Qualitative lessons; `source ↗` button omitted, `client work · no source` stated per §11.1 |
+| §11.2 section        | Normally                           | Here                                                                                       |
+| -------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------ |
+| Problem & motivation | Prose                              | Prose — the domain problem, stated generically                                             |
+| Architecture         | Prose + one architecture diagram   | A **redrawn, anonymised** diagram: component roles, not systems, names or vendors          |
+| Implementation       | Prose + screenshots                | Prose only. No `--c-sunken` screenshot frames on this page                                 |
+| Technical decisions  | Decision / Alternative / Why table | **This carries the page.** It needs no proprietary detail at all — it is pure reasoning    |
+| Results & lessons    | Measured numbers + buttons         | Qualitative lessons; `source ↗` button omitted, `client work · no source` stated per §11.1 |
 
 Before drafting: write a one-page publication boundary listing what may and may not appear (no customer names, no measurement values, no schema, no internal service names, no screenshots, no code), and get it acknowledged by your employer in writing. Do this at Phase 0, not at Phase 10 — the alternative is writing something good that you then cannot publish.
 
@@ -433,7 +433,7 @@ Before drafting: write a one-page publication boundary listing what may and may 
 
 Markdown tables must be wrapped by a rehype plugin into a scroll region with: sticky first column, edge fade, and a `scroll →` marker on the caption line that flips to `← scroll` at the end. The region must be **focusable and arrow-scrollable** (§15.2, §18.2 — the commonly-missed part) and labelled by its caption.
 
-Never reflow to cards (§3.2 law 03, §15.2). No hover state on data rows (§15.1) — worth stating in the component because index rows *do* have one and they look identical.
+Never reflow to cards (§3.2 law 03, §15.2). No hover state on data rows (§15.1) — worth stating in the component because index rows _do_ have one and they look identical.
 
 ---
 
@@ -449,19 +449,19 @@ This is what replaces "eyeball it against a screenshot." Five tiers, cheapest fi
 
 Stylelint with a deliberately harsh config:
 
-| Rule | Enforces |
-| --- | --- |
-| No colour literals outside `tokens.css` (hex, rgb, hsl, oklch, named) | §2 "no component may introduce a literal value" |
-| `box-shadow` disallowed everywhere | §2.10, §1.12 |
-| `border-width` allowed list: `1px`, `2px`, `0` | §2.8 |
-| `border-radius` allowed list: `0`, `3px`, `4px`, `50%`, `0 4px 4px 0` | §2.9 |
-| `transition-duration` / `animation-duration` ≤ `200ms` | §17.3 ceiling |
-| `transition-timing-function` must be `var(--ease)` | §17.3 one curve |
-| `font-family` only via `var(--font-*)` | §2.4 |
-| `outline: none` disallowed unless followed by a replacement | §18.2 |
-| Media queries only at `760px` / `1100px`; `@container` only at `700px` | §4.1, §4.2, §22.13 |
-| `text-transform: uppercase` only in a `--t-label` context | §2.5 typographic laws |
-| Property allowed-list for `transition-property` | §17.1 exhaustive list |
+| Rule                                                                   | Enforces                                        |
+| ---------------------------------------------------------------------- | ----------------------------------------------- |
+| No colour literals outside `tokens.css` (hex, rgb, hsl, oklch, named)  | §2 "no component may introduce a literal value" |
+| `box-shadow` disallowed everywhere                                     | §2.10, §1.12                                    |
+| `border-width` allowed list: `1px`, `2px`, `0`                         | §2.8                                            |
+| `border-radius` allowed list: `0`, `3px`, `4px`, `50%`, `0 4px 4px 0`  | §2.9                                            |
+| `transition-duration` / `animation-duration` ≤ `200ms`                 | §17.3 ceiling                                   |
+| `transition-timing-function` must be `var(--ease)`                     | §17.3 one curve                                 |
+| `font-family` only via `var(--font-*)`                                 | §2.4                                            |
+| `outline: none` disallowed unless followed by a replacement            | §18.2                                           |
+| Media queries only at `760px` / `1100px`; `@container` only at `700px` | §4.1, §4.2, §22.13                              |
+| `text-transform: uppercase` only in a `--t-label` context              | §2.5 typographic laws                           |
+| Property allowed-list for `transition-property`                        | §17.1 exhaustive list                           |
 
 Plus a small custom script asserting: every `var(--…)` used is defined; light and dark token sets have parity; no `@layer` other than the six declared.
 
@@ -511,7 +511,7 @@ Three things are judgment, not assertion, and belong on a written pre-merge chec
 
 Ten phases. Each has an exit criterion; don't start the next until it's met. The ordering follows one principle from the spec: **§19.3 says the article page is the reference implementation and every other page is a reduction of it** — so the article is built early, not last, and the index pages are derived from it.
 
-### Phase 0 · Decisions and skeleton *(1 day, revised from half-day — OD-04's publication boundary and the font risk check add real time)*
+### Phase 0 · Decisions and skeleton _(1 day, revised from half-day — OD-04's publication boundary and the font risk check add real time)_
 
 Five sub-phases, in dependency order. Nothing in 0.2 onward should start before 0.1 is done, since it fixes the tools everything else assumes.
 
@@ -520,7 +520,7 @@ Five sub-phases, in dependency order. Nothing in 0.2 onward should start before 
 1. **Package manager: pnpm.** Reasoning: strict, non-hoisted `node_modules` catches phantom dependencies (a package used but not declared) at install time rather than as a mystery production build failure — the same category of error T1–T5 exist to catch in content and CSS, so it's consistent to catch it in dependencies too. Cost: one more tool than npm; acceptable given the project already runs `pnpm`-agnostic CI images fine.
 2. **Node version: pin to the current Active LTS via `.nvmrc` / `"engines"` in `package.json`.** Verify the actual current LTS at nodejs.org rather than trusting a remembered number — don't guess.
 3. `git init`, initial commit with just `.gitignore`, `.editorconfig`, `README.md` (placeholder), `LICENSE`.
-4. **License — open micro-decision, OD-06.** Recommendation: a `LICENSE` covering code only (MIT is the sane default for a portfolio — it signals "read this, learn from it" without obligation) plus an explicit line in the README stating article prose and images are © Michael Obernhumer, all rights reserved, unless a post says otherwise. Reasoning: your content brief is about demonstrating engineering judgement through writing — that's worth protecting from wholesale republishing — while the *code* being copyable is free advertising and costs you nothing. Confirm or override before the first commit that adds real content.
+4. **License — open micro-decision, OD-06.** Recommendation: a `LICENSE` covering code only (MIT is the sane default for a portfolio — it signals "read this, learn from it" without obligation) plus an explicit line in the README stating article prose and images are © Michael Obernhumer, all rights reserved, unless a post says otherwise. Reasoning: your content brief is about demonstrating engineering judgement through writing — that's worth protecting from wholesale republishing — while the _code_ being copyable is free advertising and costs you nothing. Confirm or override before the first commit that adds real content.
 5. `.editorconfig` (LF, UTF-8, 2-space indent, trim trailing whitespace) and Prettier for `.astro` / `.css` / `.md` / `.json` (not JS-only — you want Markdown and CSS formatted consistently too). This is a code-hygiene decision, unrelated to the design system; it exists to keep diffs small when you're the only reviewer.
 
 **Exit:** `pnpm -v` and `node -v` match what's pinned; repo has one clean initial commit.
@@ -575,15 +575,15 @@ Do this before subsetting (Phase 1), because it changes what Phase 1 has to buil
 - OD-06 (license) and OD-07 (domain) resolved or explicitly deferred with a placeholder.
 - Publication boundary document sent.
 
-### Phase 1 · Token layer and theme *(1–1.5 days — revised up from 1 day: real font subsetting and metric-matching are measurement work, not typing)*
+### Phase 1 · Token layer and theme _(1–1.5 days — revised up from 1 day: real font subsetting and metric-matching are measurement work, not typing)_
 
-Six sub-phases. Two things already exist from work done ahead of schedule during Phase 0 and get *finished*, not started, here: `tokens.css` (drafted, two values still provisional) and the real font files (pulled and glyph-checked in 0.4, not yet subset or self-hosted). Order matters because 1.3 depends on 1.1's actual output filenames, and 1.6 depends on 1.2–1.4 existing to have something to lint.
+Six sub-phases. Two things already exist from work done ahead of schedule during Phase 0 and get _finished_, not started, here: `tokens.css` (drafted, two values still provisional) and the real font files (pulled and glyph-checked in 0.4, not yet subset or self-hosted). Order matters because 1.3 depends on 1.1's actual output filenames, and 1.6 depends on 1.2–1.4 existing to have something to lint.
 
 #### 1.1 · Font subsetting
 
 1. Subset the six variable files from 0.4 (Source Serif Roman/Italic, Plex Sans Roman/Italic, Plex Mono Roman/Italic) with `fonttools`' `pyftsubset`, to: Latin + German (Ä Ö Ü ä ö ü ß, per OD-05) + the confirmed-present glyphs from §2.11 (`→ ↗ ← · / # + −`).
 2. **Do not include `●` `○` `◐` in the subset request at all** — per ADR-0007a they're never rendered as font glyphs (CSS-drawn dot, inline SVG half-circle instead), so there's nothing to subset and no `unicode-range` fallback font is needed. This is a real simplification the 0.4 finding bought: the original plan assumed a fallback-font mechanism for missing glyphs; it turned out not to be necessary at all.
-3. **Preserve variable tables explicitly.** `pyftsubset` can silently drop `fvar`/`gvar`/`avar` if invoked carelessly (some flag combinations implicitly instance the font down to a static weight). Verify after subsetting — not before — by re-running the same fontTools `fvar`-axis check from 0.4 against the *subset* output, not just the source file. A subsetting step that quietly flattens the variable axis is a real, easy-to-miss failure mode and the whole reason §2.4's optical-size behavior exists.
+3. **Preserve variable tables explicitly.** `pyftsubset` can silently drop `fvar`/`gvar`/`avar` if invoked carelessly (some flag combinations implicitly instance the font down to a static weight). Verify after subsetting — not before — by re-running the same fontTools `fvar`-axis check from 0.4 against the _subset_ output, not just the source file. A subsetting step that quietly flattens the variable axis is a real, easy-to-miss failure mode and the whole reason §2.4's optical-size behavior exists.
 4. Output `.woff2` (universal support at this point, best compression — no `.woff` fallback needed).
 5. Record before/after byte sizes in `docs/reference/glyph-coverage.md` (append a subsetting-results section rather than a new file, since it's the natural continuation of that document).
 
@@ -615,7 +615,7 @@ Six sub-phases. Two things already exist from work done ahead of schedule during
 #### 1.5 · Inline theme resolver
 
 1. Write the theme-detection/persistence script as its own file (`src/lib/theme-init.ts`, compiled to a tiny inline string, or authored directly as a template literal) — logic only, no DOM beyond setting `data-theme` and reading/writing one `localStorage` key. Keep it pure enough to unit-test.
-2. It doesn't get *embedded* until `BaseLayout.astro` exists in Phase 2 (the `<head>` this script lives in isn't built yet) — so 1.5's deliverable here is the script itself plus a throwaway inline `<script>` on the specimen page that calls it, just to prove the no-flash behavior works before the real layout exists to host it properly.
+2. It doesn't get _embedded_ until `BaseLayout.astro` exists in Phase 2 (the `<head>` this script lives in isn't built yet) — so 1.5's deliverable here is the script itself plus a throwaway inline `<script>` on the specimen page that calls it, just to prove the no-flash behavior works before the real layout exists to host it properly.
 
 **Exit:** on the specimen page, a manual toggle switches instantly with no flash on reload, in both an explicit-choice and OS-preference state.
 
@@ -653,13 +653,13 @@ This is the cheapest insurance in the whole phase: every subsequent phase's "doe
 - Stylelint wired into `verify` and CI, proven to actually fail on a violation.
 - Specimen page live, covering every token and both glyph-resolution exceptions.
 
-### Phase 2 · Frame, layout structures, chrome *(1–2 days)*
+### Phase 2 · Frame, layout structures, chrome _(1–2 days)_
 
 The 1320 frame and the three column structures (§5.2) as three classes. Masthead at all three widths including the `<details>` menu panel with counts. Footer. Band system with gutter labels and closing hairlines.
 
 **Exit:** an empty three-band page renders correctly at 390/900/1320 in both themes; T3 checks 1, 4, 5 pass; masthead matches the reference screenshots.
 
-### Phase 3 · Prose and the article body *(2–3 days)*
+### Phase 3 · Prose and the article body _(2–3 days)_
 
 `prose.css` per §10.3. Headings with mono section numbers (§6·06), lists, links (§8.2 — including the offset-shadow underline that survives mid-URL breaks), quotes, callouts via directives, footnotes, metadata row, breadcrumb.
 
@@ -667,37 +667,37 @@ Build this against a **real 3,000-word article with a table, four code blocks, a
 
 **Exit:** the article reads correctly at all six matrix combinations; T3 all checks pass on it; measure verified at 68ch desktop / 38–40ch mobile.
 
-### Phase 4 · Code, terminal, figures, tables *(2–3 days)*
+### Phase 4 · Code, terminal, figures, tables _(2–3 days)_
 
 The hard parts, per §7 of this document. Custom Shiki theme, rehype chrome plugin, pinned line numbers, terminal component, figure directive with `kind`, table scroll regions.
 
 **Exit:** all twelve fixtures from T4 render correctly and pass T3. Particularly: 210-char code line scrolls without the page scrolling; 7-column table pins its first column; four consecutive code blocks keep their 24px of page ground.
 
-### Phase 5 · Content model and the article page *(1–2 days)*
+### Phase 5 · Content model and the article page _(1–2 days)_
 
 Collections, schemas, cross-entry invariants, `/w/[num]`, slug redirects, TOC island, progress island, prev/next, related, author block, RSS, sitemap.
 
 **Exit:** T1 passes; three real articles render end-to-end; TOC correctly absent below three `h2`s; series navigation works.
 
-### Phase 6 · Writing index and projects *(2 days)*
+### Phase 6 · Writing index and projects _(2 days)_
 
 Writing index (featured entry, year groups, counted-tag filter row, archive row), tag pages, projects index, project detail with status band.
 
 **Exit:** T3 passes on both index page types at all widths; the five-track → three-track → stacked row transitions match §20.3; project status leads on mobile (E3).
 
-### Phase 7 · Home, about, 404 *(1 day)*
+### Phase 7 · Home, about, 404 _(1 day)_
 
 Mostly composition — if any of these needs a new component, that's a signal to revisit Phases 2–6 rather than to add one (§22.8).
 
 **Exit:** all seven page types exist; the gallery page renders all twenty components in all states; screenshot baselines committed.
 
-### Phase 8 · Enforcement hardening *(1–2 days)*
+### Phase 8 · Enforcement hardening _(1–2 days)_
 
 Full T2–T5 wired into `npm run verify` and CI. Manual checklist written. Baselines locked.
 
 **Exit:** CI is red if any rule is violated; deliberately break one rule of each tier to confirm it actually fails.
 
-### Phase 9 · Deploy *(1 day)*
+### Phase 9 · Deploy _(1 day)_
 
 Per §10 below. Deploy an almost-empty site first so pipeline bugs surface before content exists.
 
@@ -705,7 +705,7 @@ Per §10 below. Deploy an almost-empty site first so pipeline bugs surface befor
 
 ### Phase 10 · Launch content
 
-Minimum viable publication: **4–6 articles, 3–4 projects, one of them a full case study.** Below that the index pages look empty and the design has nothing to be a reduction *of*.
+Minimum viable publication: **4–6 articles, 3–4 projects, one of them a full case study.** Below that the index pages look empty and the design has nothing to be a reduction _of_.
 
 Suggested first set, chosen because they're already half-written in your head and cover three different article types: the Ansible migration piece (problem-solving), one CTF writeup (reasoning process), the evolutionary SVG experiment (experiment format), and the homelab backup architecture (technical explanation).
 
@@ -733,16 +733,16 @@ Confirmed from earlier, with additions.
 
 Where the system must be able to grow without violating itself.
 
-| Future need | Prepared how | Cost if unprepared |
-| --- | --- | --- |
-| A fourth content type (notes, talks, uses) | Row components are collection-agnostic: they take a normalised `{number, title, meta[], href}` shape, not a `CollectionEntry<'writing'>` | Rewriting four list components |
-| Article count into the hundreds | Year-group bands (§19.2) already partition; archive-by-year already specified | Retrofitting pagination — which the design forbids |
-| Search (OD-01 reversal) | §12.2 derivation rules exist; component #21 via the extension protocol | None — genuinely deferrable |
-| A second language | Collection paths and `lang` set at Phase 4; hreflang scaffolding | Very expensive after 30 articles |
-| Article > 8,000 words | E14 auto-split; `series` schema already models parts | Manual surgery on a published permalink |
-| A new syntax role | §2.3 palette is a token set, not a Shiki theme literal | Re-authoring the theme |
-| Design system v1.1 | Every exception is in the `exceptions` CSS layer with its E-number; baselines make drift a diff | Silent drift |
-| Someone else contributing | `docs/decisions/` + `npm run verify` + the manual checklist | The system decays on first outside PR |
+| Future need                                | Prepared how                                                                                                                             | Cost if unprepared                                 |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| A fourth content type (notes, talks, uses) | Row components are collection-agnostic: they take a normalised `{number, title, meta[], href}` shape, not a `CollectionEntry<'writing'>` | Rewriting four list components                     |
+| Article count into the hundreds            | Year-group bands (§19.2) already partition; archive-by-year already specified                                                            | Retrofitting pagination — which the design forbids |
+| Search (OD-01 reversal)                    | §12.2 derivation rules exist; component #21 via the extension protocol                                                                   | None — genuinely deferrable                        |
+| A second language                          | Collection paths and `lang` set at Phase 4; hreflang scaffolding                                                                         | Very expensive after 30 articles                   |
+| Article > 8,000 words                      | E14 auto-split; `series` schema already models parts                                                                                     | Manual surgery on a published permalink            |
+| A new syntax role                          | §2.3 palette is a token set, not a Shiki theme literal                                                                                   | Re-authoring the theme                             |
+| Design system v1.1                         | Every exception is in the `exceptions` CSS layer with its E-number; baselines make drift a diff                                          | Silent drift                                       |
+| Someone else contributing                  | `docs/decisions/` + `npm run verify` + the manual checklist                                                                              | The system decays on first outside PR              |
 
 Two things deliberately **not** prepared for, because preparing for them would compromise the design: a card grid, and a CMS. If either becomes genuinely necessary, that's a design-system revision, not an implementation change.
 
@@ -754,7 +754,7 @@ Two things deliberately **not** prepared for, because preparing for them would c
 
 1. **Can an existing component take a variant?** If yes, do that. A variant must still satisfy every state and every width.
 2. **Can the page change instead?** §22.8: if a component would appear on exactly one page, the page is wrong.
-3. **If it genuinely must exist**, it ships with all nine things §22.7 requires — purpose, anatomy, variants, all states, responsive behaviour at three widths, spacing, type tokens, colour roles, and when *not* to use it — written into `DESIGN_SYSTEM.md` in the same PR as the code.
+3. **If it genuinely must exist**, it ships with all nine things §22.7 requires — purpose, anatomy, variants, all states, responsive behaviour at three widths, spacing, type tokens, colour roles, and when _not_ to use it — written into `DESIGN_SYSTEM.md` in the same PR as the code.
 4. It must pass the box-or-rule test (§9.2) and add no new token.
 5. It goes into the gallery page and gets a screenshot baseline in the same PR.
 
@@ -762,4 +762,4 @@ Same for tokens: a new colour must be added to **both** themes with a stated con
 
 ---
 
-*Companion to DESIGN_SYSTEM.md v1.0.*
+_Companion to DESIGN_SYSTEM.md v1.0._
