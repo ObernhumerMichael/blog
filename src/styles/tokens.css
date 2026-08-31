@@ -74,20 +74,23 @@
     /* Accent (§1.6 — one accent, budget of three per viewport) */
     --c-accent: light-dark(oklch(0.55 0.14 40), oklch(0.72 0.12 45));
 
-    /* !! PROVISIONAL — SPEC GAP !!
-       §2.2's dark table omits --c-accent-hi, and §18.1 leaves its dark contrast
-       cell empty, but §16.1 requires a hover step in BOTH themes. The value
-       below applies the light theme's own logic in reverse: light moves 0.08
-       toward higher contrast against its ground (0.55 -> 0.47) and gains 0.01
-       chroma, so dark moves 0.08 the other way (0.72 -> 0.80). Verify against
-       the dark article frames in Claude Design before launch and replace. */
+    /* RESOLVED 2026-08-31 (ADR-0015). §2.2's dark table omits --c-accent-hi,
+       and §18.1 leaves its dark contrast cell empty, but §16.1 requires a
+       hover step in both themes. The Claude Design dark frames were checked
+       against this and turned out inconsistent across frames (different
+       hover treatments in different exports) rather than giving one clear
+       answer to read off — so this is a reasoned decision, not a screenshot
+       measurement: light moves 0.08 toward higher contrast against its
+       ground (0.55 -> 0.47) and gains 0.01 chroma, so dark moves 0.08 the
+       other way (0.72 -> 0.80), the same relationship mirrored. See
+       docs/decisions/ADR-0015 for the full reasoning. */
     --c-accent-hi: light-dark(oklch(0.47 0.15 40), oklch(0.8 0.13 45));
 
-    /* !! PROVISIONAL — SPEC GAP !!
-       §2.1 defines --c-nav (inactive nav link, frame chrome labels) but §2.2
-       gives no dark value. Light --c-nav sits between --c-text and --c-muted,
-       slightly stronger than muted; the value below holds that same relation in
-       dark. Verify against the dark masthead frame before launch. */
+    /* RESOLVED 2026-08-31 (ADR-0015). §2.1 defines --c-nav (inactive nav
+       link, frame chrome labels) but §2.2 gives no dark value, and the same
+       cross-frame inconsistency applied here. Light --c-nav sits between
+       --c-text and --c-muted, slightly stronger than muted; the value below
+       holds that same relation in dark. See docs/decisions/ADR-0015. */
     --c-nav: light-dark(oklch(0.45 0.012 75), oklch(0.75 0.012 75));
 
     /* Semantic hues. §1.6 + §18.4: these may only ever appear ALONGSIDE a word,
