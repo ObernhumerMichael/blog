@@ -1,0 +1,106 @@
+/* =============================================================================
+   base.css — the focus token, the global motion override, and document-level
+   defaults. Three separate jobs; kept visually separated below since each
+   gets touched for a different reason at a different time.
+   ============================================================================= */
+
+@layer base {
+  /* -------------------------------------------------------------------------
+     1 · FOCUS (§2.13, §18.2)
+     "One ring, everywhere ... identical on every focusable element in both
+     themes, shown on keyboard focus only. Nothing removes it without
+     replacing it." This is that rule, in one place, so it can't drift.
+
+     The :focus / :focus-visible pairing hides the ring for a mouse click
+     (where it's usually unwanted) while keeping it for keyboard/programmatic
+     focus. `outline: none` is real here, but it is never used without an
+     immediate, unconditional replacement — the pairing IS the replacement,
+     which is what T2's stylelint rule (Phase 1.6) checks for.
+     ------------------------------------------------------------------------- */
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: var(--focus-w) solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* -------------------------------------------------------------------------
+     2 · MOTION (§17.5)
+     Every transition/animation duration in this codebase is required to
+     reference --dur or --dur-layout rather than a literal value (enforced by
+     stylelint, Phase 1.6) specifically so THIS override is genuinely global:
+     one media query, and every animated thing in the system collapses to
+     instant. Nothing here needs to know this rule exists.
+
+     Note for whoever writes the Phase 1.6 stylelint config: this is a
+     FEATURE query (prefers-reduced-motion), not a viewport-width breakpoint —
+     it is not subject to the "media queries only at 760/1100" rule, which
+     governs layout breakpoints specifically (§4.1).
+     ------------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --dur: 0s;
+      --dur-layout: 0s;
+    }
+  }
+
+  /* -------------------------------------------------------------------------
+     3 · DOCUMENT DEFAULTS
+     ------------------------------------------------------------------------- */
+
+  html {
+    /* Deliberately NOT setting a root font-size here (no 62.5% trick, no
+       fixed px value). tokens.css's own reasoning applies: type stays in
+       rem so a reader's browser font-size setting is honoured, and every
+       --fs-* token computes to its documented px value only at the
+       browser's own default. Overriding root font-size here would quietly
+       break that. */
+    color-scheme: light dark;
+  }
+
+  body {
+    background: var(--c-bg);
+    color: var(--c-text);
+
+    /* Sans/--t-ui as the document-level default, per §1.4's hierarchy:
+       "sans = the interface around the thing." prose.css (Phase 3) scopes
+       serif/--t-body specifically to article content — this is the
+       chrome-level default everything else sits on before that override
+       applies. */
+    font: var(--t-ui);
+
+    /* Crisper serif rendering, particularly on macOS WebKit, where the
+       default anti-aliasing tends to bloat thin serifs at body-text sizes. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* So a reader following a TOC link or a footnote reference (§10.5, §15)
+     doesn't land with the target heading tucked invisibly behind the sticky
+     masthead (§7.6). Scoped to :target rather than every [id] — it only
+     needs to matter at the exact moment an element IS the scroll target. */
+  :target {
+    scroll-margin-top: var(--masthead-h);
+  }
+
+  /* -------------------------------------------------------------------------
+     4 · UTILITY
+     One small, genuinely cross-cutting utility class. §18.3 requires the
+     metadata row's terms to be present for assistive tech ("reading time")
+     while staying invisible on screen — the standard clip-based technique,
+     defined once here rather than reinvented per component.
+     ------------------------------------------------------------------------- */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}

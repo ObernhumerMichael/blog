@@ -1,0 +1,125 @@
+/* =============================================================================
+   reset.css — deliberately minimal, hand-written.
+
+   Not an imported package (modern-normalize, Tailwind preflight, etc.)
+   because every off-the-shelf reset makes opinionated calls that fight
+   specific DESIGN_SYSTEM.md requirements:
+     - §10.4 wants REAL browser list markers, not custom bullets.
+     - §15.1 wants clean single-hairline table borders, no doubled rules.
+     - §7.5 / §12.1 rely on native <details>/<summary> with the design's OWN
+       +/- disclosure glyphs (§2.11), not the browser's default triangle.
+   A generic reset doesn't know any of that. This one only touches what it
+   has a specific, cited reason to touch.
+   ============================================================================= */
+
+@layer reset {
+  /* Border-box everywhere. Needed for width math to work predictably once
+     1px hairline borders (§2.8) and padding-based spacing (§2.6) are both in
+     play on the same element — without this, a 1px border silently adds 2px
+     to an element's rendered width beyond what its CSS width says. */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Zero the default margin browsers put on block-level text elements.
+     DESIGN_SYSTEM.md §5.3 and §10.3 define exact vertical rhythm (24px
+     paragraph-to-paragraph, 56px paragraph-to-h2, etc.) via spacing tokens
+     applied deliberately in prose.css (Phase 3) — the UA default margins
+     would just be noise to override, not a useful starting point. */
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  /* Lists: zero the default padding-left (which varies ~30-40px across
+     browsers, inconsistently) so prose.css can apply DESIGN_SYSTEM.md
+     §10.4's exact 26px indent on top of a known zero, not on top of
+     whatever a given browser felt like. Deliberately NOT touching
+     list-style — §10.4 explicitly wants real browser markers (disc/decimal),
+     not custom bullets, so that stays untouched. */
+  ul,
+  ol {
+    margin: 0;
+    padding-left: 0;
+  }
+
+  /* Standard modern image reset: block-level (kills the few pixels of
+     inline-baseline whitespace under an <img>) and capped at container
+     width. Works alongside, not instead of, §14's 65vh height cap and
+     object-fit rules, which land with the Figure component (Phase 4). */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Form/UI elements inherit typography instead of the browser's UI font.
+     DESIGN_SYSTEM.md §12 has no form system, but the interactive controls
+     that DO exist — the two button variants (§8.1), the copy control, the
+     theme control — are native <button> elements and need to pick up the
+     site's mono/sans tokens rather than rendering in the OS UI font. */
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Native <button> ships browser chrome (background, border, padding) that
+     every real button variant (§8.1) replaces entirely. Stripping it here
+     means component CSS starts from a clean slate instead of overriding
+     UA chrome on top of UA chrome. */
+  button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  /* Links: DESIGN_SYSTEM.md §8.2 draws every link's underline itself (as an
+     offset rule, specifically so it survives a mid-URL line break without
+     changing line height — see §8.2's own reasoning). The browser's default
+     blue-and-underlined treatment would just be visual noise to override on
+     every single link in the system, so it's neutralized once, here. */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Tables: collapse to single hairlines instead of doubled borders.
+     DESIGN_SYSTEM.md §15.1 wants exactly one rule between rows, never a
+     doubled one — border-collapse is what makes that achievable at all once
+     component CSS (Phase 4) adds the actual border declarations. */
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* Native <details>/<summary> back the mobile menu (§7.5) and the TOC
+     disclosure (§12.1). The design's affordance for open/closed state is
+     its own +/- glyph (§2.11) — the browser's default triangle marker would
+     be a second, conflicting affordance sitting right next to it. */
+  summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
