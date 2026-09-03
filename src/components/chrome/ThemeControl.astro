@@ -1,0 +1,82 @@
+---
+// ThemeControl — §12.1's theme control, in a hairline frame, radius-sm.
+//
+// Not one of the 20 numbered components (§6) — it's part of §12.1's
+// interactive-controls inventory — but built as its own file since it's
+// used in TWO places: inline in the masthead (icon-only, all widths >=760)
+// and, per §7.5, inside the mobile menu panel below 760 (icon + "theme"
+// label). Rather than duplicate markup, `showLabel` switches between them.
+//
+// ADR-0007a: no font in the stack has ◐ (U+25D0). This SVG half-circle is
+// the documented substitute — a deliberate, narrow exception, not the
+// icon-library pattern §1.12 forbids: one bespoke shape, using currentColor
+// so it behaves identically to a text glyph with respect to theming.
+interface Props {
+  showLabel?: boolean;
+  class?: string;
+}
+const { showLabel = false, class: className } = Astro.props;
+---
+
+<button type="button" class:list={['theme-control', className]} data-theme-control>
+  <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true">
+    <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
+    ></circle>
+    <path d="M8 1a7 7 0 0 1 0 14z" fill="currentColor"></path>
+  </svg>
+  {showLabel && <span class="label">theme</span>}
+  <span class="visually-hidden">Toggle colour theme</span>
+</button>
+
+<style>
+  @layer components {
+    .theme-control {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-8);
+      padding: var(--sp-8);
+      border: var(--bw) solid var(--c-rule);
+      border-radius: var(--radius-sm);
+      background: none;
+      color: var(--c-text);
+      cursor: pointer;
+      min-width: var(--target-min);
+      min-height: var(--target-min);
+      justify-content: center;
+
+      transition-property: border-color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .theme-control:hover {
+      border-color: var(--c-text);
+    }
+
+    .glyph {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .label {
+      font-family: var(--font-mono);
+      font-size: var(--fs-meta-xs);
+      line-height: 1;
+    }
+  }
+</style>
+
+<script>
+  // Class-based, not ID-based: this component renders more than once per
+  // page (masthead instance + Phase 2.4's mobile-panel instance), and two
+  // elements can't share one id. Both instances stay wired to the same
+  // underlying theme-init.js state, so toggling either one updates both —
+  // correct, since it's one page-level theme, not two independent controls.
+  const controls = document.querySelectorAll<HTMLButtonElement>('[data-theme-control]');
+  controls.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      window.__themeInit.toggleTheme();
+    });
+  });
+</script>

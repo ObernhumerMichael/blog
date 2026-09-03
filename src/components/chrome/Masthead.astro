@@ -1,0 +1,273 @@
+---
+// Masthead (§7.1–7.6, component 01/02).
+//
+// Height is NOT set explicitly anywhere in this file. §25.4 resolves the
+// apparent conflict between "20px padding-y" and "60px fixed height" at
+// desktop: height is a CONSEQUENCE of padding at every tier (60/56/48 are
+// the observed results of 20/18/14px padding-block, not independently
+// pinned values). --masthead-h stays a reference constant for OTHER
+// calculations (base.css's scroll-margin-top, layout.css's sticky gutter
+// offset) rather than something this component sets on itself.
+//
+// Scroll-acquired --c-surface ground (§7.6) is deliberately NOT built here
+// — that's Phase 2.6, and needs a real mechanism decision (CSS
+// scroll-driven animation vs. a JS island) that doesn't belong in this file.
+import { SITE_NAME, SITE_ROLE, NAV_LINKS } from '../../consts';
+import { isCurrentPath } from '../../lib/nav';
+import ThemeControl from './ThemeControl.astro';
+
+const pathname = Astro.url.pathname;
+const isCurrent = (href: string) => isCurrentPath(pathname, href);
+---
+
+<header class="masthead">
+  <div class="frame">
+    <div class="row">
+      <div class="identity">
+        <a href="/" class="wordmark">{SITE_NAME}</a>
+        <span class="role">{SITE_ROLE}</span>
+      </div>
+
+      <!-- Desktop/tablet: inline links + theme control (§7.3, §7.4). -->
+      <nav class="nav-inline" aria-label="Primary">
+        <ul>
+          {
+            NAV_LINKS.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class:list={['nav-link', { current: isCurrent(link.href) }]}
+                  aria-current={isCurrent(link.href) ? 'page' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <ThemeControl class="nav-theme" />
+      </nav>
+
+      <!-- Mobile (<760): links collapse to this control (§7.5). The PANEL
+           it reveals (rows, counts, rss line, theme control) is Phase 2.4 —
+           this is the trigger shell only, but it is real and functional:
+           opens/closes, swaps its label, swaps its border colour. -->
+      <details class="menu-disclosure">
+        <summary class="menu-trigger">
+          <span class="label-menu">menu</span>
+          <span class="label-close">close</span>
+        </summary>
+        <div class="menu-panel">
+          <!-- Phase 2.4: destination rows with counts, rss/theme row. -->
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  @layer components {
+    .masthead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: var(--bw) solid var(--c-rule);
+      background: var(--c-bg);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-block: var(--sp-14); /* mobile — §7.5 */
+      padding-inline: var(--page-margin);
+    }
+
+    @media (min-width: 760px) {
+      .row {
+        padding-block: var(--sp-18); /* tablet — §7.4 */
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .row {
+        padding-block: var(--sp-20); /* desktop — §7.1 */
+      }
+    }
+
+    .identity {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-12);
+      min-width: 0;
+    }
+
+    .wordmark {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: var(--fs-wordmark);
+      letter-spacing: -0.01em;
+      color: var(--c-text);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .role {
+      font-family: var(--font-mono);
+      font-size: var(--fs-meta-xs);
+      color: var(--c-muted);
+      white-space: nowrap;
+    }
+
+    /* §7.4: "The role text drops — it is the least load-bearing datum in
+       the masthead and the wordmark alone still identifies the
+       publication." This is stacking law 02 (relocate, never delete) being
+       LEGITIMATELY overridden, not violated — DESIGN_SYSTEM.md states the
+       exception explicitly, so it's not a silent deletion. Noted here so a
+       later reader doesn't "fix" this back to always-visible. */
+    /* §7.4/§7.3: role text shows ONLY at desktop (>=1280). §20.1's own
+       worked example confirms this explicitly: "Tablet (900). Role text
+       removed" — it is not a mobile-only thing, it drops at 760 already.
+       Written as "hide below 1280" rather than "show above 1280" so it
+       reads the same direction as every other desktop-only override in
+       this file. */
+    @media (max-width: 1279px) {
+      .role {
+        display: none;
+      }
+    }
+
+    /* ---- Desktop/tablet inline nav (§7.3, §7.4) ---- */
+
+    .nav-inline {
+      display: none;
+    }
+
+    @media (min-width: 760px) {
+      .nav-inline {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-22); /* tablet gap, §7.4 */
+      }
+      .nav-inline ul {
+        display: flex;
+        gap: var(--sp-22);
+        list-style: none;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .nav-inline {
+        gap: var(--sp-26); /* desktop gap, §7.1 */
+      }
+      .nav-inline ul {
+        gap: var(--sp-26);
+      }
+    }
+
+    .nav-link {
+      font-family: var(--font-sans);
+      font-size: var(--fs-nav);
+      color: var(--c-nav);
+      text-decoration: none;
+      padding-bottom: 2px; /* §7.2: underline sits 2px below the baseline */
+      border-bottom: 1px solid transparent;
+
+      transition-property: border-color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .nav-link:hover {
+      /* §7.2: "the text does not move" — only the underline (border-color)
+         changes; text stays --c-nav, it does not also become --c-accent-hi. */
+      border-color: var(--c-accent-hi);
+    }
+
+    .nav-link.current {
+      color: var(--c-text);
+      border-color: var(--c-accent);
+    }
+
+    .nav-link:active {
+      color: var(--c-accent-hi);
+    }
+
+    /* ---- Mobile menu trigger shell (§7.5) ---- */
+
+    .menu-disclosure {
+      display: block;
+    }
+
+    @media (min-width: 760px) {
+      .menu-disclosure {
+        display: none;
+      }
+    }
+
+    .menu-trigger {
+      /* 7px/9px: DESIGN_SYSTEM.md §7.5 states this pair explicitly, and it
+         matches neither the canonical spacing scale (4/8/12/16/20/24/32/
+         40/56/72/96/128) nor the E13 component-interior sub-steps (14/18/
+         22/28) — confirmed by checking, not assumed. Treated the same way
+         as E1's 44px grid-gap: a documented literal exception, not a value
+         to generalise from or reuse elsewhere. */
+      padding: 7px 9px;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--target-min);
+      min-height: var(--target-min);
+
+      font-family: var(--font-mono);
+      font-size: var(--fs-meta-xs);
+      color: var(--c-text);
+      border: var(--bw) solid var(--c-rule);
+      /* §9.3's own table names this control by its exact role — "Disclosure
+         frame (TOC, menu summary)" — and gives it radius 4 (--radius), a
+         DIFFERENT row from "Framed control (copy, theme)" at radius-sm
+         (3px). Using --radius here per that explicit row; flagged in this
+         phase's write-up since a reference screenshot showed 3px instead. */
+      border-radius: var(--radius);
+      cursor: pointer;
+      list-style: none;
+
+      transition-property: border-color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    /* Chrome/Safari render a default disclosure triangle marker on
+       <summary> via this pseudo-element; reset.css's `list-style: none`
+       already removes the Firefox/standard marker, this catches the rest. */
+    .menu-trigger::-webkit-details-marker {
+      display: none;
+    }
+
+    .label-close {
+      display: none;
+    }
+
+    .menu-disclosure[open] .menu-trigger {
+      border-color: var(--c-accent);
+    }
+    .menu-disclosure[open] .label-menu {
+      display: none;
+    }
+    .menu-disclosure[open] .label-close {
+      display: inline;
+    }
+
+    /* §7.5: "an in-flow disclosure, not a drawer... pushes the page down."
+       This is the DEFAULT behaviour of a <details> element with no
+       position/overlay styling applied — the panel is simply flow content
+       that appears in the document. Nothing here needs to do anything to
+       achieve this; the absence of `position: absolute/fixed` IS the
+       implementation. */
+    .menu-panel {
+      padding-block: var(--sp-16);
+      border-top: var(--bw) solid var(--c-rule);
+    }
+  }
+</style>

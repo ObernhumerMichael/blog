@@ -241,8 +241,15 @@
     --fs-statement: 1.5rem; /* 24px  — homepage opening statement */
     --fs-callout: 1rem; /* 16px  — 15.5px at mobile, see below */
     --fs-quote: 1.1875rem; /* 19px  — spec 18–19, upper chosen */
-    --fs-wordmark: 0.90625rem; /* 14.5px */
-    --fs-nav: 0.84375rem; /* 13.5px */
+    --fs-wordmark: 0.84375rem; /* 13.5px — MOBILE tier (§7.5). Was
+      incorrectly the desktop value (14.5px) with no responsive tiers at all
+      until this was caught while building the masthead in Phase 2.3.
+      Tablet/desktop overrides are in the media blocks below. */
+    --fs-nav: 0.8125rem; /* 13px — tablet tier (§7.4). Inert below 760 since
+      nav links collapse to the menu control there (§7.5), so this value is
+      never actually rendered at the mobile tier; kept equal to the tablet
+      value rather than inventing a third, unused number. Desktop override
+      (13.5px, §7.3) is in the 1280 block below. */
     --fs-meta-sm: 0.71875rem; /* 11.5px — captions, footer, TOC */
     --fs-meta-xs: 0.6875rem; /* 11px  — spec 10.5–11 */
     --fs-table-cell: 0.78125rem; /* 12.5px at mobile; 13px from 760 — FLOOR */
@@ -419,6 +426,7 @@
       --fs-table-cell: 0.8125rem; /* 13px */
       --fs-callout: 1rem; /* 16px */
       --fs-row-title: 1.09375rem; /* 17.5px — spec 17–17.5, upper chosen (§05) */
+      --fs-wordmark: 0.875rem; /* 14px — tablet tier (§7.4) */
 
       /* Spacing (§3.3) */
       --page-margin: var(--sp-32);
@@ -464,6 +472,8 @@
       --fs-lead: 1.25rem; /* 20px */
       --lh-lead: 1.62;
       --fs-ui: 0.9375rem; /* 15px */
+      --fs-wordmark: 0.90625rem; /* 14.5px — desktop tier (§7.3) */
+      --fs-nav: 0.84375rem; /* 13.5px — desktop tier (§7.3) */
 
       /* Spacing (§3.3) */
       --page-margin: var(--sp-56);

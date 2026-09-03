@@ -7,6 +7,7 @@
 // would reflexively add it, which is why the warning lives here.
 
 import { SITE_NAME, SITE_URL } from '../consts';
+import Masthead from '../components/chrome/Masthead.astro';
 import '../styles/global.css';
 
 // `?raw` + `is:inline` below: verified in Phase 1.5 that this is the only
@@ -74,7 +75,7 @@ const PRELOAD_FONTS = [
     <!-- §18.2: the first focusable element on every page. -->
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <!-- Masthead lands here in Phase 2.3 -->
+    <Masthead />
 
     <!-- tabindex="-1" so the skip link can actually move focus here;
          without it the browser scrolls but focus stays on the link. -->
