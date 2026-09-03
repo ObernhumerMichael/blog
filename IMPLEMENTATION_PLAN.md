@@ -264,7 +264,7 @@ Revised from my earlier proposal to match AD-03 and the actual page inventory.
 │   │   ├── about.astro
 │   │   ├── 404.astro
 │   │   ├── rss.xml.ts
-│   │   └── _dev/                          # gallery + fixtures, excluded from prod build
+│   │   └── dev/                           # gallery + fixtures — see §3 note below on how exclusion actually works
 │   │       ├── gallery.astro
 │   │       └── fixtures/
 │   │
@@ -298,7 +298,7 @@ Revised from my earlier proposal to match AD-03 and the actual page inventory.
 
 Two structural notes worth stating:
 
-**`_dev/` is excluded from the production build** (leading underscore = not routed by Astro, plus an explicit build-time guard). The gallery and the twelve edge-case fixtures need to be buildable and testable but must never ship. They're the backbone of §8.
+**Correction, found while testing Phase 1.2:** a leading underscore does _not_ exclude an Astro page from routing — it only silences a warning about non-`.astro` files sitting in `src/pages/`. Verified directly: an identical `.astro` file returns 404 under `_dev/` and 200 under `dev/`, in both `astro dev` and `astro build`. So the directory is named **`dev/`, no underscore** — it's a completely normal, fully routable set of pages. Exclusion from what actually ships happens one layer later, at deploy time: the deploy step (§10) runs `rm -rf dist/dev` — or the rsync push uses `--exclude=dev/` — before the atomic release swap. The gallery and the twelve edge-case fixtures need to be buildable _and viewable_ during development; they must never reach production. This is now a deploy-pipeline responsibility, not a routing trick.
 
 **`docs/decisions/`** holds one short ADR per decision above. Not ceremony — in eighteen months you will not remember why Tailwind was rejected, and the design system doesn't record implementation reasoning by design (§24).
 
@@ -484,7 +484,7 @@ Assertions, all mechanical:
 
 ## T4 · Edge-case fixtures — the spec's own stress tests
 
-§25.6 lists twelve content stress tests the design was verified against. Commit them as draft fixtures under `_dev/fixtures/` and run T3 against every one:
+§25.6 lists twelve content stress tests the design was verified against. Commit them as draft fixtures under `dev/fixtures/` and run T3 against every one:
 
 148-character title · 8 tags · 210-character code line · 7-column table · 90-word article · 9,400-word / 34-section article · 3840×2160 screenshot · image-free article · four consecutive code blocks · long URL in prose · long caption · project with no source.
 
@@ -493,7 +493,7 @@ This is the highest-leverage part of the whole enforcement system, because these
 ## T5 · Visual regression and performance
 
 - **Screenshot baselines** for the 42-render matrix, committed. Threshold ~0.1%. Any intentional design change updates baselines in the same commit — so design drift becomes a reviewable diff instead of an accumulation.
-- **The gallery page** (`_dev/gallery.astro`) renders all twenty components in every state (default / hover / focus / active / disabled / current) in both themes. Force states via CSS classes so screenshots capture them deterministically.
+- **The gallery page** (`dev/gallery.astro`) renders all twenty components in every state (default / hover / focus / active / disabled / current) in both themes. Force states via CSS classes so screenshots capture them deterministically.
 - **Lighthouse CI** budgets: performance ≥ 98, a11y = 100, JS ≤ 5 KB, CLS ≤ 0.01, LCP ≤ 1.2s. The JS budget is what keeps AD-11 honest over time.
 - **`lychee`** link check on the built output.
 
@@ -541,7 +541,7 @@ Five sub-phases, in dependency order. Nothing in 0.2 onward should start before 
 
 1. Export from Claude Design at the **six-combination matrix**: 390 / 900 / 1320 × light / dark, for all seven page types (home, writing index, article, projects index, project detail, about, 404) — 42 images.
 2. Fixed naming convention, since T5's screenshot baselines will eventually compare against these: `docs/reference/<page-slug>/<width>-<theme>.png`, e.g. `docs/reference/article/1320-light.png`.
-3. Also pull the **twenty-component gallery** if Claude Design has one rendered — this seeds `_dev/gallery.astro` in Phase 7 and saves re-deriving component states from the spec text alone.
+3. Also pull the **twenty-component gallery** if Claude Design has one rendered — this seeds `dev/gallery.astro` in Phase 7 and saves re-deriving component states from the spec text alone.
 
 Reasoning this is a Phase 0 blocker and not a "do it whenever" task: every visual judgement call from Phase 1 onward (including the ones already flagged as provisional in `tokens.css`) gets resolved by looking at these, not by re-opening Claude Design each time. Get them once, get them complete.
 
@@ -629,7 +629,7 @@ Six sub-phases. Two things already exist from work done ahead of schedule during
 
 #### 1.7 · Specimen page
 
-`src/pages/_dev/specimen.astro` — excluded from the production build per the `_dev` convention already established. Renders, in both themes via the 1.5 toggle:
+`src/pages/dev/specimen.astro` — fully routable like any other page; excluded from what ships via the deploy-time step described in §3, not via Astro routing. Renders, in both themes via the 1.5 toggle:
 
 - Every colour token as a labelled swatch.
 - Every `--t-*` type step at real size with its token name printed in mono beside it.
@@ -653,11 +653,151 @@ This is the cheapest insurance in the whole phase: every subsequent phase's "doe
 - Stylelint wired into `verify` and CI, proven to actually fail on a violation.
 - Specimen page live, covering every token and both glyph-resolution exceptions.
 
-### Phase 2 · Frame, layout structures, chrome _(1–2 days)_
+### Phase 2 · Frame, layout structures, chrome _(2–3 days — revised up from 1–2: OD-08 below is real design work, and the mobile menu has more correctness constraints than its size suggests)_
 
-The 1320 frame and the three column structures (§5.2) as three classes. Masthead at all three widths including the `<details>` menu panel with counts. Footer. Band system with gutter labels and closing hairlines.
+Eight sub-phases. This is the first phase where the token values become actual geometry, which is why it opens with a blocking arithmetic finding rather than with code.
 
-**Exit:** an empty three-band page renders correctly at 390/900/1320 in both themes; T3 checks 1, 4, 5 pass; masthead matches the reference screenshots.
+#### 2.0 · OD-08 — resolve the `--bp-gutter` arithmetic **(blocking, needs your decision)**
+
+**DESIGN_SYSTEM.md §4.1 contains an arithmetic error, and it blocks 2.1.** §4.1 justifies the 1100px breakpoint like this: _"the width at which `148 + 44 + 680 + 44 + 200 = 1016` plus 2 × 32 margins can be honoured."_
+
+That sum is wrong. The correct total is **1116**, not 1016 — an off-by-100 typo. Verified by computation, not by eye:
+
+|                                 |                                          |
+| ------------------------------- | ---------------------------------------- |
+| Three-track content width       | `148 + 44 + 680 + 44 + 200` = **1116px** |
+| §3.3's mandated margin at ≥1100 | 56px each side                           |
+| Minimum viewport required       | 1116 + 112 = **1228px**                  |
+| Available at a 1100px viewport  | 1100 − 112 = **988px**                   |
+| Result at the stated breakpoint | **overflows by 128px**                   |
+
+So at exactly 1100px, the three-track article shape cannot be honoured — it would overflow, and the only way to make it fit would be to steal from the measure, which §4.1's own reasoning and §22.10 both forbid absolutely. **The reasoning in §4.1 is correct; only its number is wrong**, and the reasoning itself points at ~1228.
+
+**Recommendation: move `--bp-gutter` to 1280px.** This preserves every token value in §2.7, preserves the measure, and keeps the design's own stated logic intact. The alternative — keeping 1100 and shrinking the gutter or aside — would change published token values to accommodate a typo, which is backwards.
+
+On the specific number, since the obvious choice is wrong in a way worth noting:
+
+| Candidate | Slack after 56px margins | Verdict                                                                                                                                                                                          |
+| --------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1228      | 0px                      | The exact minimum. Zero tolerance — rejected.                                                                                                                                                    |
+| 1240      | 12px                     | Tempting (minimum, rounded), but **thinner than a classic Windows scrollbar** (~15–17px), which can eat the difference and cause the layout to engage at a width where it doesn't fit. Rejected. |
+| **1280**  | **52px**                 | Comfortable margin for scrollbar and sub-pixel variance. **Recommended.**                                                                                                                        |
+
+1280 is admittedly a device-ish number, which sits awkwardly against §4.3's "prefer available space over device names." The justification here is still structural, not device-based: it is the nearest round number that clears 1228 with enough tolerance to survive a scrollbar. Worth recording that reasoning in the ADR so it doesn't read as a device breakpoint later.
+
+Consequences, all of which are Phase 2 work once you confirm:
+
+- `tokens.css`: the `@media (min-width: 1100px)` block becomes `1280px`, and its comment (which currently repeats the wrong `1016` arithmetic — I propagated the error) gets corrected.
+- `.stylelintrc.json`: the media-query allow-list changes from `760px|1100px` to `760px|1280px`. Good sign that the T2 rule set is doing real work — it will hard-fail on any file that misses the change.
+- The tablet range widens from 760–1099 to 760–1279. No component changes; that range's behaviour is already fully specified.
+- `DESIGN_SYSTEM.md` has 19 references to 1100. Since it's the authoritative document, **it should be corrected at source rather than silently diverged from** — otherwise every future reader re-derives the same wrong number. This needs an ADR either way.
+
+Do not start 2.1 before this is decided; the frame classes encode the number directly.
+
+#### 2.1 · `layout.css` — the frame, three structures, bands
+
+1. **The frame.** `max-width: var(--page-max)`, `margin-inline: auto`, and **no horizontal padding of its own**. The page margin lives on the bands inside it instead.
+
+   This inversion is the key insight of the whole layout layer, and it makes §5.5's two rows fall out for free. §5.5 requires hairlines to span "full frame width" at desktop but "full viewport width" at mobile, while text keeps its margin at both. If the border sits on a band that is itself the frame's full width, with `padding-inline: var(--page-margin)` pushing its _content_ inward, then: at desktop the rule spans the full 1320 while text is inset 56; at mobile the frame is fluid (= viewport) so the rule spans the viewport while text is inset 20. **Stacking law 04 is satisfied by construction, with no mobile-specific rule at all** — which is a strong signal the model is right, since §3.2 presents that law as universal.
+
+2. **Exactly three column-structure classes** (§5.2, §22.9 — do not invent a fourth):
+   - `.layout-article` — `grid-template-columns: var(--gutter-w) var(--measure) var(--aside-w)`, `gap: var(--grid-gap)`, collapsing to one column below `--bp-gutter`.
+   - `.layout-band` — `var(--gutter-w) minmax(0, 1fr)`, same gap, same collapse. The workhorse.
+   - `.layout-measure` — a single `min(100%, var(--measure))` column.
+
+3. **The band.** Grid row, `padding-block: var(--sp-band-y)`, `border-bottom: var(--bw) solid var(--c-rule)`. The last band before the footer drops its bottom rule (§5.3 — the footer's top rule serves), which is `:last-of-type` or an explicit prop, not a hand-applied override.
+
+4. **Container context for E6.** Put `container-type: inline-size` on the article body wrapper now. Nothing consumes it until Phase 3/4 (figures, code, tables consult their container at <700, not the viewport), but the element it belongs on is created here — adding it later means editing layout after components already depend on it.
+
+**Exit:** a bare three-band test page renders correctly at 390 / 900 / 1320 in both themes; hairlines span the frame at desktop and the viewport at mobile while text keeps its margin at both, verified by eye against the 0.3 reference screenshots.
+
+#### 2.2 · `BaseLayout.astro`
+
+The first real layout, and the home for several things currently living on dev pages:
+
+1. `<html lang={lang}>` with `lang` as a prop defaulting to `'en'` — the OD-05 German preparation, and load-bearing for §2.5's automatic hyphenation on long titles, which uses language-keyed dictionaries.
+2. The three font preload hints carried over from 1.3 (`source-serif-roman`, `plex-sans-roman`, `plex-mono-roman` — Roman only; these are variable fonts, so one file covers every weight, and italic is quote-only).
+3. The inline theme script, promoted out of the dev pages via the same `?raw` + `is:inline` mechanism verified in 1.5.
+4. **The skip-to-content link** — §18.2 requires it to be the first focusable element on every page. This needs a `.skip-link` class that `base.css` does not currently have: the existing `.visually-hidden` utility is _permanently_ hidden, whereas a skip link must become visible on focus. Small addition to `base.css`, flagged because it's easy to reach for the wrong existing class.
+5. `<main id="main">` as the skip target.
+6. An explicit comment that ViewTransitions / ClientRouter must never be added here (AD-01, §17.4) — this is the file where someone would reflexively add it.
+
+**Exit:** every page renders through `BaseLayout`; tabbing from a fresh page load focuses the skip link first, and activating it moves focus to `<main>`.
+
+#### 2.3 · Masthead — wordmark, role text, nav, theme control
+
+Per §7.1–7.4. Wordmark (sans 600 14.5, −0.01em) + role text (mono 11, `backend · infrastructure`) baseline-aligned with a 12px gap; three destinations + theme control on the right at 26px gaps; single bottom hairline at full frame width; `position: sticky`.
+
+Two details worth calling out because they're easy to get subtly wrong:
+
+- **The role text drops at tablet** (§7.4), and §7.4 gives a reason worth preserving in a comment: it is the one datum in the masthead whose information is fully carried by the wordmark beside it. That is stacking law 02 (relocate, never delete) being _legitimately_ overridden, not violated — worth documenting so a later reader doesn't "fix" it.
+- **`--masthead-h` is 60px only at ≥`--bp-gutter`.** §25.4 resolves this explicitly: height is a consequence of padding (18 tablet / 14 mobile), not an independent token. So the token sets an explicit height only at desktop. Note this makes `base.css`'s `scroll-margin-top: var(--masthead-h)` slightly generous on mobile — erring large is correct here, so no change needed, but it should be a known deviation rather than a surprise.
+
+The theme control promotes the ADR-0007a inline SVG half-circle prototyped on the specimen page into a real component, in a hairline frame at `--radius-sm`.
+
+**Exit:** masthead matches the reference screenshots at all three widths in both themes; the current page carries its accent underline (§7.2); every control clears 44px on touch.
+
+#### 2.4 · Mobile menu — the in-flow disclosure
+
+Deceptively constrained. §7.5 specifies a native `<details>` that **pushes the page down rather than overlaying it**, with no scroll lock, no focus trap, and no close-on-outside-click — and §7.5 is explicit that this is _why_ the pattern is safe ("no focus trap to get wrong"). Resisting the instinct to build a drawer is the whole point.
+
+- Rows 48px, destination in sans 16 on the left, **count in mono 11 muted on the right** (`Writing 38`, `Projects 6`, `About —`).
+- **The counts need a data shape, and this is worth deciding deliberately**: two of the three destinations have a count and one has an em dash. So `NAV_LINKS` in `consts.ts` needs a notion of "count source, or explicitly none" rather than a plain number. Also note that with collections empty until Phase 5, these will honestly render `Writing 0` — correct behaviour, not a bug, and better than hardcoding a fake number (content brief: no invented metrics).
+- The label swaps `menu` → `close` and the border takes `--c-accent` when open. **Implement the swap with two real elements toggled by the `[open]` attribute, not with CSS `content:`** — generated content isn't reliably announced by assistive technology, and this control is the only navigation affordance at this width.
+- Final row: `rss ↗ · github ↗ · pgp ↗` left, theme control right — the theme control _moves into the panel_ at this width rather than competing with the menu control in the masthead.
+
+**Exit:** the panel pushes content rather than overlaying; keyboard-only navigation through open → links → close works with no trap; counts render from real collection data.
+
+#### 2.5 · Footer
+
+Per §18. `--c-surface` ground, one top hairline, two tracks, mono 11.5 / 1.9 throughout, name in `--c-text` and everything else muted, 24px padding-block, stacking to one left-aligned column below 760 with type and colour unchanged.
+
+**OD-09, small but needs an answer before writing it:** §18 specifies the footer's right track ends with `© 2026 · built with Astro · colophon`. But §19 defines exactly seven page types and there is no colophon page; §25.5's confirmed-absences list doesn't mention one either. So `colophon` is either an eighth page type (which would need the §12 extension protocol) or it isn't a link at all.
+
+**Recommendation: make it a section on `/about`** and link to `/about#colophon`. The about page is already described as "a colophon-style record" in §19.6, so the content belongs there, the seven-page inventory stays intact, and no extension protocol is needed. Alternative if you'd rather: drop the word entirely. Either is defensible; inventing an eighth page for one footer link is not.
+
+**Exit:** footer matches reference screenshots at all three widths; every link resolves (no dead `colophon` href).
+
+#### 2.6 · Sticky masthead scroll state
+
+§7.6: the masthead's _only_ scroll behaviour is acquiring the `--c-surface` ground. It does not shrink, hide, or animate (§17.2 explicitly bans sticky-header shrink).
+
+**This needs a mechanism decision, because the obvious approach breaks AD-11.** A scroll listener would be a fourth JS island, and AD-11 budgets exactly three. Two real options:
+
+- **CSS scroll-driven animation** (`animation-timeline: scroll()`), zero JS. Where unsupported, the masthead simply never acquires the surface ground — a purely cosmetic degradation with nothing broken and no layout shift. **Recommended.** Note it isn't really "animation" in the §17.1 sense: the property change can be instantaneous, and §17.1's exhaustive what-animates list doesn't include this, so a duration here would arguably violate that list.
+- A sentinel element plus `IntersectionObserver`, folded into an _existing_ island rather than added as a fourth.
+
+Worth stating plainly: this is the least important item in Phase 2 and the first thing to cut if it fights the browser matrix.
+
+**Exit:** the ground appears on scroll in supporting browsers with no layout shift, and its absence changes nothing structural elsewhere.
+
+#### 2.7 · Bring T3 forward — minimal Playwright
+
+The original plan defers all of T3 to Phase 8, but Phase 2's own exit criteria already name T3 checks 1, 4, and 5. **Recommend bringing a minimal Playwright setup forward here**, for the same reason stylelint moved to 1.6: it is far cheaper to build compliant layout than to retrofit it, and these three checks are exactly the ones a layout phase can violate invisibly.
+
+Three checks only — not the full T3 suite:
+
+1. **No horizontal page scroll** (`documentElement.scrollWidth <= clientWidth`) at 390 / 900 / 1320. §10.11 states this absolutely, and it is the single highest-value automated check in the entire system.
+2. **Touch targets** ≥ 44px, rows ≥ 48px, at 390.
+3. **Focus ring** visible on every tabbable element, both themes.
+
+The remaining seven T3 checks stay in Phase 8 — they assert things (type floors in prose, measure width, scroll regions) that don't exist yet.
+
+**Exit:** `pnpm check:e2e` runs the three checks across the matrix; a deliberately overflowing element fails check 1, proving it works, then is removed.
+
+---
+
+**Phase 2 overall exit criteria:**
+
+- OD-08 resolved, with an ADR, and the number corrected in `tokens.css`, `.stylelintrc.json`, and `DESIGN_SYSTEM.md`.
+- OD-09 resolved; no dead `colophon` link.
+- Exactly three column-structure classes exist — no fourth.
+- Hairlines span the frame at desktop and the viewport at mobile, text keeps its margin at both, with no mobile-specific rule needed to achieve it.
+- Masthead and footer match reference screenshots at 390 / 900 / 1320 in both themes.
+- Mobile menu pushes rather than overlays; no scroll lock, no focus trap.
+- Skip link is the first focusable element on every page.
+- Still exactly three JS islands (AD-11 intact).
+- T3 checks 1, 4, 5 pass across the matrix, and check 1 is proven to fail on a real violation.
 
 ### Phase 3 · Prose and the article body _(2–3 days)_
 
@@ -720,6 +860,8 @@ Confirmed from earlier, with additions.
 **Serve:** Caddy on the VPS. Automatic TLS, HTTP/3, `zstd`/`gzip`, and a much smaller config surface than nginx + certbot for a static site.
 
 **Atomic releases:** rsync into `releases/<git-sha>/`, then swap a `current` symlink. Instant, and rollback is one symlink change. Keep the last five releases. This is a small thing that turns "deploying my blog" into a legitimate infrastructure article, and it means a half-finished rsync never serves a half-finished site.
+
+**`dev/` exclusion:** immediately after `astro build`, before the rsync step, CI runs `rm -rf dist/dev`. This is the actual mechanism keeping the gallery and fixture pages (§3, §8) off production — Astro's routing has no concept of a dev-only page (see the Phase 1.2 correction above), so the exclusion has to live here instead.
 
 **Cache headers:** fonts and hashed assets `immutable, max-age=31536000`; HTML `no-cache` (revalidate); `/rss.xml` short max-age. Astro hashes asset filenames, so this is safe.
 

@@ -333,8 +333,8 @@
 
     --page-max: 1320px; /* outer frame; header, footer and grid align to it */
     --measure: 680px; /* ~68ch. NEVER grows (§2.5, §22.10) */
-    --gutter-w: 148px; /* left metadata column, >=1100 only */
-    --aside-w: 200px; /* right column, >=1100 only */
+    --gutter-w: 148px; /* left metadata column, >=1280 only (ADR-0016) */
+    --aside-w: 200px; /* right column, >=1280 only (ADR-0016) */
     --header-w: 760px; /* article header may exceed the measure (E11) */
 
     --measure-lead: 62ch; /* lead paragraph — narrower, deliberately */
@@ -342,7 +342,7 @@
     --measure-about: 66ch; /* about + experience descriptions */
     --measure-bio: 64ch; /* author block bio (§10.6) */
 
-    --masthead-h: 60px; /* fixed at >=1100; below, a consequence of padding */
+    --masthead-h: 60px; /* fixed at >=1280; below, a consequence of padding */
     --row-min-h: 48px; /* index and menu rows (§18.5) */
     --target-min: 44px; /* every interactive element on touch (§18.5) */
 
@@ -431,13 +431,29 @@
   }
 
   /* =======================================================================
-     BREAKPOINT: --bp-gutter, >=1100 (§2.14, §4.1)
+     BREAKPOINT: --bp-gutter, >=1280 (§2.14, §4.1 — SEE ADR-0016)
      The 148px metadata gutter and 200px aside appear; the frame caps at 1320.
-     1100 is where 148 + 44 + 680 + 44 + 200 = 1016 plus 2 x 32 margins can be
-     honoured without stealing from the measure — and the measure is never
-     negotiable.
+
+     CORRECTED FROM 1100. DESIGN_SYSTEM.md §4.1 justifies 1100 with the sum
+     "148 + 44 + 680 + 44 + 200 = 1016", which is an off-by-100 typo — the
+     real total is 1116. With §3.3's mandated 56px desktop margins, the three
+     tracks need 1116 + 112 = 1228px of viewport; at 1100 only 988px is
+     available, so the layout overflows by 128px. The only way to fit it at
+     1100 would be to steal from the measure, which §4.1's own next sentence
+     and §22.10 both forbid absolutely.
+
+     1280 rather than the bare minimum 1228 (0px slack) or 1240 (12px slack,
+     thinner than a classic Windows scrollbar at ~15-17px, which can eat the
+     difference and engage this layout at a width where it does not fit).
+     1280 leaves 52px. The justification is structural, not device-based:
+     it is the nearest round number clearing 1228 with scrollbar tolerance.
+
+     The type steps below move with the layout deliberately — §4.1 states
+     everything changing at a threshold is a consequence of that threshold's
+     structural fact, so the desktop type scale applies exactly where the
+     desktop layout applies.
      ======================================================================= */
-  @media (min-width: 1100px) {
+  @media (min-width: 1280px) {
     :root {
       /* Type (§3.4) */
       --fs-display: 2.625rem; /* 42px */

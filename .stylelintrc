@@ -90,7 +90,7 @@
     },
 
     "media-feature-name-value-allowed-list": {
-      "min-width": ["/^(760px|1100px)$/"]
+      "min-width": ["/^(760px|1280px)$/"]
     }
   },
 
