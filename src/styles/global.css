@@ -14,10 +14,9 @@
 @import './fonts.css';
 @import './reset.css';
 @import './base.css';
+@import './layout.css';
 
-/* Phase 2+ additions, in order, as each is written:
-   @import "./layout.css";
-   Phase 3:
+/* Phase 3:
    @import "./prose.css";
    Phase 4:
    @import "./code.css";

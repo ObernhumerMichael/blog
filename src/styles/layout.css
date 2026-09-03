@@ -1,0 +1,179 @@
+/* =============================================================================
+   layout.css — the frame, the band system, and EXACTLY the three column
+   structures in DESIGN_SYSTEM.md §5.2. Do not add a fourth (§22.9).
+   ============================================================================= */
+
+@layer layout {
+  /* =========================================================================
+     1 · THE FRAME (§5.1)
+
+     Deliberately has NO horizontal padding. The page margin lives on the
+     BANDS inside it instead — that inversion is what makes §5.5's two rows
+     fall out for free:
+
+       - At desktop the frame is 1320 wide, so a band's border spans the full
+         1320 ("full frame width") while its content is inset by 56.
+       - At mobile the frame is fluid, so it equals the viewport: the same
+         border now spans the viewport ("full viewport width") while content
+         is inset by 20.
+
+     Stacking law 04 ("rules go full-bleed, text keeps its margin") is
+     therefore satisfied by construction, with no mobile-specific rule at
+     all. That it needs no special-casing is the strongest signal the model
+     is right — §3.2 presents that law as universal.
+
+     Requires body to have no padding of its own, or the mobile case breaks.
+     ========================================================================= */
+  .frame {
+    max-width: var(--page-max);
+    margin-inline: auto;
+  }
+
+  /* =========================================================================
+     2 · BANDS (§5.3)
+
+     A band is the unit of vertical rhythm: page margin on the inline axis,
+     band padding on the block axis, closed by a hairline at its bottom edge.
+     Kept SEPARATE from the column structures below, so a band can adopt any
+     of the three rather than being hardwired to layout B.
+     ========================================================================= */
+  .band {
+    padding-inline: var(--page-margin);
+    padding-block: var(--sp-band-y);
+    border-bottom: var(--bw) solid var(--c-rule);
+  }
+
+  /* §5.3: "The last band before the footer has no bottom rule (the footer's
+     top rule serves)." Automatic rather than hand-applied, so it can't be
+     forgotten on a new page. --band--flush is the escape hatch for a band
+     that is last in its container but NOT last before the footer. */
+  .band:last-child,
+  .band--flush {
+    border-bottom: 0;
+  }
+
+  /* =========================================================================
+     3 · THE THREE COLUMN STRUCTURES (§5.2)
+
+     Mobile-first: all three are a single column at the base layer, matching
+     §5.2's "below 1280 all three arrangements collapse to a single column."
+     ========================================================================= */
+
+  /* A · Article shape — gutter / measure / aside.
+     Used by the article page and the project detail page. */
+  .layout-article {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--grid-gap);
+  }
+
+  /* B · Labelled band — gutter beside a content block of any structure.
+     The workhorse: every page band on the homepage, both indexes, about,
+     and the 404. */
+  .layout-band {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--grid-gap);
+  }
+
+  /* C · Full-measure block — a single measure-width column.
+     Also serves as the measure CELL inside layout A, which is why it carries
+     the container context (see below) rather than duplicating it. */
+  .layout-measure {
+    /* E6 / §4.2 — the system's ONE container query. Figures, code blocks and
+       tables consult their own container (<700) rather than the viewport, so
+       an article body embedded in a narrower context still behaves. Declared
+       here in Phase 2; nothing consumes it until Phases 3–4. Establishing it
+       later would mean editing layout after components already depend on it.
+
+       inline-size containment does not clip (that would be `contain: paint`),
+       so the full-bleed utility below still escapes correctly. */
+    container-type: inline-size;
+  }
+
+  /* §3.3: the measure is fluid below 760, capped at 680 from 760 up. At
+     >=1280 layout A's grid track sizes it instead, to the same value. */
+  @media (min-width: 760px) {
+    .layout-measure {
+      max-width: var(--measure);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    /* The gutter and aside are minmax(), not fixed, on purpose.
+
+       §5.2 states layout A as "148 / 680 / 200", but §1.5 states that "the
+       measure never widens to fill a large display; surplus width goes to
+       the metadata gutter and the aside", and §5.4 requires everything to
+       align to the frame's left and right edges. Fixed tracks total 1116
+       against 1208 available at the 1320 reference width, leaving 92px
+       dangling — which would break §5.4's edge alignment.
+
+       minmax() honours all three statements at once: the measure stays
+       exactly 680 (§22.10), the stated 148/200 become floors, and the
+       surplus lands in the gutter and aside exactly as §1.5 requires.
+       Renders 220 / 680 / 220 at 1320, and 200 / 680 / 200 at 1280.
+
+       NOTE: worth confirming against the 0.3 reference screenshots. Gutter
+       CONTENT is left-aligned within its track (§5.4), so a wider track
+       shows as more whitespace between gutter text and prose, not as wider
+       text. If the screenshots show a hard 148px gutter with 92px of empty
+       space at the right edge, swap these two tracks to fixed values. */
+    .layout-article {
+      grid-template-columns:
+        minmax(var(--gutter-w), 1fr)
+        var(--measure)
+        minmax(var(--aside-w), 1fr);
+    }
+
+    /* Layout B has no aside and its content side is a flexible block rather
+       than the measure, so §5.2's "148 / minmax(0, 1fr)" is unambiguous
+       here — the gutter stays fixed and the content side takes the rest. */
+    .layout-band {
+      grid-template-columns: var(--gutter-w) minmax(0, 1fr);
+    }
+  }
+
+  /* =========================================================================
+     4 · TRACK CELLS (§5.4)
+     ========================================================================= */
+
+  /* §5.4: gutter content is left-aligned, top-aligned to its band, and
+     sticky within its band on desktop. Below the breakpoint the column is
+     gone entirely and its content relocates per §3.6 — a component-level
+     concern (Phases 3+), not a layout one. */
+  .gutter {
+    text-align: left;
+  }
+
+  @media (min-width: 1280px) {
+    .gutter,
+    .aside {
+      position: sticky;
+      top: calc(var(--masthead-h) + var(--sp-24));
+      align-self: start;
+    }
+  }
+
+  /* =========================================================================
+     5 · FULL-BLEED ESCAPE (§5.5, stacking law 03)
+
+     Below 760, code / terminal / tables / figures span the viewport while
+     prose keeps its margin. Because the page margin lives on the band, a
+     descendant escapes it with an equal negative inline margin. Consumed by
+     components in Phases 3–4; declared here because it is a property of the
+     layout model, not of any one component.
+
+     Deliberately NOT applied above 760: §14.3 states media never extends
+     beyond the measure at desktop, and there is no "wide figure" variant.
+     ========================================================================= */
+  .full-bleed {
+    margin-inline: calc(var(--page-margin) * -1);
+  }
+
+  @media (min-width: 760px) {
+    .full-bleed {
+      margin-inline: 0;
+    }
+  }
+}

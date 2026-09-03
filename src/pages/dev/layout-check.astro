@@ -1,0 +1,134 @@
+---
+// Phase 2.1 verification page. Lives at src/pages/dev/ (ADR-0014); excluded
+// from what ships via the deploy-time `rm -rf dist/dev` step.
+//
+// Exercises all three column structures from §5.2, the band system (§5.3),
+// and the full-bleed escape (§5.5) so each can be checked at 390 / 900 /
+// 1320 in both themes. Everything here uses only layout classes — no
+// component styling exists yet (Phases 2.3+).
+import '../../styles/global.css';
+import themeInitSource from '../../lib/theme-init.js?raw';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Layout check — Ledger</title>
+    <script is:inline set:html={themeInitSource} />
+    <style>
+      /* Diagnostic-only styling. Real bands carry real content; these
+         placeholders exist purely to make track boundaries visible. */
+      .demo-block {
+        background: var(--c-sunken);
+        padding: var(--sp-16);
+        font: var(--t-meta);
+        color: var(--c-muted);
+      }
+      .demo-block--accent {
+        background: var(--c-surface);
+      }
+      .gutter-label {
+        font: var(--t-label);
+        text-transform: uppercase;
+        color: var(--c-muted);
+      }
+      .demo-prose {
+        font: var(--t-body);
+        color: var(--c-text);
+      }
+      .toolbar {
+        display: flex;
+        gap: var(--sp-12);
+        align-items: center;
+        font: var(--t-meta);
+        color: var(--c-muted);
+      }
+      #theme-toggle {
+        font: var(--t-meta);
+        padding: var(--sp-8) var(--sp-12);
+        cursor: pointer;
+        color: var(--c-text);
+        background: var(--c-surface);
+        border: var(--bw) solid var(--c-rule);
+        border-radius: var(--radius-sm);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <!-- Band 1 · layout B, the workhorse -->
+      <section class="band layout-band">
+        <div class="gutter">
+          <div class="gutter-label">Layout B</div>
+        </div>
+        <div>
+          <p class="demo-prose">
+            Labelled band — <code>148 / minmax(0, 1fr)</code>, 44px gap. The gutter is
+            fixed here because layout B has no aside and its content side is a flexible
+            block rather than the measure, so §5.2 is unambiguous.
+          </p>
+          <p class="toolbar">
+            <button id="theme-toggle">toggle theme</button>
+            effective: <strong id="theme-readout">?</strong>
+          </p>
+        </div>
+      </section>
+
+      <!-- Band 2 · layout A, the article shape -->
+      <section class="band layout-article">
+        <div class="gutter">
+          <div class="gutter-label">Gutter</div>
+          <div class="demo-block">148 floor</div>
+        </div>
+        <div class="layout-measure">
+          <p class="demo-prose">
+            Article shape — gutter / measure / aside. The measure is exactly 680px and
+            never widens (§22.10). Surplus width goes to the gutter and aside per §1.5,
+            which is why those two tracks are <code>minmax()</code> rather than fixed: 220 /
+            680 / 220 at 1320, 200 / 680 / 200 at 1280.
+          </p>
+          <div class="demo-block full-bleed">
+            full-bleed — spans the viewport below 760, returns to the measure above it
+          </div>
+          <p class="demo-prose">
+            Prose after the full-bleed block, back inside the text margin.
+          </p>
+        </div>
+        <div class="aside">
+          <div class="gutter-label">Aside</div>
+          <div class="demo-block">200 floor</div>
+        </div>
+      </section>
+
+      <!-- Band 3 · layout C, and the last band, so no bottom rule -->
+      <section class="band layout-band">
+        <div class="gutter">
+          <div class="gutter-label">Layout C</div>
+        </div>
+        <div class="layout-measure">
+          <p class="demo-prose">
+            Full-measure block — a single measure-width column. Fluid below 760, capped at
+            680 above it. This is the last band, so it carries no bottom rule (§5.3) — the
+            footer's top rule would serve instead once the footer exists.
+          </p>
+          <div class="demo-block demo-block--accent">
+            Check at 390 / 900 / 1320: hairlines above should span the full frame at
+            desktop and the full viewport at mobile, while this text keeps its margin at
+            both.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const readout = document.getElementById('theme-readout')!;
+      const toggle = document.getElementById('theme-toggle')!;
+      readout.textContent = window.__themeInit.currentEffectiveTheme();
+      toggle.addEventListener('click', () => {
+        window.__themeInit.toggleTheme();
+        readout.textContent = window.__themeInit.currentEffectiveTheme();
+      });
+    </script>
+  </body>
+</html>
