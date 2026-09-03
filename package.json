@@ -16,10 +16,11 @@
     "check:astro": "astro check",
     "check:css": "stylelint \"src/**/*.css\" \"src/**/*.astro\"",
     "check:format": "prettier --check .",
+    "check:fonts": "node scripts/verify-fonts.mjs",
     "format": "prettier --write .",
     "check:content": "echo 'TODO Phase 5 — content invariant tests (tests/invariants)' && exit 0",
     "check:links": "echo 'TODO Phase 8 — lychee link check on build output' && exit 0",
-    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:content"
+    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:fonts && pnpm run check:content"
   },
   "dependencies": {
     "astro": "^7.2.6"

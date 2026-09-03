@@ -1,0 +1,87 @@
+---
+// BaseLayout — the document shell every page renders through.
+//
+// AD-01 / DESIGN_SYSTEM.md §17.4: ViewTransitions / ClientRouter must NEVER
+// be added to this file. Navigation is a full document load; page
+// transitions do not exist in this system. This is the file where someone
+// would reflexively add it, which is why the warning lives here.
+
+import { SITE_NAME, SITE_URL } from '../consts';
+import '../styles/global.css';
+
+// `?raw` + `is:inline` below: verified in Phase 1.5 that this is the only
+// way the script reaches the page byte-for-byte as a blocking, non-deferred
+// inline script. Without `is:inline`, Astro rewrites it to
+// `<script type="module">`, which is deferred by spec — meaning the theme
+// decision could run AFTER first paint, which is exactly the flash this
+// script exists to prevent.
+import themeInitSource from '../lib/theme-init.js?raw';
+
+interface Props {
+  /** Page title. Composed as "{title} · {SITE_NAME}"; omit on the homepage. */
+  title?: string;
+  description?: string;
+  /**
+   * OD-05 German preparation. Not cosmetic: §2.5 relies on automatic
+   * hyphenation for long titles, and hyphenation dictionaries are
+   * language-keyed — so this attribute has to be correct per-page before
+   * any German content exists, not retrofitted afterwards.
+   */
+  lang?: string;
+}
+
+const { title, description, lang = 'en' } = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
+const canonical = new URL(Astro.url.pathname, SITE_URL);
+
+// These MUST stay in sync with the @font-face src URLs in styles/fonts.css.
+// A silent mismatch (preloading a file that doesn't exist, or preloading the
+// wrong one) degrades quietly rather than erroring, so `pnpm check:fonts`
+// asserts all three exist on disk AND are referenced by fonts.css.
+//
+// Roman faces only, deliberately: these are VARIABLE fonts, so one file
+// covers every weight §2.5 uses. Italic is quote-only (§2.5) and not
+// above-the-fold critical, so preloading it would cost bandwidth for a face
+// most pages never render.
+const PRELOAD_FONTS = [
+  '/fonts/source-serif-roman.woff2',
+  '/fonts/plex-sans-roman.woff2',
+  '/fonts/plex-mono-roman.woff2',
+];
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    {
+      PRELOAD_FONTS.map((href) => (
+        <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />
+      ))
+    }
+
+    <script is:inline set:html={themeInitSource} />
+
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical.href} />
+  </head>
+
+  <body>
+    <!-- §18.2: the first focusable element on every page. -->
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Masthead lands here in Phase 2.3 -->
+
+    <!-- tabindex="-1" so the skip link can actually move focus here;
+         without it the browser scrolls but focus stays on the link. -->
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <!-- Footer lands here in Phase 2.5 -->
+  </body>
+</html>

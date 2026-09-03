@@ -41,7 +41,7 @@
 
      Note for whoever writes the Phase 1.6 stylelint config: this is a
      FEATURE query (prefers-reduced-motion), not a viewport-width breakpoint —
-     it is not subject to the "media queries only at 760/1100" rule, which
+     it is not subject to the "media queries only at 760/1280" rule, which
      governs layout breakpoints specifically (§4.1).
      ------------------------------------------------------------------------- */
   @media (prefers-reduced-motion: reduce) {
@@ -116,5 +116,31 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  /* §18.2 requires a skip-to-content link as the FIRST focusable element on
+     every page. Deliberately not reusing .visually-hidden above: that one is
+     permanently hidden, whereas this must become visible on focus.
+
+     Absolutely positioned so revealing it overlays rather than shifting the
+     page — a skip link that pushes the masthead down on focus is its own
+     small usability problem. Nothing animates on reveal (§16.1: "colour and
+     ground change; nothing moves"), so there is no transition here. The
+     focus ring comes free from base.css's :focus-visible rule. */
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: var(--page-margin);
+    z-index: 1;
+    padding: var(--sp-8) var(--sp-12);
+    font: var(--t-ui);
+    color: var(--c-text);
+    background: var(--c-bg);
+    border: var(--bw) solid var(--c-rule);
+    transform: translateY(-100%);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
   }
 }
