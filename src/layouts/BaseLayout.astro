@@ -7,8 +7,8 @@
 // would reflexively add it, which is why the warning lives here.
 
 import { SITE_NAME, SITE_URL } from '../consts';
-import Masthead from '../components/chrome/Masthead.astro';
 import '../styles/global.css';
+import Masthead from '../components/chrome/Masthead.astro';
 
 // `?raw` + `is:inline` below: verified in Phase 1.5 that this is the only
 // way the script reaches the page byte-for-byte as a blocking, non-deferred
@@ -57,6 +57,19 @@ const PRELOAD_FONTS = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Cascade layer order MUST be established here, literally, before any
+         stylesheet reaches the page. Astro bundles component `<style>`
+         blocks (e.g. Masthead's `@layer components`) ahead of this layout's
+         own `global.css` import — child styles are collected before the
+         parent's — so if the canonical order were only declared in
+         global.css, `components` would register first (lowest priority) the
+         moment any page renders a component with a scoped style, silently
+         losing to `reset`/`base`. `is:inline` keeps this exact statement
+         un-bundled and un-reordered: it renders verbatim, first. -->
+    <style is:inline>
+      @layer tokens, reset, base, layout, components, exceptions;
+    </style>
 
     {
       PRELOAD_FONTS.map((href) => (

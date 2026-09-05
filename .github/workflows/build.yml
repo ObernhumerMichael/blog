@@ -34,6 +34,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm run check:css
+      - run: pnpm verify
 
       - run: pnpm run build

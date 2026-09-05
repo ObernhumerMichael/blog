@@ -92,6 +92,13 @@
     cursor: pointer;
   }
 
+  /* Firefox draws its own dotted inner focus ring on buttons, independent
+     of `outline` — left alone, it shows through as a stray dark ring on
+     top of the site's one real focus ring (§18.2, base.css). */
+  button::-moz-focus-inner {
+    border: 0;
+  }
+
   /* Links: DESIGN_SYSTEM.md §8.2 draws every link's underline itself (as an
      offset rule, specifically so it survives a mid-URL line break without
      changing line height — see §8.2's own reasoning). The browser's default

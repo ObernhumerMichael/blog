@@ -13,17 +13,20 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check:svelte": "astro check && svelte-check --tsconfig ./tsconfig.json",
     "check:astro": "astro check",
     "check:css": "stylelint \"src/**/*.css\" \"src/**/*.astro\"",
     "check:format": "prettier --check .",
     "check:fonts": "node scripts/verify-fonts.mjs",
-    "format": "prettier --write .",
     "check:content": "echo 'TODO Phase 5 — content invariant tests (tests/invariants)' && exit 0",
     "check:links": "echo 'TODO Phase 8 — lychee link check on build output' && exit 0",
-    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:fonts && pnpm run check:content"
+    "format": "prettier --write .",
+    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:fonts && pnpm run check:content && pnpm run check:links && pnpm run check:svelte"
   },
   "dependencies": {
-    "astro": "^7.2.6"
+    "@astrojs/svelte": "^9.0.1",
+    "astro": "^7.2.6",
+    "svelte": "^5.57.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
@@ -31,6 +34,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "stylelint": "^17.14.1",
+    "svelte-check": "^4.7.6",
     "typescript": "^6.0.3"
   }
 }

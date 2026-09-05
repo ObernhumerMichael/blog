@@ -50,7 +50,11 @@ const { showLabel = false, class: className } = Astro.props;
     }
 
     .theme-control:hover {
-      border-color: var(--c-text);
+      border-color: var(--c-accent);
+    }
+
+    .theme-control:active {
+      border-color: var(--c-accent-hi);
     }
 
     .glyph {
@@ -68,15 +72,17 @@ const { showLabel = false, class: className } = Astro.props;
 </style>
 
 <script>
-  // Class-based, not ID-based: this component renders more than once per
-  // page (masthead instance + Phase 2.4's mobile-panel instance), and two
-  // elements can't share one id. Both instances stay wired to the same
-  // underlying theme-init.js state, so toggling either one updates both —
-  // correct, since it's one page-level theme, not two independent controls.
-  const controls = document.querySelectorAll<HTMLButtonElement>('[data-theme-control]');
-  controls.forEach((btn) => {
-    btn.addEventListener('click', () => {
+  // Delegated on document, not queried-and-bound once: the mobile-panel
+  // instance (MobileMenu.svelte) only enters the DOM when the user opens
+  // the menu, well after this script's initial run, so a one-time
+  // querySelectorAll + addEventListener would silently miss it. Delegation
+  // keeps working no matter when a [data-theme-control] button appears.
+  // Both instances stay wired to the same underlying theme-init.js state,
+  // so toggling either one updates both — correct, since it's one
+  // page-level theme, not two independent controls.
+  document.addEventListener('click', (e) => {
+    if (e.target instanceof Element && e.target.closest('[data-theme-control]')) {
       window.__themeInit.toggleTheme();
-    });
+    }
   });
 </script>

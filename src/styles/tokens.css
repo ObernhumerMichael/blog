@@ -240,6 +240,10 @@
     --fs-prevnext-title: 1.0625rem; /* 17px  — prev/next (§10.7) */
     --fs-statement: 1.5rem; /* 24px  — homepage opening statement */
     --fs-callout: 1rem; /* 16px  — 15.5px at mobile, see below */
+    --fs-menu-row: 1rem; /* 16px sans — §7.5, §12.1's "Menu row" component.
+      Numerically the same as --fs-callout but a DIFFERENT token: callout is
+      serif, this is sans, and they're semantically unrelated contexts.
+      Confirmed no existing token covered this before adding it. */
     --fs-quote: 1.1875rem; /* 19px  — spec 18–19, upper chosen */
     --fs-wordmark: 0.84375rem; /* 13.5px — MOBILE tier (§7.5). Was
       incorrectly the desktop value (14.5px) with no responsive tiers at all

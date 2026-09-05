@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import svelte from '@astrojs/svelte';
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,12 +22,17 @@ export default defineConfig({
   // here, not a grep across the codebase.
   site: 'https://example.invalid',
 
-  // Deliberately empty. AD-04: MDX is added only when a concrete article
+  // AD-04: MDX is added only when a concrete article
   // needs it, not by default — enabling it globally is exactly the "arbitrary
   // component injection into prose" pressure DESIGN_SYSTEM.md §22.8 exists to
   // resist. Markdown plugins (remark directives, heading-depth guard, rehype
   // code chrome) land here in Phase 4/5, per IMPLEMENTATION_PLAN.md §7.
-  integrations: [],
+  //
+  // AD-11 (rev. ADR-0017): Svelte is the sole client-side framework, used
+  // for four small islands (theme toggle interaction, TOC scroll-spy,
+  // reading progress, copy control). See ADR-0017 for the full component
+  // list and the reasoning for not using client:load by default.
+  integrations: [svelte()],
   markdown: {
     remarkPlugins: [],
     rehypePlugins: [],

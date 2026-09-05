@@ -1,14 +1,25 @@
 /* =============================================================================
-   global.css — the one entry point. Establishes layer order by IMPORT ORDER
-   (each partial self-wraps in its own @layer, so whichever is imported first
-   is lowest-priority, matching §5 of IMPLEMENTATION_PLAN.md: tokens < reset <
-   base < layout < components < exceptions).
+   global.css — the one entry point.
+
+   The @layer statement below restates §5 of IMPLEMENTATION_PLAN.md's order
+   (tokens < reset < base < layout < components < exceptions). It is
+   deliberately redundant with the equivalent statement BaseLayout.astro
+   writes inline (`is:inline`, first thing in <head>): Astro bundles
+   component `<style>` blocks (e.g. Masthead's `@layer components`) ahead of
+   THIS file — child styles are collected before the parent layout's own
+   import — so if this were the only place the order was declared, a page
+   rendering any scoped component style would register `components` first
+   (lowest priority) before this statement ever ran. The inline copy in
+   BaseLayout.astro is what actually wins the race; this one is a documented
+   backstop for anything that ends up loading global.css without going
+   through BaseLayout.
 
    This file isn't in IMPLEMENTATION_PLAN.md's original §3 tree — same
    category of small, necessary addition as fonts.css was in Phase 1.3.
    Something has to be the one file BaseLayout.astro imports (Phase 2); this
    is it.
    ============================================================================= */
+@layer tokens, reset, base, layout, components, exceptions;
 
 @import './tokens.css';
 @import './fonts.css';

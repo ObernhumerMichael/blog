@@ -2,5 +2,9 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "conventionalCommits.scopes": ["fonts", "css"]
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  },
+  "conventionalCommits.scopes": ["fonts", "css"],
+  "svelte.enable-ts-plugin": true
 }
