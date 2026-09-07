@@ -82,6 +82,48 @@ const menuLinks = await Promise.all(
       background: var(--c-bg);
     }
 
+    /* §7.6: the masthead's only scroll behaviour is acquiring the
+       --c-surface ground — no shrink, no hide (§17.2 bans sticky-header
+       shrink). A scroll listener would be a fourth JS island past AD-11's
+       budget of three, so this is CSS-only.
+
+       The ground is a separate ::before layer whose OPACITY is scroll-driven,
+       rather than animating .masthead's own `background` between the two
+       tokens directly: putting a live theme toggle under a CSS animation
+       target froze it at whichever token resolved when the animation was
+       set up, so switching theme afterward left the old colour showing.
+       Animating opacity on an inert layer keeps both --c-bg and --c-surface
+       as plain, un-animated declarations, so they keep tracking theme
+       changes normally — same as the border-bottom above does. */
+    .masthead::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--c-surface);
+      opacity: 0;
+    }
+
+    /* The 1px range makes this an instant swap rather than real motion —
+       @supports keeps it inert (not stuck mid-animation) where unsupported,
+       leaving --c-bg above as the permanent fallback ground. */
+    @supports (animation-timeline: scroll()) {
+      .masthead::before {
+        animation: masthead-ground-reveal linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0 1px;
+      }
+    }
+
+    @keyframes masthead-ground-reveal {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
     /* flex-wrap: wrap is the fix. Without it, any flex child that's wider
        than its shrink-fit share (the panel, when open) just squeezes into
        the same line as identity instead of dropping below. With it, plus
