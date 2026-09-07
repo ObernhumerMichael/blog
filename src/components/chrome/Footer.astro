@@ -1,0 +1,150 @@
+---
+// Footer — §18. "Machine facts and the four destinations. Nothing else."
+//
+// Deliberately NOT a reduced copy of Masthead: no counts (no getCollection
+// call), no current-page state, no theme control. §18's own Rules line bans
+// exactly the things a footer usually grows (newsletter box, social icon
+// row, sitemap columns, "back to top"), so this stays two tracks and stops.
+import { SITE_NAME, NAV_LINKS, SITE_LINKS } from '../../consts';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="frame">
+    <div class="row">
+      <div class="track track-left">
+        <a href="/" class="name">{SITE_NAME}</a>
+        <nav aria-label="Footer">
+          <ul class="footer-nav">
+            {
+              NAV_LINKS.map((link, i) => (
+                <li>
+                  {i > 0 && <span aria-hidden="true">·</span>}
+                  <a href={link.href} class="footer-link">
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <div class="track track-right">
+        <p class="social-links">
+          <a href={SITE_LINKS.rss} class="footer-link"
+            >rss <span aria-hidden="true">↗</span></a
+          >
+          <span class="sep" aria-hidden="true">·</span>
+          <a href={SITE_LINKS.github} class="footer-link"
+            >github <span aria-hidden="true">↗</span></a
+          >
+          <span class="sep" aria-hidden="true">·</span>
+          <a href={SITE_LINKS.pgp} class="footer-link"
+            >pgp <span aria-hidden="true">↗</span></a
+          >
+        </p>
+        <p class="colophon-line">
+          © {year}
+          <span class="sep" aria-hidden="true">·</span> built with Astro <span
+            class="sep"
+            aria-hidden="true">·</span
+          >
+          <a href="/about#colophon" class="footer-link">colophon</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  @layer components {
+    .site-footer {
+      background: var(--c-surface);
+      border-top: var(--bw) solid var(--c-rule);
+      font: var(--t-footer);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--sp-24);
+      padding-block: var(--sp-24);
+      padding-inline: var(--page-margin);
+    }
+
+    .track {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-8);
+      min-width: 0;
+    }
+
+    .track-right {
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    @media (max-width: 759px) {
+      .track {
+        flex-basis: 100%;
+      }
+      .track-right {
+        align-items: flex-start;
+        text-align: left;
+        /* Separator between the stacked tracks, mobile only — desktop's two
+           side-by-side tracks don't need one. Sits inside .row's own
+           padding-inline, so it stays inset with the page margin rather
+           than bleeding to the viewport edge like the footer's own top
+           hairline does. */
+        border-top: var(--bw) solid var(--c-rule);
+        padding-top: var(--sp-20);
+      }
+    }
+
+    .name {
+      color: var(--c-text);
+      text-decoration: none;
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: var(--sp-8);
+      list-style: none;
+      text-transform: lowercase;
+
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+
+    .footer-nav li {
+      display: flex;
+      gap: var(--sp-8);
+    }
+
+    .social-links,
+    .colophon-line {
+      color: var(--c-muted);
+    }
+
+    .sep {
+      margin-inline: var(--sp-8);
+    }
+
+    .footer-link {
+      transition-property: color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .footer-link:hover {
+      color: var(--c-accent);
+    }
+
+    .footer-link:active {
+      color: var(--c-accent-hi);
+    }
+  }
+</style>

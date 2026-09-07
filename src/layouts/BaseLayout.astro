@@ -9,6 +9,7 @@
 import { SITE_NAME, SITE_URL } from '../consts';
 import '../styles/global.css';
 import Masthead from '../components/chrome/Masthead.astro';
+import Footer from '../components/chrome/Footer.astro';
 
 // `?raw` + `is:inline` below: verified in Phase 1.5 that this is the only
 // way the script reaches the page byte-for-byte as a blocking, non-deferred
@@ -96,6 +97,6 @@ const PRELOAD_FONTS = [
       <slot />
     </main>
 
-    <!-- Footer lands here in Phase 2.5 -->
+    <Footer />
   </body>
 </html>

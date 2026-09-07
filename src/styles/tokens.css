@@ -289,6 +289,10 @@
     --t-code: 400 var(--fs-code)/var(--lh-code) var(--font-mono);
     /* Italic is used for quotes ONLY (§2.5 typographic laws). */
     --t-quote: italic 400 var(--fs-quote)/1.6 var(--font-serif);
+    /* §18 — footer only. 1.9 line-height is unique to this context, same
+       precedent as --t-quote's inline 1.6: not worth a standalone --lh-*
+       token for a value used in exactly one place. */
+    --t-footer: 400 var(--fs-meta-sm)/1.9 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
