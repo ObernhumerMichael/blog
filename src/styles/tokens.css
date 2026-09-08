@@ -322,6 +322,36 @@
        inline numeral baseline-aligned against the heading text next to it
        doesn't need its own leading. */
     --t-section-num: 400 var(--fs-section-num)/1 var(--font-mono);
+    /* Phase 3.5 — §10.5 references-block row text: "text sans 15/1.6
+       --c-text-2". --t-ui is the nearest existing sans bundle but its
+       15px only appears at the >=1280 tier (14/14.5/15 responsive); §10.5
+       gives this row no responsive step at all, same shape of gap as
+       --fs-repo-path's own precedent above. Constant at every width. */
+    --fs-reference-text: 0.9375rem; /* 15px */
+    --t-reference: 400 var(--fs-reference-text)/1.6 var(--font-sans);
+    /* §11 quote attribution: "a mono 12 line beneath". Not --t-meta
+       (11.5/12 responsive) for the same "this component wants a flat
+       constant, not the general metadata step" reason as above. Never
+       italic — §2.4's typographic law reserves italic for the serif
+       quote text itself, and IBM Plex Mono has no italic cut to use
+       anyway (fonts.css). */
+    --fs-quote-attr: 0.75rem; /* 12px */
+    --t-quote-attr: 400 var(--fs-quote-attr)/1 var(--font-mono);
+    /* §10.5 reference marker: "mono 11 superscript numeral in --c-accent".
+       --fs-meta-xs is 11px (spec's own "10.5-11" range) — reused rather
+       than inheriting <sup>'s UA-default font-size:smaller, which would
+       compute from the surrounding paragraph and risk dropping under the
+       10.5px floor in a caption context (same reasoning §13.4 gives for
+       inline code's max() clamp). Line-height 1 — same short-baseline-run
+       reasoning as --t-label/--t-section-num above. */
+    --t-footnote-ref: 400 var(--fs-meta-xs)/1 var(--font-mono);
+    /* §10.5 repo paths inside the references block: "mono 13 with a
+       --c-rule-2 underline" — a DIFFERENT treatment from the general
+       inline-code sunken chip (.prose :not(pre) > code above), scoped to
+       code spans inside section[data-footnotes] only. Reuses the existing
+       --fs-repo-path (13px, constant) rather than inventing a new size —
+       same component-relationship §10.5 already names it for. */
+    --t-repo-path: 400 var(--fs-repo-path)/1 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
@@ -409,6 +439,19 @@
     ); /* component 06: the section-number-to-
       heading-text gap, "12 -> 10 at mobile". <760 value; the >=760 override
       lives in the responsive breakpoint block below. */
+
+    /* Phase 3.5 — §10 callout: "14-16px padding-y, 18-20px padding-x".
+       Read as a responsive pair rather than a free-choice range: §2.6's
+       own canonical-scale table (line 318) assigns 16 to "callout
+       padding-y" while its E13 sub-step table (line 332) separately lists
+       callout padding as "14/18" — the same shrink-by-one-step-at-a-
+       breakpoint pattern every other prose relationship in this file
+       follows. <760 value here; >=760 overrides below. */
+    --sp-callout-pad-y: var(--sp-14);
+    --sp-callout-pad-x: var(--sp-18);
+    /* §11 quote: "20px indent (16 at mobile)" — stated directly, unlike
+       the callout above. <760 value; >=760 override below. */
+    --sp-quote-indent: var(--sp-16);
 
     /* =====================================================================
        7 · SIZING (§2.7)
@@ -518,6 +561,9 @@
       --sp-h2-para: var(--sp-16); /* finding A: 16 from 760 up */
       --sp-para-h3: var(--sp-32); /* OD-11/ADR-0018: 32 from 760 up */
       --sp-h2-num-gap: var(--sp-12); /* component 06: 12 from 760 up */
+      --sp-callout-pad-y: var(--sp-16); /* §10 callout: 16 from 760 up */
+      --sp-callout-pad-x: var(--sp-20); /* §10 callout: 20 from 760 up */
+      --sp-quote-indent: var(--sp-20); /* §11 quote: 20 from 760 up */
     }
   }
 

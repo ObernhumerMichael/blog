@@ -255,9 +255,11 @@ to be for three Raspberry Pis on a shelf.[^2]
     this article.
 
 [^2]:
-    With thanks to the Prometheus documentation for the textfile
-    collector's staleness semantics, which are correct and clearly stated
-    — I just read them after the outage rather than before.
+    With thanks to the
+    [Prometheus documentation](https://github.com/prometheus/node_exporter#textfile-collector)
+    for the textfile collector's staleness semantics, which are correct
+    and clearly stated — I just read them after the outage rather than
+    before.
 
 [^3]:
     Full scrape and alerting configuration:

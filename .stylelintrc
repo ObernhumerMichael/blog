@@ -39,7 +39,19 @@
     "underline' — §8.2's hover state moves text AND underline colour",
     "together, so this was the allow-list being incomplete, not the design",
     "being violated. §17.1 is the authority for this list; consult it before",
-    "adding another property here."
+    "adding another property here.",
+    "",
+    "Phase 3.5: declaration-property-value-disallowed-list's border key was",
+    "'/^border/', which — never exercised until the callout component (§6·10)",
+    "needed border-radius: 0 4px 4px 0 — also matches border-radius, border-",
+    "color and border-style, not just the border/border-{side} WIDTH",
+    "shorthands it was written for. That rejected a value its own sibling",
+    "rule (border-radius's declaration-property-value-allowed-list, above)",
+    "explicitly permits by name. Narrowed to '/^border(-top|-right|-bottom|",
+    "-left)?$/' — exactly the shorthands that can smuggle an off-scale WIDTH",
+    "past the border-*-width longhand rules — which still catches its",
+    "original target (verified: `border: 3px solid ...` still fails) without",
+    "catching border-radius/-color/-style."
   ],
 
   "rules": {
@@ -93,7 +105,9 @@
     },
 
     "declaration-property-value-disallowed-list": {
-      "/^border/": ["/(?<!var\\(--[\\w-]*)\\b(?!0\\b|1px\\b|2px\\b)\\d+(\\.\\d+)?px\\b/"],
+      "/^border(-top|-right|-bottom|-left)?$/": [
+        "/(?<!var\\(--[\\w-]*)\\b(?!0\\b|1px\\b|2px\\b)\\d+(\\.\\d+)?px\\b/"
+      ],
       "outline": ["none"]
     },
 

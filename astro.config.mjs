@@ -75,6 +75,38 @@ export default defineConfig({
       // assuming SmartyPants output (docs/reference/glyph-coverage.md).
       // Left implicit rather than restated, so there's one fewer place a
       // future edit could silently flip them off.
+      //
+      // Phase 3.5 — §10.5's three corrections to GFM's default footnote
+      // output. This option object is forwarded verbatim to remark-rehype,
+      // which forwards it verbatim to mdast-util-to-hast (confirmed by
+      // reading both packages' source rather than assuming the passthrough
+      // exists) — the actual footnote/reference markup, so this is the
+      // correct layer to fix it at, not a rehype plugin walking the DOM
+      // after the fact.
+      remarkRehype: {
+        // 1. The back-reference glyph is U+21A9 (↩) by default, which is
+        //    NOT in the font subset (docs/glyph-coverage.md) — it would
+        //    silently render from a fallback family. '←' (U+2190) IS
+        //    subset, and §2.11 already assigns it "previous in sequence",
+        //    which is exactly what a back-reference is.
+        footnoteBackContent: '←',
+        // 2. GFM's hidden "Footnotes" h2 becomes the visible §10.5 label.
+        footnoteLabel: 'REFERENCES',
+        // 3. mdast-util-to-hast's default footnoteLabelProperties is
+        //    `{ className: ['sr-only'] }` — but this codebase's own
+        //    visually-hidden utility is named `.visually-hidden` (base.css,
+        //    Phase 1.4), not `.sr-only`, so that class was dead: the
+        //    heading was ALREADY rendering visible and unstyled (confirmed
+        //    against the built fixture's own dist output) before this fix,
+        //    just with the wrong text and no type treatment. An empty
+        //    object replaces the default outright (mdast-util-to-hast
+        //    does `options.footnoteLabelProperties || { className:
+        //    ['sr-only'] }` — not a merge), and the heading's
+        //    `id="footnote-label"` is force-set regardless of what's
+        //    passed here, so prose.css can style `#footnote-label`
+        //    directly with --t-label.
+        footnoteLabelProperties: {},
+      },
     }),
   },
 

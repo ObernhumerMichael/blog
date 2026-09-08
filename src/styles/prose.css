@@ -10,14 +10,16 @@
 
    OUT OF SCOPE here, on purpose (see IMPLEMENTATION_PLAN.md's own Phase 3
    sub-phase split):
-     - blockquote / callout markup — Phase 3.5.
      - pre/table/figure INTERNAL styling (chrome, syntax colour, captions)
        — Phase 4. This file only gives them the generic 32px prose-block
        margin so they don't fuse into the paragraph above/below; how they
        look inside stays unstyled until then.
-     - footnote reference/backref link treatment — Phase 3.5. Explicitly
-       excluded from the general link rule below so 3.5 starts from a clean
-       slate rather than having to fight this file's underline.
+
+   Phase 3.5 added callouts, quotes and the footnotes/references block —
+   see the sections below. The general link rule above still explicitly
+   excludes [data-footnote-ref]/[data-footnote-backref]; §10.5's own
+   treatment for those two is with the footnote sections below instead of
+   fighting that rule's underline.
    ============================================================================= */
 
 @layer components {
@@ -207,6 +209,112 @@
   }
 
   /* ===========================================================================
+     CALLOUTS (§6·10)
+     Markup from remark-directives.ts (Phase 3.3):
+       <div class="callout callout--KIND" data-callout="KIND">
+         <p class="callout__label">LABEL</p>
+         <div class="callout__body">...original prose nodes...</div>
+       </div>
+     Margin uses --sp-prose-block, same "prose -> block element" token pre/
+     table use below — §10.3's own table lists callout and quote in that
+     same relationship row, not a separate number.
+     =========================================================================== */
+
+  .prose .callout {
+    /* Note is the default; warning/correction override both colours below. */
+    border-left: var(--bw-marker) solid var(--c-accent);
+    background: var(--c-sunken);
+    /* Stylelint's border-radius allow-list has this exact literal (§2.9:
+       "callout (3 corners: 0 4 4 0)") — var(--radius) composed into a
+       shorthand wouldn't match the list, which only allows a bare
+       var(--radius) OR this literal, not a mix. */
+    border-radius: 0 4px 4px 0;
+    padding: var(--sp-callout-pad-y) var(--sp-callout-pad-x);
+    margin: var(--sp-prose-block) 0;
+  }
+
+  .prose .callout--warning,
+  .prose .callout--correction {
+    border-left-color: var(--c-warn);
+    background: var(--c-warn-bg);
+  }
+
+  .prose .callout__label {
+    font: var(--t-label);
+    text-transform: uppercase; /* §2.5: --t-label's own definition includes
+      this — the font shorthand can't carry it. */
+    color: var(--c-accent); /* note; warning/correction override below */
+    margin: 0 0 var(--sp-8) 0; /* §2.6's "label -> value: 8" row */
+  }
+
+  .prose .callout--warning .callout__label,
+  .prose .callout--correction .callout__label {
+    color: var(--c-warn);
+  }
+
+  .prose .callout__body {
+    font: var(--t-callout);
+    color: var(--c-callout-text);
+  }
+
+  /* callout__body wraps the directive's original paragraph node(s), which
+     still carry .prose p's own margin — reset the same way .prose itself
+     resets its own first/last child, so the callout's own padding is the
+     only spacing, not padding PLUS a leftover paragraph margin. */
+  .prose .callout__body > :first-child {
+    margin-top: 0;
+  }
+  .prose .callout__body > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* ===========================================================================
+     QUOTE (§11)
+     Plain CommonMark blockquote — no directive, no remark plugin. "A quote
+     is prose, not an object": no ground, no radius, just the 2px marker.
+     =========================================================================== */
+
+  .prose blockquote {
+    border-left: var(--bw-marker) solid var(--c-rule-2);
+    padding-left: var(--sp-quote-indent);
+    margin: var(--sp-prose-block) 0;
+  }
+
+  .prose blockquote p {
+    font: var(--t-quote);
+    color: var(--c-quote-text);
+    margin: 0 0 var(--sp-12) 0;
+    text-wrap: pretty;
+  }
+
+  .prose blockquote p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Attribution (§11: "when present, is a mono 12 line beneath with an em
+     dash"). CommonMark gives no markup distinction between a quote's own
+     text and its attribution — both are just <p> children of the same
+     <blockquote>. Authoring convention adopted here: the attribution, when
+     present, is the LAST paragraph of a multi-paragraph quote (exactly how
+     the Phase 3.1 fixture already writes it — a blank line, then a line
+     starting "— "). :not(:only-child) is what keeps a single-paragraph
+     quote (no attribution) from matching its own :last-child as if it were
+     one. */
+  .prose blockquote p:last-child:not(:only-child) {
+    font: var(--t-quote-attr);
+    color: var(
+      --c-muted
+    ); /* same muted-mono-caption pattern as a kicker
+      (§10.7) or the TOC's default entry colour — secondary to the quote
+      itself, not part of "the quote is prose" per se. */
+    margin-top: var(
+      --sp-8
+    ); /* §2.6's "label -> value: 8" row again — the
+      same tight, caption-to-its-subject relationship as the callout label
+      above, just below its content instead of above. */
+  }
+
+  /* ===========================================================================
      BLOCK ELEMENTS THAT AREN'T STYLED YET (§10.3 "Prose -> block element")
      Phase 4 gives pre/table their real chrome; this is only the rhythm
      rule that keeps them from fusing into the paragraph above/below in the
@@ -218,5 +326,130 @@
   .prose pre,
   .prose table {
     margin: var(--sp-prose-block) 0;
+  }
+
+  /* ===========================================================================
+     FOOTNOTE REFERENCE MARKER (§10.5, §8.3's "Footnote reference" row)
+     Markup from remark-gfm/mdast-util-to-hast:
+       <sup><a data-footnote-ref href="#user-content-fn-N" ...>N</a></sup>
+     The general link rule near the top of this file already excludes
+     [data-footnote-ref] from the permanent-underline treatment — this is
+     the marker's own positive styling. §8.3: no underline, ever.
+     =========================================================================== */
+
+  .prose sup [data-footnote-ref] {
+    font: var(--t-footnote-ref);
+    color: var(--c-accent);
+  }
+
+  /* ===========================================================================
+     FOOTNOTES / REFERENCES BLOCK (§10.5)
+     Markup from mdast-util-to-hast, configured in astro.config.mjs (Phase
+     3.5): the back-reference glyph is '←' (not the default '↩', which
+     isn't in the font subset) and the label is 'REFERENCES', visible,
+     with id="footnote-label" force-set regardless of what's configured.
+
+       <section data-footnotes class="footnotes">
+         <h2 id="footnote-label">REFERENCES</h2>
+         <ol>
+           <li id="user-content-fn-N">
+             <p>...text... <a data-footnote-backref>←</a></p>
+           </li>
+         </ol>
+       </section>
+
+     mdast-util-to-hast always appends this section as the LAST child of
+     the document root, regardless of where footnotes are defined in the
+     source (confirmed while building ProseLayout.astro, Phase 3.4) — so
+     it renders here, inside .prose, rather than in the separate apparatus
+     region §10.1 describes. ProseLayout.astro is Phase 3.4's own stand-in
+     for the real article layout (Phase 5/6's job); moving this block out
+     of .prose into its own apparatus region is that real layout's
+     problem, not this file's.
+     =========================================================================== */
+
+  .prose section[data-footnotes] {
+    /* §10.5: "placed 96px after the body" == --sp-apparatus, already the
+       body -> references relationship elsewhere in this file's own
+       token set (Phase 3.2). Not --sp-prose-block — a references block is
+       the apparatus boundary, not one more prose block element. */
+    margin-top: var(--sp-apparatus);
+  }
+
+  /* The label sits BELOW the hairline that opens the apparatus, not above
+     it — checked against docs/reference/article/1320-light-full.png
+     rather than assumed from §10.5's own ambiguous "a REFERENCES label
+     above a hairline" phrasing, which reads as label-then-rule but
+     renders rule-then-label in the reference screenshot. 16px on each
+     side of the hairline mirrors §10.2's metadata row, the other place in
+     the system with the exact same "hairline above, 16px gap" shape. */
+  .prose section[data-footnotes] #footnote-label {
+    font: var(--t-label);
+    text-transform: uppercase;
+    color: var(--c-muted);
+    border-top: var(--bw) solid var(--c-rule);
+    padding-top: var(--sp-16);
+    margin: 0 0 var(--sp-16) 0;
+  }
+
+  .prose section[data-footnotes] ol {
+    /* Overrides the generic .prose ol rule above (higher specificity via
+       the extra ancestor) — this list's own margin is 0 because the
+       section's margin-top and the label's own spacing above already
+       place it; .prose ol's --sp-prose-block would double up. */
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: reference;
+  }
+
+  .prose section[data-footnotes] li {
+    counter-increment: reference;
+    position: relative;
+    padding-left: var(--sp-24); /* hanging indent — room for the numeral */
+  }
+
+  .prose section[data-footnotes] li + li {
+    margin-top: var(
+      --sp-12
+    ); /* §10.5's own "12px gap" between rows —
+      restated explicitly rather than relying on .prose li + li above
+      happening to share the same value, so the two stay independent if
+      either one's number ever changes for its own reason. */
+  }
+
+  .prose section[data-footnotes] li::before {
+    /* No trailing "." — matches the reference screenshot, and native
+       ::marker decimal style can't drop it without replacing the marker
+       entirely anyway. */
+    content: counter(reference);
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* Same "small mono accent numeral beside text" bundle component 06
+       already uses for the same visual role. */
+    font: var(--t-section-num);
+    color: var(--c-accent);
+  }
+
+  .prose section[data-footnotes] li p {
+    font: var(--t-reference);
+    color: var(--c-text-2);
+    margin: 0;
+  }
+
+  /* Repo paths (§10.5: "mono 13 with a --c-rule-2 underline") — a
+     DIFFERENT treatment from the general inline-code sunken chip
+     (.prose :not(pre) > code above), scoped to this block only. The
+     fixture's own footnotes already author repo paths this way (backtick
+     inline code), so no new markup convention is introduced. */
+  .prose section[data-footnotes] code {
+    font: var(--t-repo-path);
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    text-decoration-color: var(--c-rule-2);
+    text-underline-offset: 0.15em;
   }
 }
