@@ -6,6 +6,7 @@ import remarkDirective from 'remark-directive';
 import remarkHeadingDepth from './src/plugins/remark-heading-depth.ts';
 import remarkDirectives from './src/plugins/remark-directives.ts';
 import remarkSectionNumbers from './src/plugins/remark-section-numbers.ts';
+import remarkReadingTime from './src/plugins/remark-reading-time.ts';
 import rehypeProseLinks from './src/plugins/rehype-prose-links.ts';
 
 // https://astro.build/config
@@ -62,11 +63,16 @@ export default defineConfig({
       //      Phase 4's).
       //   4. remark-section-numbers — OD-10/ADR-0018: split + validate the
       //      authored `NN · ` / `n.m ·` heading prefixes.
+      //   5. remark-reading-time    — Phase 3.6: word count + reading time
+      //      for §6·09's metadata row, written to file.data.astro.frontmatter
+      //      (Astro's documented mechanism for computed frontmatter). Runs
+      //      last so it counts the fully-resolved tree.
       remarkPlugins: [
         remarkHeadingDepth,
         remarkDirective,
         remarkDirectives,
         remarkSectionNumbers,
+        remarkReadingTime,
       ],
       // rehype-prose-links: adds the external-link "↗" as real markup.
       rehypePlugins: [rehypeProseLinks],

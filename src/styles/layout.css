@@ -52,6 +52,33 @@
     border-bottom: 0;
   }
 
+  /* §10.2 (Phase 3.6): the article header band's padding is asymmetric —
+     56 top / 40 bottom at desktop — unlike every other band's equal
+     padding-block. A modifier, not a fourth column structure (§22.9 is
+     about grid structures; this is a padding variant on the existing
+     band). §10.2 gives no tablet/mobile values, so they're derived the
+     same way the rest of §3.3's responsive pass was: bottom padding sits
+     one band-scale step below top at each tier — 40/32/24 against
+     --sp-band-y's own 56/40/32 — all on the 4px scale, nothing invented. */
+  .band--header {
+    padding-top: var(--sp-32);
+    padding-bottom: var(--sp-24);
+  }
+
+  @media (min-width: 760px) {
+    .band--header {
+      padding-top: var(--sp-40);
+      padding-bottom: var(--sp-32);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .band--header {
+      padding-top: var(--sp-56);
+      padding-bottom: var(--sp-40);
+    }
+  }
+
   /* =========================================================================
      3 · THE THREE COLUMN STRUCTURES (§5.2)
 

@@ -282,6 +282,9 @@
       400 13 (12 mobile) accent". >=760 override (13px) is in the responsive
       block below. Numerically close to --fs-table-cell/--fs-repo-path but a
       different token: different component, different responsive behaviour. */
+    --fs-breadcrumb: 0.6875rem; /* 11px at <760 — component 16's "Mono 400
+      11.5 (11 at mobile)". >=760 override (11.5px) is in the responsive
+      block below. */
 
     /* =====================================================================
        5 · TYPE TOKENS — atomic bundles
@@ -352,6 +355,13 @@
        --fs-repo-path (13px, constant) rather than inventing a new size —
        same component-relationship §10.5 already names it for. */
     --t-repo-path: 400 var(--fs-repo-path)/1 var(--font-mono);
+    /* Phase 3.6 — §10.2's header gutter: "article number / section name /
+       series, mono 11/1.6". One bundle for all three; colour (accent /
+       --c-text / --c-faint) is applied per-item by the component. */
+    --t-gutter: 400 var(--fs-meta-xs)/1.6 var(--font-mono);
+    /* §16 breadcrumb: "Mono 400 11.5 (11 at mobile)". Single-line, doesn't
+       wrap — line-height 1, same short-run reasoning as --t-label above. */
+    --t-breadcrumb: 400 var(--fs-breadcrumb)/1 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
@@ -452,6 +462,11 @@
     /* §11 quote: "20px indent (16 at mobile)" — stated directly, unlike
        the callout above. <760 value; >=760 override below. */
     --sp-quote-indent: var(--sp-16);
+    /* Phase 3.6 — §16 breadcrumb: "16-22px below, immediately above the
+       title" — a range, read the same shrink-by-one-step way as the
+       callout padding above. 22 is already an E13 sub-step (14/18/22/28),
+       so this invents nothing. <760 value; >=760 override below. */
+    --sp-breadcrumb-gap: var(--sp-16);
 
     /* =====================================================================
        7 · SIZING (§2.7)
@@ -550,6 +565,7 @@
       --fs-wordmark: 0.875rem; /* 14px — tablet tier (§7.4) */
       --fs-section-num: 0.8125rem; /* 13px — component 06, "12 -> 10 at
         mobile" read the other direction: 13 from 760 up. */
+      --fs-breadcrumb: 0.71875rem; /* 11.5px — component 16: 11.5 from 760 up */
 
       /* Spacing (§3.3) */
       --page-margin: var(--sp-32);
@@ -564,6 +580,7 @@
       --sp-callout-pad-y: var(--sp-16); /* §10 callout: 16 from 760 up */
       --sp-callout-pad-x: var(--sp-20); /* §10 callout: 20 from 760 up */
       --sp-quote-indent: var(--sp-20); /* §11 quote: 20 from 760 up */
+      --sp-breadcrumb-gap: var(--sp-22); /* component 16: 22 from 760 up */
     }
   }
 

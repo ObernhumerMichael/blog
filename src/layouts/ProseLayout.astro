@@ -14,15 +14,24 @@
 // props — so the fixture's `<title>` fell back to the site name. Forwarding
 // them here is a two-line fix, now that something actually needs to sit
 // between the `.md` file and BaseLayout.
+//
+// Phase 3.6: now also renders the article header band before .prose. Still
+// not Instrumented.astro — no TOC/aside tracks, no apparatus — just the
+// header, which is real content every Phase 3 fixture needs regardless.
+import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
+import ArticleHeader from '../components/article/ArticleHeader.astro';
 
 const { frontmatter } = Astro.props as {
-  frontmatter?: { title?: string; lead?: string };
+  frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'];
 };
 ---
 
-<BaseLayout title={frontmatter?.title} description={frontmatter?.lead}>
-  <div class="prose">
-    <slot />
-  </div>
+<BaseLayout title={frontmatter.title} description={frontmatter.lead}>
+  <article>
+    <ArticleHeader frontmatter={frontmatter} />
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
 </BaseLayout>

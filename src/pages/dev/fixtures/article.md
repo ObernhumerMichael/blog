@@ -5,6 +5,11 @@ title: 'A reproducible homelab: what ansible-playbook actually guarantees'
 lead: "Three Raspberry Pis, one playbook, and the gap between idempotent and reproducible — the difference showed up six weeks later, when the monitoring stack that was supposed to catch it didn't."
 section: 'Infrastructure'
 date: 2026-08-19
+updated: 2026-08-25
+series:
+  name: 'declarative homelab'
+  part: 2
+  total: 4
 tags: ['ansible', 'infrastructure', 'homelab']
 draft: true
 ---

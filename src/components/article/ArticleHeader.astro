@@ -1,0 +1,315 @@
+---
+// ArticleHeader.astro — Phase 3.6, §10.2. Gutter, breadcrumb, h1, lead,
+// metadata row, closed by the band's own bottom hairline (layout.css's
+// .band, unmodified — the asymmetric padding is .band--header, added this
+// phase).
+//
+// Not §10.1's full layout A (TOC gutter / 680 measure / aside) — this band
+// has no aside, and its content side runs to --header-w (760), wider than
+// the measure. That's layout B's shape (148 / minmax(0,1fr)), so this uses
+// .layout-band, not .layout-article.
+//
+// wordCount/minutesRead are NOT authored frontmatter — remark-reading-time.ts
+// (this phase) computes them from the real Markdown tree and writes them to
+// file.data.astro.frontmatter, Astro's documented mechanism for computed
+// frontmatter, which is why they show up on this same `frontmatter` prop
+// already flowing in from ProseLayout.astro.
+interface Series {
+  name: string;
+  part: number;
+  total: number;
+}
+
+interface Frontmatter {
+  number: number;
+  title: string;
+  lead: string;
+  section: string;
+  // YAML `date:`/`updated:` values arrive as plain strings, NOT coerced to
+  // Date — checked by building and reading the actual TypeError this threw
+  // (`frontmatter.date.toISOString is not a function`) rather than trusting
+  // an earlier debug JSON.stringify, which prints a real Date and an
+  // already-ISO string identically and so proved nothing either way. That
+  // coercion IS real for a content-collection entry's `z.date()` schema
+  // (Phase 5's job), but this fixture bypasses collections entirely (Phase
+  // 3.1's own reasoning) — no schema, no coercion.
+  date: string;
+  updated?: string;
+  tags: readonly string[];
+  series?: Series;
+  wordCount: number;
+  minutesRead: number;
+}
+
+// Named `Props` (not e.g. `ArticleHeaderProps`) so Astro's own tooling
+// infers this component's prop signature correctly — ProseLayout.astro
+// reuses this exact shape via `ComponentProps<typeof ArticleHeader>`
+// (astro/types) rather than redeclaring it, so the two can't drift.
+export interface Props {
+  frontmatter: Frontmatter;
+}
+
+const { frontmatter } = Astro.props;
+
+const num = String(frontmatter.number).padStart(3, '0');
+const date = new Date(frontmatter.date);
+const isoDate = date.toISOString().slice(0, 10);
+
+// §09: "Only when it differs from publication by more than a day."
+const updated = frontmatter.updated ? new Date(frontmatter.updated) : null;
+const showUpdated =
+  updated !== null && Math.abs(updated.getTime() - date.getTime()) > 24 * 60 * 60 * 1000;
+const isoUpdated = updated ? updated.toISOString().slice(0, 10) : '';
+
+const wordCountText = frontmatter.wordCount.toLocaleString('en-US');
+
+// §3.7: "Title over 90 characters at <760: display type steps 28 -> 26px."
+// Build-time, exact, zero runtime — the only length-conditional type rule
+// in the system, per the plan's own framing of why this can't be a CSS
+// length query.
+const isLongTitle = frontmatter.title.length > 90;
+---
+
+<div class="frame">
+  <header class="band band--header layout-band">
+    <!-- §10.2 gutter: number (accent) / section / series. Real content only
+         >=1280 (ADR-0016's corrected --bp-gutter, not the 1100 DESIGN_SYSTEM.md's
+         own §4.1 states before that correction) — hidden below it via the
+         scoped .gutter override below, per §3.6: "the column is what goes;
+         the data never does" (§3.6's own number/date/effort/revision/
+         taxonomy datums cover the same ground at <1280 through the
+         metadata row and breadcrumb instead). -->
+    <div class="gutter">
+      <div class="gutter-number">{num}</div>
+      <div class="gutter-section">{frontmatter.section}</div>
+      {
+        frontmatter.series && (
+          <div class="gutter-series">
+            series {frontmatter.series.part}/{frontmatter.series.total}
+          </div>
+        )
+      }
+    </div>
+
+    <div class="header-content">
+      <!-- §16 breadcrumb. "infrastructure" is plain text, not a link — no
+           section-archive route exists yet (Phase 6); linking it now would
+           be a dead link invented ahead of the page that would resolve it. -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/writing">writing</a></li>
+          <li>{frontmatter.section.toLowerCase()}</li>
+          <!-- §6·16: drops below 760 — the article number is still present
+               in the metadata row's first datum on the same screen (see
+               .metadata-number below), so stacking law 02 ("every datum on
+               screen at every width") still holds. Same shape of sanctioned
+               override as the masthead's role text (Phase 2.3). -->
+          <li class="breadcrumb-current" aria-current="page">{num}</li>
+        </ol>
+      </nav>
+
+      <h1 class:list={['title', { 'title--long': isLongTitle }]}>
+        {frontmatter.title}
+      </h1>
+
+      <p class="lead">{frontmatter.lead}</p>
+
+      <dl class="metadata">
+        <!-- §3.6's own resolution of the gutter/metadata-row number
+             question (checked against docs/reference/article/900-light.png
+             and 1320-light-full.png, not assumed from the ambiguous prose):
+             the number is the row's own first datum below 1280 — hidden by
+             the same breakpoint the gutter appears at, so it's never shown
+             twice. dt and dd share .metadata-number so the pair hides
+             together — a dt with no adjacent dd is broken dl semantics. -->
+        <dt class="visually-hidden metadata-number">Article number</dt>
+        <dd class="metadata-number metadata-accent">{num}</dd>
+
+        <dt class="visually-hidden">Published</dt>
+        <dd><time datetime={isoDate}>{isoDate}</time></dd>
+
+        <dt class="visually-hidden">Reading time</dt>
+        <dd>{frontmatter.minutesRead} min</dd>
+
+        <dt class="visually-hidden">Word count</dt>
+        <dd>{wordCountText} words</dd>
+
+        {
+          showUpdated && (
+            <Fragment>
+              <dt class="visually-hidden">Updated</dt>
+              <dd>
+                upd <time datetime={isoUpdated}>{isoUpdated}</time>
+              </dd>
+            </Fragment>
+          )
+        }
+
+        {
+          frontmatter.tags.map((tag) => (
+            <Fragment>
+              <dt class="visually-hidden">Tag</dt>
+              <dd class="metadata-accent">#{tag}</dd>
+            </Fragment>
+          ))
+        }
+      </dl>
+    </div>
+  </header>
+</div>
+
+<style>
+  @layer components {
+    /* §5.4/§3.6: gutter content is real only >=1280 — layout.css's own
+       .gutter deliberately leaves this to the component ("a component-level
+       concern, not a layout one"). Below that width its jobs relocate:
+       number -> breadcrumb + metadata row, section -> breadcrumb, series ->
+       nowhere yet (not one of this phase's five named concerns; see the
+       plan). */
+    .gutter {
+      display: none;
+    }
+
+    @media (min-width: 1280px) {
+      .gutter {
+        display: block;
+      }
+    }
+
+    .gutter-number,
+    .gutter-section,
+    .gutter-series {
+      font: var(--t-gutter);
+    }
+
+    .gutter-number {
+      color: var(--c-accent);
+    }
+
+    .gutter-section {
+      color: var(--c-text);
+    }
+
+    .gutter-series {
+      color: var(--c-faint);
+    }
+
+    .header-content {
+      max-width: var(
+        --header-w
+      ); /* §10.2: header content may run to 760,
+        wider than the 680 measure — E11. */
+    }
+
+    /* ===========================================================================
+       BREADCRUMB (component 16, §6·16)
+       =========================================================================== */
+
+    .breadcrumb ol {
+      display: flex;
+      flex-wrap: wrap;
+      list-style: none;
+      margin: 0 0 var(--sp-breadcrumb-gap) 0;
+      padding-left: 0;
+    }
+
+    .breadcrumb li {
+      font: var(--t-breadcrumb);
+      color: var(--c-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover,
+    .breadcrumb a:active {
+      color: var(--c-accent-hi);
+    }
+
+    /* §2.11: "/" — breadcrumb separator, between path segments. Same
+       literal-span-not-CSS-content precedent as the footer's "·" separators
+       (Footer.astro) rather than generated content on ::before. */
+    .breadcrumb li + li::before {
+      content: '/';
+      margin-inline: var(--sp-8);
+      color: var(--c-rule-2);
+    }
+
+    .breadcrumb-current {
+      color: var(--c-text);
+    }
+
+    @media (max-width: 759px) {
+      .breadcrumb-current {
+        display: none;
+      }
+    }
+
+    /* ===========================================================================
+       TITLE + LEAD (§10.2)
+       =========================================================================== */
+
+    .title {
+      font: var(--t-display);
+      color: var(--c-text);
+      margin: 0 0 var(--sp-20) 0;
+      text-wrap: pretty;
+      hyphens: auto; /* §10.10 long title: "pretty wrapping plus automatic
+        hyphenation". lang is set on <html> (BaseLayout), which hyphens:auto
+        needs to pick a dictionary. */
+    }
+
+    @media (max-width: 759px) {
+      .title--long {
+        font-size: var(--fs-display-long);
+      }
+    }
+
+    .lead {
+      font: var(--t-lead);
+      color: var(--c-text-2);
+      max-width: var(--measure-lead);
+      margin: 0 0 var(--sp-28) 0;
+      text-wrap: pretty;
+    }
+
+    /* ===========================================================================
+       METADATA ROW (component 09, §18.3 — a <dl>, not a flex row of spans)
+       =========================================================================== */
+
+    .metadata {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: var(--sp-meta-gap);
+      row-gap: var(--sp-8);
+      border-top: var(--bw) solid var(--c-rule);
+      padding-top: var(--sp-16); /* §09: "16px above the row from its
+        hairline" */
+      margin: 0;
+    }
+
+    /* dt is .visually-hidden (absolutely positioned, out of flow) — only
+       the dd elements are real flex items, so the dl can be the flex
+       container directly with no extra wrapper per pair. */
+    .metadata dd {
+      font: var(--t-meta);
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .metadata-accent {
+      color: var(--c-accent);
+    }
+
+    /* §3.6 (checked against the reference screenshots, not assumed): the
+       number is the gutter's job >=1280, so the row's own copy of it is
+       redundant there and hidden — see the .gutter breakpoint above, same
+       threshold. Below 1280 (no gutter) it's this row's first datum. */
+    @media (min-width: 1280px) {
+      .metadata-number {
+        display: none;
+      }
+    }
+  }
+</style>
