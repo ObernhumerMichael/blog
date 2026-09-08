@@ -477,6 +477,8 @@ Four rules cover every component in the system, which is why there are no page-s
 | Article shape          | 148 / 680 / 200, 44 gaps | one column, max 680 | one column, fluid |
 | Section band padding-y | 56                       | 40                  | 32                |
 | Paragraph → `h2`       | 56                       | 48                  | 36                |
+| `h2` → paragraph       | 16                       | 16                  | 14                |
+| Paragraph → `h3`       | 32                       | 32                  | 26                |
 | Prose → block element  | 32                       | 32                  | 26                |
 | Paragraph → paragraph  | 24                       | 24                  | 20–22             |
 
@@ -614,7 +616,7 @@ Pages are built from **bands**, not from a continuous flow. A band is:
 
 The last band before the footer has no bottom rule (the footer's top rule serves). Page-level separation between major regions is 72px; the gap from the end of an article body to its footer apparatus is 96px; the 128px step is reserved for the top of the homepage and the 404.
 
-Within prose, the rhythm is: 24 between paragraphs, 16 from `h2` to its first paragraph, 12 from `h3` to its first paragraph, 32 from prose to a block element, 56 from a paragraph to the next `h2`.
+Within prose, the rhythm is: 24 between paragraphs, 16 from `h2` to its first paragraph, 12 from `h3` to its first paragraph, 32 from a paragraph to a following `h3`, 32 from prose to a block element, 56 from a paragraph to the next `h2`.
 
 ## 5.4 Alignment
 
@@ -697,7 +699,7 @@ Components 01–04 are specified in §7 and §8; 14 in §15; 19–20 in §13; 12
 
 **Typography.** Number mono 400 13 (12 on mobile) accent; text `--t-h2` (serif 600 25/1.30/−0.010em).
 
-**Spacing.** 56px above (48 tablet / 36 mobile), 16px below.
+**Spacing.** 56px above (48 tablet / 36 mobile), 16px below (16 tablet / 14 mobile).
 
 **Rules.** The number is **content, not decoration**: it is the anchor target and the TOC key. `h3` subsections are numbered `n.m` in the text itself (`2.1 · What the drift was hiding`) and carry no separate mono span. Levels never go deeper than `h3`.
 
@@ -1082,6 +1084,7 @@ The article page is the reference implementation of the entire design. Every oth
 | Paragraph → `h2`                                                  | 56                                                 |
 | `h2` → paragraph                                                  | 16                                                 |
 | `h3` → paragraph                                                  | 12                                                 |
+| Paragraph → `h3`                                                  | 32                                                 |
 | Prose → block element (code, figure, table, callout, quote, list) | 32                                                 |
 | Block → prose                                                     | 32 (via the caption's own 32px bottom margin)      |
 | List item → list item                                             | 12                                                 |
@@ -1096,7 +1099,7 @@ Ordered and unordered lists use the browser's markers, serif at body size, 26px 
 
 - **Reference marker:** a mono 11 superscript numeral in `--c-accent`, immediately after the punctuation.
 - **References block:** a `REFERENCES` label above a hairline, then rows of `number + text`, 12px gap, text sans 15 / 1.6 `--c-text-2`, accent mono numeral. External references carry `↗`. Repo paths are set in mono 13 with a `--c-rule-2` underline.
-- Placed 56px after the body, before the author block.
+- Placed 96px after the body, before the author block.
 
 ## 10.6 Author block
 
@@ -1850,6 +1853,9 @@ The scale covers eleven canonical tokens. The built pages use **fourteen additio
 | Line numbers "appear only above twelve lines", yet several demo frames show them on 4–6 line blocks                                                                  | The rule is normative; the demo frames are illustrating the number treatment. Implementations follow the rule.                                                    |
 | The mobile menu's theme control placement was unspecified in the original component note                                                                             | Resolved from the responsive board: it moves into the panel at <760.                                                                                              |
 | Dark mode has no `--c-rule-2` equivalent                                                                                                                             | Confirmed intentional: dark uses `--c-rule` for group openers, since the dark hairline is already proportionally stronger.                                        |
+| §6·06 gave the section-heading gap below as a flat 16px, with no breakdown; §10.9's mobile table gives h2 "36 above / 14 below"                                      | Resolved as 16 tablet / 14 mobile; §3.3 gained an `h2` → paragraph row and §6·06 was corrected to match.                                                          |
+| §10.3 and §5.3 both state the body → apparatus gap as 96px; §10.5 said the references block sits 56px after the body                                                 | 96 is used everywhere; §10.5 was corrected to match. A gap that changed size depending on whether an article has footnotes was rejected.                          |
+| The rhythm system stated `h3` → paragraph (12) but never the reverse — the gap above an `h3`                                                                         | Filled in as 32 (26 at mobile), mirroring the existing prose → block-element step. Added to §3.3, §5.3 and §10.3.                                                 |
 
 ## 25.5 Deliberate absences confirmed
 
