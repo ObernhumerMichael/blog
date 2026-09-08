@@ -19,9 +19,10 @@
     "check:format": "prettier --check .",
     "check:fonts": "node scripts/verify-fonts.mjs",
     "check:content": "echo 'TODO Phase 5 — content invariant tests (tests/invariants)' && exit 0",
+    "check:e2e": "astro dev --background && playwright test",
     "check:links": "echo 'TODO Phase 8 — lychee link check on build output' && exit 0",
     "format": "prettier --write .",
-    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:fonts && pnpm run check:content && pnpm run check:links && pnpm run check:svelte"
+    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:fonts && pnpm run check:content && pnpm run check:e2e && pnpm run check:links && pnpm run check:svelte"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.1",
@@ -30,6 +31,8 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.4.1",
     "postcss-html": "^2.0.0",
     "prettier": "^3.3.3",
     "prettier-plugin-astro": "^0.14.1",

@@ -21,11 +21,13 @@
         packages = [
           pkgs.nodejs_24
           pkgs.pnpm
+          pkgs.chromium
         ];
 
         shellHook = ''
           echo "🚀 Blog development environment"
           node --version
+          export PLAYWRIGHT_CHROMIUM_EXECUTABLE="${pkgs.chromium}/bin/chromium"
         '';
       };
     };
