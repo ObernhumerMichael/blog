@@ -34,6 +34,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm exec playwright install
+
       - run: pnpm verify
 
       - run: pnpm run build
