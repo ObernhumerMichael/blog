@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 260" width="640" height="260" role="img" aria-label="Diagram of the homelab: a laptop pushing an Ansible playbook to three Raspberry Pi nodes, which each run node_exporter and forward metrics to a Prometheus instance on pi-01">
+  <g fill="none" stroke="#5b5b5b" stroke-width="1.5">
+    <rect x="16" y="110" width="120" height="48" />
+    <rect x="220" y="16" width="130" height="48" />
+    <rect x="220" y="106" width="130" height="48" />
+    <rect x="220" y="196" width="130" height="48" />
+    <rect x="470" y="106" width="150" height="48" />
+    <path d="M136 134 L220 40" marker-end="url(#arrow)" />
+    <path d="M136 134 L220 130" marker-end="url(#arrow)" />
+    <path d="M136 134 L220 220" marker-end="url(#arrow)" />
+    <path d="M350 40 L470 118" marker-end="url(#arrow)" />
+    <path d="M350 130 L470 130" marker-end="url(#arrow)" />
+    <path d="M350 220 L470 142" marker-end="url(#arrow)" />
+  </g>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5b5b5b" />
+    </marker>
+  </defs>
+  <g font-family="monospace" font-size="12" fill="#2a2a2a" text-anchor="middle">
+    <text x="76" y="138">control node</text>
+    <text x="285" y="44">pi-01</text>
+    <text x="285" y="134">pi-02</text>
+    <text x="285" y="224">pi-03</text>
+    <text x="545" y="134">prometheus</text>
+  </g>
+</svg>
