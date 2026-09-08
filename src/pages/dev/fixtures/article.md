@@ -2,7 +2,7 @@
 layout: ../../../layouts/BaseLayout.astro
 number: 1
 title: 'A reproducible homelab: what ansible-playbook actually guarantees'
-lead: 'Three Raspberry Pis, one playbook, and the gap between idempotent and reproducible — the difference showed up six weeks later, when the monitoring stack that was supposed to catch it didn''t.'
+lead: "Three Raspberry Pis, one playbook, and the gap between idempotent and reproducible — the difference showed up six weeks later, when the monitoring stack that was supposed to catch it didn't."
 section: 'Infrastructure'
 date: 2026-08-19
 tags: ['ansible', 'infrastructure', 'homelab']
@@ -173,7 +173,7 @@ pi-03 ansible_host=10.20.0.13
 The textfile collector silently ignores a `.prom` file with a stale mtime
 older than its configured staleness threshold — it doesn't error, it just
 stops reporting that metric, and Prometheus shows the target as `up` the
-whole time because the *scrape* is still succeeding. I lost most of a
+whole time because the _scrape_ is still succeeding. I lost most of a
 morning to a dashboard that looked healthy while `ansible_last_run_timestamp`
 had been silently frozen for two weeks. The fix was a second, boring
 metric: `node_textfile_mtime_seconds`, alerted on directly.
@@ -184,15 +184,15 @@ metric: `node_textfile_mtime_seconds`, alerted on directly.
 Reproducibility isn't free. Every node runs slightly more than it strictly
 needs, and every playbook run costs real time even when nothing changes.
 
-| Node    | Full run (cold) | Converged run | Roles applied |
-| ------- | ---------------: | -------------: | -------------- |
-| `pi-01` |            3m 40s |          0m 22s | base, monitoring, firewall |
-| `pi-02` |            2m 55s |          0m 18s | base, monitoring, firewall |
-| `pi-03` |            2m 51s |          0m 17s | base, monitoring, firewall |
+| Node    | Full run (cold) | Converged run | Roles applied              |
+| ------- | --------------: | ------------: | -------------------------- |
+| `pi-01` |          3m 40s |        0m 22s | base, monitoring, firewall |
+| `pi-02` |          2m 55s |        0m 18s | base, monitoring, firewall |
+| `pi-03` |          2m 51s |        0m 17s | base, monitoring, firewall |
 
-*Table 1 — "Converged run" is `ansible-playbook site.yml` against a node
+_Table 1 — "Converged run" is `ansible-playbook site.yml` against a node
 already at the desired state; it omits the SSH connection and fact-gathering
-overhead paid on every run regardless of what changes.*
+overhead paid on every run regardless of what changes._
 
 ### 6.1 · The diff that mattered
 
@@ -244,11 +244,16 @@ None of this makes the setup finished. It makes the gaps in it specific
 and nameable, which is a more honest goal than "finished" was ever going
 to be for three Raspberry Pis on a shelf.[^2]
 
-[^1]: `group_vars/all/vault.yml`, decrypted at run time with
+[^1]:
+    `group_vars/all/vault.yml`, decrypted at run time with
     `--ask-vault-pass`. Not committed in plaintext anywhere, including in
     this article.
-[^2]: With thanks to the Prometheus documentation for the textfile
+
+[^2]:
+    With thanks to the Prometheus documentation for the textfile
     collector's staleness semantics, which are correct and clearly stated
     — I just read them after the outage rather than before.
-[^3]: Full scrape and alerting configuration:
+
+[^3]:
+    Full scrape and alerting configuration:
     `ansible/roles/monitoring/templates/prometheus.yml.j2`.

@@ -239,7 +239,15 @@
     --fs-related-title: 1.03125rem; /* 16.5px — related item (§10.7) */
     --fs-prevnext-title: 1.0625rem; /* 17px  — prev/next (§10.7) */
     --fs-statement: 1.5rem; /* 24px  — homepage opening statement */
-    --fs-callout: 1rem; /* 16px  — 15.5px at mobile, see below */
+    /* Phase 3.2 — real bug found here: this was 1rem (16px) at BASE with a
+       separate, unreferenced --fs-callout-mobile sitting beside it, and the
+       >=760 block below re-declared the SAME 16px as a no-op override. Net
+       effect: callouts rendered 16px at every width, including mobile,
+       where §10's "Mobile body 15.5" is a real requirement, not a footnote.
+       Base is now the mobile value; the >=760 block's 16px override is now
+       load-bearing instead of dead. --fs-callout-mobile is deleted below —
+       nothing referenced it. */
+    --fs-callout: 0.96875rem; /* 15.5px at <760 — see >=760 override below */
     --fs-menu-row: 1rem; /* 16px sans — §7.5, §12.1's "Menu row" component.
       Numerically the same as --fs-callout but a DIFFERENT token: callout is
       serif, this is sans, and they're semantically unrelated contexts.
@@ -257,9 +265,10 @@
     --fs-meta-sm: 0.71875rem; /* 11.5px — captions, footer, TOC */
     --fs-meta-xs: 0.6875rem; /* 11px  — spec 10.5–11 */
     --fs-table-cell: 0.78125rem; /* 12.5px at mobile; 13px from 760 — FLOOR */
-
-    /* Mobile-only overrides from the component specs */
-    --fs-callout-mobile: 0.96875rem; /* 15.5px (§10) */
+    --fs-repo-path: 0.8125rem; /* 13px — §10.5 references-block repo paths.
+      No existing token covered this: --fs-code is 13.5/12.5 and
+      --fs-table-cell is 13 but semantically unrelated. Constant at every
+      width — §10.5 gives no mobile step for it. */
 
     /* =====================================================================
        5 · TYPE TOKENS — atomic bundles
@@ -289,6 +298,9 @@
     --t-code: 400 var(--fs-code)/var(--lh-code) var(--font-mono);
     /* Italic is used for quotes ONLY (§2.5 typographic laws). */
     --t-quote: italic 400 var(--fs-quote)/1.6 var(--font-serif);
+    /* §6·10 — 1.62 inline for the same reason --t-quote's 1.6 is: a single-use
+       line-height doesn't earn a standalone --lh-* token. */
+    --t-callout: 400 var(--fs-callout)/1.62 var(--font-serif);
     /* §18 — footer only. 1.9 line-height is unique to this context, same
        precedent as --t-quote's inline 1.6: not worth a standalone --lh-*
        token for a value used in exactly one place. */
@@ -341,6 +353,32 @@
     --sp-para-h2: var(--sp-36); /* paragraph -> next h2 */
     --sp-prose-block: var(--sp-26); /* prose -> code/figure/table */
     --sp-meta-gap: var(--sp-14); /* metadata row token gaps (§9) */
+
+    /* Phase 3.2 — prose relationships §10.3/§10.9 that the five tokens above
+       don't cover. Findings A/B and OD-11, all resolved in ADR-0018. */
+    --sp-h2-para: var(--sp-14); /* h2 -> paragraph, finding A: 14 at <760 */
+    --sp-h3-para: var(
+      --sp-12
+    ); /* h3 -> paragraph, §10.3 — constant, no
+      breakpoint override below: unlike h2 -> paragraph, §10.9's mobile
+      table gives h3 -> paragraph no separate mobile value. */
+    --sp-para-h3: var(
+      --sp-26
+    ); /* paragraph -> h3, OD-11/ADR-0018: 26 at
+      <760, 32 from 760 up — mirrors --sp-prose-block's own responsive step,
+      since an h3 break reads as the same weight as a block element. */
+    --sp-apparatus: var(
+      --sp-96
+    ); /* body -> references block, finding B:
+      96 constant. Deliberately NOT conditional on whether the article has
+      footnotes — see ADR-0018 for why a gap that varies with content is
+      worse than being the one source (§10.5) that was out of step. */
+    --sp-list-indent: var(
+      --sp-26
+    ); /* §10.4's 26px list indent, ALIASED
+      rather than re-declared so the 4px scale stays the single source —
+      this is coincidentally the same number as the mobile prose-block step
+      above, but a different relationship; don't collapse the two names. */
 
     /* =====================================================================
        7 · SIZING (§2.7)
@@ -432,7 +470,9 @@
       --fs-code: 0.84375rem; /* 13.5px */
 
       --fs-table-cell: 0.8125rem; /* 13px */
-      --fs-callout: 1rem; /* 16px */
+      --fs-callout: 1rem; /* 16px — was a no-op before the base-value bug
+        (§10, Phase 3.2) was fixed; now the real override it always should
+        have been. */
       --fs-row-title: 1.09375rem; /* 17.5px — spec 17–17.5, upper chosen (§05) */
       --fs-wordmark: 0.875rem; /* 14px — tablet tier (§7.4) */
 
@@ -443,6 +483,8 @@
       --sp-para-h2: var(--sp-48);
       --sp-prose-block: var(--sp-32);
       --sp-meta-gap: var(--sp-22);
+      --sp-h2-para: var(--sp-16); /* finding A: 16 from 760 up */
+      --sp-para-h3: var(--sp-32); /* OD-11/ADR-0018: 32 from 760 up */
     }
   }
 
