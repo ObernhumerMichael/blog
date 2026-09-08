@@ -26,9 +26,13 @@
     "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:tokens && pnpm run check:fonts && pnpm run check:content && pnpm run check:e2e && pnpm run check:links && pnpm run check:svelte"
   },
   "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.4",
     "@astrojs/svelte": "^9.0.1",
     "astro": "^7.2.6",
-    "svelte": "^5.57.0"
+    "mdast-util-to-string": "^4.0.0",
+    "remark-directive": "^4.0.0",
+    "svelte": "^5.57.0",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
