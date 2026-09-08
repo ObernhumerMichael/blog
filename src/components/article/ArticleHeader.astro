@@ -99,11 +99,10 @@ const isLongTitle = frontmatter.title.length > 90;
         <ol>
           <li><a href="/writing">writing</a></li>
           <li>{frontmatter.section.toLowerCase()}</li>
-          <!-- §6·16: drops below 760 — the article number is still present
-               in the metadata row's first datum on the same screen (see
-               .metadata-number below), so stacking law 02 ("every datum on
-               screen at every width") still holds. Same shape of sanctioned
-               override as the masthead's role text (Phase 2.3). -->
+          <!-- §6·16 says this segment may drop below 760 (the number is
+             still present in the metadata row's first datum on the same
+             screen either way) — kept visible at every width instead, per
+             explicit user direction overriding that default. -->
           <li class="breadcrumb-current" aria-current="page">{num}</li>
         </ol>
       </nav>
@@ -236,14 +235,18 @@ const isLongTitle = frontmatter.title.length > 90;
       color: var(--c-rule-2);
     }
 
-    .breadcrumb-current {
+    /* `.breadcrumb li.breadcrumb-current`, not just `li.breadcrumb-current`
+       — Astro's scoped-styles mechanism appends the component's
+       data-astro-cid attribute to EVERY compound in a selector, so
+       `.breadcrumb li` above doesn't compile to one class + one element;
+       it compiles to `.breadcrumb[data-astro-cid] li[data-astro-cid]`,
+       two attribute selectors deep. A same-depth override has to repeat
+       that same ancestor context to out-specify it — one compound with an
+       extra class tacked on (`li[data-astro-cid].breadcrumb-current`)
+       isn't enough and silently lost regardless of source order, which is
+       why this never actually took effect before. */
+    .breadcrumb li.breadcrumb-current {
       color: var(--c-text);
-    }
-
-    @media (max-width: 759px) {
-      .breadcrumb-current {
-        display: none;
-      }
     }
 
     /* ===========================================================================
@@ -298,7 +301,14 @@ const isLongTitle = frontmatter.title.length > 90;
       margin: 0;
     }
 
-    .metadata-accent {
+    /* `.metadata dd.metadata-accent`, not just `dd.metadata-accent` — same
+       Astro scoped-styles gotcha as .breadcrumb li.breadcrumb-current
+       above: `.metadata dd` compiles two attribute selectors deep
+       (`.metadata[data-astro-cid] dd[data-astro-cid]`), so a same-depth
+       override has to repeat the `.metadata` ancestor to out-specify it.
+       Every accent datum (the number, every tag) rendered muted instead
+       until this matched that depth. */
+    .metadata dd.metadata-accent {
       color: var(--c-accent);
     }
 
