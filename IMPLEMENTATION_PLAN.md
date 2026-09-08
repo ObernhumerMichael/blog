@@ -799,13 +799,219 @@ The remaining seven T3 checks stay in Phase 8 — they assert things (type floor
 - Still exactly three JS islands (AD-11 intact).
 - T3 checks 1, 4, 5 pass across the matrix, and check 1 is proven to fail on a real violation.
 
-### Phase 3 · Prose and the article body _(2–3 days)_
+### Phase 3 · Prose and the article body _(3–4 days — revised up from 2–3: the Markdown pipeline is three real plugins, and §10's spacing tables disagree with §5.3, §6 and each other in three places, which are decisions before they are code)_
 
-`prose.css` per §10.3. Headings with mono section numbers (§6·06), lists, links (§8.2 — including the offset-shadow underline that survives mid-URL breaks), quotes, callouts via directives, footnotes, metadata row, breadcrumb.
+Ten sub-phases. Like Phase 2, this one opens with findings rather than code.
 
-Build this against a **real 3,000-word article with a table, four code blocks, a quote, two callouts and a diagram** — not lorem ipsum. Use one of your actual homelab pieces.
+Two scope corrections to the original one-paragraph stub, both of which change what "done" means:
 
-**Exit:** the article reads correctly at all six matrix combinations; T3 all checks pass on it; measure verified at 68ch desktop / 38–40ch mobile.
+- **Phase 3 builds the article, not the article _page_.** `/w/[num]`, the collection schema, `readingTime` / `wordCount` derivation, the TOC scroll-spy island, the progress bar, prev/next, related and the author block all stay in Phase 5. What Phase 3 owns is everything between masthead and footer that is made of _prose_: the header band, the running body, and the first apparatus block (references).
+- **Inline code belongs here; code blocks do not.** §13.4 is a prose-typography rule with no Shiki involvement — it sizes relative to its parent and needs the sunken ground and a hairline, nothing more. §13.2/13.3 are Phase 4. The stub named neither, and inline code would otherwise fall through the gap between the two phases.
+
+One correction to the stub's own wording, since it would have produced a lint failure on day one: it calls for an **"offset-shadow underline"**. Both `box-shadow` and `text-shadow` are on T2's `property-disallowed-list` (§2.10, §1.12), and no shadow is needed — see 3.4.
+
+#### 3.0 · Three conflicts in §10, and one piece of housekeeping
+
+§10 is the most-specified section of the design system and the only one whose spacing appears in three places (§5.3's rhythm sentence, §10.3's table, §06's component note). Where three sources describe one number, two of them disagree.
+
+| #   | Question                                    | Sources                                                                                                                                                                                          | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A   | `h2` → paragraph at mobile: **16 or 14?**   | §06 says "16px below", with no responsive row. §10.9's mobile table says `h2` is "36 above / **14** below".                                                                                      | **Resolved here: 14.** §25.4's own reconciliation rule — later and more specific wins — applies cleanly; §10.9 is the mobile-behaviour table and is later. §06 needs a mobile row added **at source**, the same way ADR-0016 corrected §4.1 rather than diverging from it.                                                                                                                                                                                                                 |
+| B   | Body → apparatus: **96 or 56?**             | §10.3 ("Body → apparatus 96") and §5.3 ("the gap from the end of an article body to its footer apparatus is 96px") both say 96. §10.5 says the references block is "placed 56px after the body". | **Recommendation: 96, and correct §10.5 at source.** Two independent structural rhythm statements agree; one component note disagrees. §25.4's rule would pick 56 here, which is why this is flagged rather than resolved silently — and 56 has a second cost: the references block is _conditional_, so a 56 that applies only when footnotes exist makes the body-to-apparatus gap change size depending on whether the article happens to cite anything. Confirm when you sign the ADR. |
+| C   | Paragraph → `h3`: **unspecified anywhere.** | §10.3, §5.3 and §06 each give `h3` → paragraph (12). None of the three gives the space _above_ an `h3`.                                                                                          | **Blocking → OD-11.** A number has to be invented, and inventing a spacing value is exactly what §22.3 exists to prevent, so it needs your eye on the 0.3 reference screenshots rather than my arithmetic.                                                                                                                                                                                                                                                                                 |
+
+**Housekeeping, found while checking the above:** `docs/decisions/README.md` is stale. It indexes ADR-0001–0013 but ADR-0015, ADR-0016 and ADR-0017 exist on disk and are not listed, and its "Next number is 0014" line is wrong — 0014 was never allocated and 0017 is taken. Phase 0.5's exit criterion was "13 ADRs committed, indexed in `docs/decisions/README.md`"; the index has since drifted. Fix it in this phase: add the three missing rows, record 0014 as permanently unused (renumbering existing ADRs would break the cross-references in `tokens.css` and `astro.config.mjs`), and set the next number to **0018**.
+
+##### OD-10 · Where does a section number come from? **(blocking 3.3 and 3.7)**
+
+§06 states the `h2` number is "**content, not decoration**: it is the anchor target and the TOC key." Three things therefore have to agree on it — the rendered heading, the `id` a TOC link and a shared URL point at, and the TOC entry itself. There are two ways to make them agree.
+
+- **Option A — authored in the Markdown.** The heading is written `## 01 · What the drift was hiding`; a remark plugin splits the `NN · ` prefix into the mono accent span and leaves the rest as the heading text.
+- **Option B — generated by index.** Headings are written plain; a plugin counts `h2`s in document order and injects the number, then computes the `id` itself.
+
+**Recommendation: Option A, plus a validator.** Three reasons, in order of weight:
+
+1. **§06 already forces half of it.** `h3` subsections are numbered `n.m` "**in the text itself**" and carry no separate span — so `h3` numbering is authored no matter which option is chosen. Option B would leave `h2` numbers generated and `h3` numbers hand-written, which is the configuration most likely to drift.
+2. **The anchor and the TOC come free.** Astro's Markdown pipeline already slugs headings and exposes them as `headings` from `render()` (verify this directly against the installed Astro 7.2.6 by rendering the fixture, rather than trusting the docs — the same discipline that caught the `src/content.config.ts` location change in Phase 0). With the number in the heading text, the slug contains it (`#01-what-the-drift-was-hiding`) and the TOC key is the same string the reader sees. No `toc.ts` extraction is needed in this phase at all.
+3. **Renumbering is visible in the diff.** Reordering two sections under Option A shows up as an edit to both headings, which is what it is. Under Option B it shows up as nothing, and every shared link into the article silently retargets.
+
+The cost of Option A is that the numbers can go wrong. That is what the validator in 3.3 is for: `h2` numbers must run contiguously from `01`, and any `h3` beginning `n.m` must match its parent `h2`'s `n` — build fails otherwise. It is the same invariant, in the same shape, as T1's "article numbers unique and contiguous from 001".
+
+**Exit:** decided, and recorded as ADR-0018.
+
+##### OD-11 · Paragraph → `h3` spacing **(blocking 3.2 and 3.4)**
+
+The gap above an `h3` is genuinely absent from DESIGN_SYSTEM.md. Every other prose relationship is specified twice or three times; this one, zero. Options, all on the 4px scale and all already tokens:
+
+| Candidate                                                                  | Reasoning                                                                                                                                                                                                                                                                                                                                                                        |                 |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| **26 / 32 / 32** (mobile / tablet / desktop), mirroring `--sp-prose-block` | An `h3` is a break in the reading of the same weight as a block element, and this is the step the system already uses for exactly that. It lands cleanly between its neighbours at every tier — 20 / 26 / 36 at mobile, 24 / 32 / 48 at tablet, 24 / 32 / 56 at desktop, reading paragraph → `h3` → `h2` — and introduces no number the responsive scale does not already carry. | **Recommended** |
+| A flat 32 at every width                                                   | Simpler, but at mobile it sits 4px under the `h2`'s 36, so the two heading levels stop being distinguishable by their approach. Rejected on the same reasoning §3.4 gives for stepping body type down at all.                                                                                                                                                                    |                 |
+| 24 (`--sp-para`)                                                           | Makes an `h3` indistinguishable from a paragraph break at mobile, where `--t-h3` is 18px against 17px body. Rejected.                                                                                                                                                                                                                                                            |                 |
+
+Please check 32 against a desktop article reference screenshot from `docs/reference/article/` before I write it into `tokens.css` — this is the one number in the phase with no source, and it is much cheaper to settle now than to notice on the fourth published article. If the screenshots show the `h3` breathing more than that, say so and give me the value you read.
+
+**Exit:** a number, recorded in the ADR alongside the §10.5 and §06 source corrections.
+
+#### 3.1 · The fixture article
+
+**Where it lives before Phase 5 exists.** The collection schema is still a Phase-0 stub (`title` + `draft`), and Zod strips unknown keys — so an article authored into `src/content/writing/` today would have its `number`, `section`, `date` and `tags` silently discarded, and the header band would have nothing to render. Pulling the full Phase 5 schema forward to avoid that would drag the cross-entry invariants with it.
+
+**Recommendation: `src/pages/dev/fixtures/article.md`**, a routable Markdown page with a `layout:` frontmatter key. Frontmatter on a page is arbitrary and reaches the layout intact as `Astro.props.frontmatter`, it runs through the identical remark/rehype pipeline, and `dev/` is already stripped from production at deploy time (§3). Author it with the **full Phase 5 frontmatter shape** — `number`, `title`, `lead`, `section`, `date`, `tags`, `series` — so Phase 5's job is `git mv` plus landing the schema, not a rewrite.
+
+**What it must contain**, per the stub plus what the phase actually needs to exercise: ~3,000 words, 5–8 `h2` sections (§21.5's stated density, and above §6·15's three-`h2` TOC threshold), at least two `h3`s, an ordered and an unordered list, one quote with attribution, two callouts of different kinds, three or more footnotes with one external reference and one repo path, several inline-code spans, at least one long URL in prose, and one link inside a heading if you have one naturally.
+
+The table, the four code blocks and the diagram named in the stub go in **too**, but as **Phase 4's targets, deliberately unstyled here**. This is worth stating rather than leaving implicit: their default rendering in Phase 3 is ugly, and that is the correct state. What Phase 3 does assert about them is the one thing that is a prose concern — that a `pre` or `table` in the flow gets §10.3's 32px above and below and does not break the measure or the page scroll.
+
+Use a real homelab piece. The reason is not sentiment: §21.4 makes the writing voice a design constraint ("prose that admits cost, states measurements, names dead ends"), and lorem ipsum has uniform word lengths, no inline code, no URLs and no numbers — it would pass every check in 3.8 while proving nothing.
+
+**Exit:** the fixture renders at `/dev/fixtures/article` through `BaseLayout`, unstyled, with every element in the list above present.
+
+#### 3.2 · Token corrections, and the prose spacing tokens
+
+Opens with a **real bug in `tokens.css`**, not a new value. §6·10 specifies callout body as serif 16, "Mobile body 15.5". The token file declares `--fs-callout: 1rem` (16px) at the mobile-first base, declares `--fs-callout-mobile: 0.96875rem` (15.5px) beside it, and then **re-declares `--fs-callout: 1rem` inside the `min-width: 760px` block** — a no-op. Net effect: callouts would render 16px at 390 (a spec violation), and `--fs-callout-mobile` is referenced by nothing anywhere in `src/`. Fix: base becomes 15.5, the ≥760 override becomes real at 16, `--fs-callout-mobile` is deleted. Worth noting _why_ it slipped through Phase 1 — the specimen page renders every `--t-*` bundle but no `--fs-*` value that lacks one, so a component-local size with no bundle token had nothing checking it. 3.9 closes that gap.
+
+Then, the tokens this phase needs that do not exist:
+
+| Token              | Value                                          | Source                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--t-callout`      | `400 var(--fs-callout)/1.62 var(--font-serif)` | §6·10. §22.4 forbids a size outside the scale, and the token file's own reasoning is that a token which decomposes into four loose declarations stops being one; the 1.62 is inline for the same reason `--t-quote`'s 1.6 and `--t-footer`'s 1.9 are.                                                                                                                                                                                                                                  |
+| `--sp-h2-para`     | 14 → 16 at ≥760                                | §10.3 / §10.9, per finding A. Flag in the ADR that 14 is one of §25.2's component-interior 2px sub-steps, whose register entry (E13) bounds them to "inside components only ... never used between components or on a band". A heading and its first paragraph are inside one prose block rather than between components, so this is within E13 rather than an exception to it — but it is the first prose-level use of a sub-step, and `--sp-meta-gap`'s 14/22 is the only precedent. |
+| `--sp-h3-para`     | 12, constant                                   | §10.3. Constant at every width, but named so the rhythm is auditable in one place rather than being a bare `--sp-12` in `prose.css`.                                                                                                                                                                                                                                                                                                                                                   |
+| `--sp-para-h3`     | OD-11 (26 → 32 at ≥760, recommended)           | The one number in the phase with no source in DESIGN_SYSTEM.md.                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `--sp-apparatus`   | 96 (finding B)                                 | §10.3 / §5.3.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `--sp-list-indent` | `var(--sp-26)`                                 | §10.4's 26px indent. Aliased rather than re-declared so the 4px scale stays the single source.                                                                                                                                                                                                                                                                                                                                                                                         |
+| `--fs-repo-path`   | 13px                                           | §10.5's mono-13 repo paths in the references block. No existing token covers it — `--fs-code` is 13.5/12.5 and `--fs-table-cell` is 13 but semantically unrelated. Same treatment and same comment discipline as `--fs-menu-row` in Phase 2.                                                                                                                                                                                                                                           |
+
+Two things deliberately **not** given tokens: §10.5's reference-row text takes `--t-ui` as-is (§10.5 says "sans 15 / 1.6"; `--lh-ui` is 1.55 — a 0.75px difference on a 15px line, not worth a one-off token, but record the deviation in a comment so it is a known choice), and §10.4's 4px list-item `padding-left` stays a bare `var(--sp-4)`, which is that step's documented use in §2.6.
+
+Also verify while here: `--fs-display-long` (26px, §3.7's over-90-character step) has existed since Phase 1 and is referenced by nothing. 3.6 is what finally consumes it.
+
+**Exit:** `pnpm check:css` and the token-parity script pass; a callout at 390 measures 15.5px in devtools; no `--fs-*` token in the file is unreferenced except ones whose phase hasn't landed.
+
+#### 3.3 · The Markdown pipeline — four plugins
+
+`astro.config.mjs` currently has empty `remarkPlugins` / `rehypePlugins` arrays with a comment deferring them to "Phase 4/5". All four below land here, because all four are about _prose structure_; only `rehype-code-chrome.ts` and the Shiki theme wait for Phase 4. Two of them — `remark-section-numbers.ts` and `rehype-prose-links.ts` — are additions to §3's plugin list, the same category of small, necessary addition as `fonts.css` in 1.3 and `global.css` in Phase 2.
+
+Order matters; they run in this sequence:
+
+1. **`remark-heading-depth.ts`** — brought forward from T1/Phase 8. Fails the build on any heading of depth ≥ 4 (§21.3, §18.3, and cross-entry invariant 6 in §6 of this document). Fifteen lines, and it runs _first_ so an `h4` fails with the right message instead of confusing the numbering validator. Same reasoning as moving stylelint to 1.6: a rule that shapes what you write is worth having before you write 3,000 words, not after.
+2. **`remark-directive`** (the npm package) **+ `src/plugins/remark-directives.ts`** — AD-04's mechanism, finally used. The local plugin transforms `:::note` / `:::warning` / `:::correction` container directives into §6·10's callout markup, and **fails the build on anything else**, including `:::figure` — which is Phase 4's, and must error loudly rather than silently emit nothing for a phase and a half. It also enforces §6·10's two structural rules directly, since they are cheaper to check in the AST than to notice in a screenshot: **a callout is never nested, and never contains a code block.**
+3. **`remark-section-numbers.ts`** — per OD-10. Splits the authored `NN · ` prefix off an `h2` into the mono accent span, validates `h2` contiguity from `01`, validates that any `h3` opening `n.m` matches its parent's `n`, and marks the heading node as numbered so 3.5 and 3.7 can filter on it.
+4. **`rehype-prose-links.ts`** — adds §8.2's trailing `↗` to external links **as real markup, not CSS `content:`**. This follows the precedent set in Phase 2.4 for the menu label swap: generated content is not reliably announced, and here it is also the only thing distinguishing an external link from an internal one. It deliberately does **not** add `target="_blank"` — nothing in the design asks for it, and where a link opens is the reader's decision.
+
+Two verification notes, both of the "check, don't assume" kind this plan keeps insisting on. Adding `remarkPlugins` does **not** disable Astro's GFM and SmartyPants defaults — those are separate `markdown` flags — but confirm it by building, because footnotes (3.5) and curly quotes both depend on GFM staying on, and the subset fonts were built assuming SmartyPants output (`docs/glyph-coverage.md` records em dash, en dash, curly quotes and ellipsis as deliberately included). And `remark-directive` must be listed **before** `remark-directives.ts`, or the container syntax is still plain text by the time the local plugin looks for it.
+
+**Exit:** an `h4` in the fixture fails the build; `:::figure` fails the build; a callout containing a fenced block fails the build; renumbering one `h2` out of sequence fails the build. Each proven by making the violation, seeing red, and removing it — the 1.6 discipline.
+
+#### 3.4 · `prose.css` — the running body
+
+The global stylesheet `global.css` already has its import stubbed out with a `/* Phase 3: */` comment. It goes in `@layer components`, scoped to a single `.prose` class on the body wrapper, because Markdown output carries no classes of its own and the alternative — bare element selectors — would leak into the masthead, the footer and every index row built in Phase 6.
+
+The bulk of this is transcribing §10.3, §10.4 and §3.4 against the tokens from 3.2. Four things are not transcription:
+
+1. **The link underline.** §8.2 wants "a **permanent** 1px `--c-accent` underline at ~0.15em offset", and §10.10 wants it to survive a mid-URL line break "so both fragments keep their rule and the line height never changes". That is a plain `text-decoration`, and has been for years:
+
+   ```css
+   text-decoration: underline;
+   text-decoration-color: var(--c-accent);
+   text-decoration-thickness: var(--bw);
+   text-underline-offset: 0.15em;
+   text-decoration-skip-ink: none;
+   ```
+
+   A text decoration is drawn per line box, so both fragments of a broken link keep it for free, and it has never contributed to line height. `skip-ink: none` is what makes it a _rule_ rather than a decoration, which is §8.2's own word for it. The shadow trick the stub reached for is a workaround for faking skip-ink in browsers this project doesn't support, and T2 forbids both properties it could be built from.
+
+   **This requires one change to `.stylelintrc`.** The `transition-property` allow-list is `color | background-color | border-color | outline-color | height`, and §8.2's hover moves "text and underline both" to `--c-accent-hi` — which needs `text-decoration-color` in the transition. It is licensed by §17.1's exhaustive list ("**Link and nav colour and underline**"), so this is the allow-list being _incomplete_, not the design being violated. Add it to both alternatives of the rule (the single-property regex and the comma-list one), and note in the config's `//` block that §17.1 is the authority for that list.
+
+2. **Inline code, and a collision with the type floors.** §13.4 says mono at **0.86em of the parent** — "sized relatively, never a fixed pixel size" — and §3.4 sets a hard 10.5px floor on any type in the system. In prose that is fine (17 × 0.86 = 14.6px). Inside a mono 11.5 caption or metadata line it is 9.89px, below the floor. The resolution is one declaration: `font-size: max(0.86em, var(--fs-label))`. It engages only in the mono-inside-mono case, where the 0.86 factor was never doing anything useful anyway — §13.4's stated purpose for the ratio is matching the _parent_, and a mono parent already matches.
+
+3. **Mono spans break anywhere.** §10.10: "Mono spans in flow break at any character." `overflow-wrap: anywhere` on inline code and on link text, so a 90-character URL cannot push the page sideways. This is the prose half of §10.11's absolute no-horizontal-page-scroll rule; the other three owners (code, terminal, table) are Phase 4's.
+
+4. **Wrapping and hyphenation.** `text-wrap: pretty` on body paragraphs and headings (§10.3's "pretty wrapping"). `hyphens: auto` is **not** applied to body text — §10.10 asks for it on the long _title_ only, and it is `BaseLayout`'s `lang` attribute (Phase 2.2) that makes it work at all.
+
+Everything else is the table: body `--t-body` in **`--c-text-prose`** — not `--c-text`; that token exists specifically because dark-theme running prose sits one step under headings (§2.2 deviation 1, §25.1) and this is the only place in the codebase that should reference it. Paragraph rhythm from `--sp-para`; heading rhythm from `--sp-para-h2` / `--sp-h2-para` / `--sp-para-h3` / `--sp-h3-para`; block rhythm from `--sp-prose-block`; lists per §10.4 with **the browser's own markers**, which is why `reset.css` was written by hand in 1.4 rather than imported.
+
+**Exit:** the fixture reads correctly at 390 / 900 / 1320 in both themes; a link broken across a line keeps its rule on both fragments with no change in line height; `pnpm check:css` passes with the amended allow-list.
+
+#### 3.5 · Callouts, quotes, footnotes and references
+
+Callouts and quotes are the easy half — §6·10's three callout kinds against `--c-sunken` / `--c-warn-bg`, 2px left marker, `0 4px 4px 0` radius (already on T2's allow-list), `--t-callout` from 3.2; and §6·11's quote with a `--c-rule-2` marker, `--t-quote`, `--c-quote-text`, no ground, no radius. Both stay **inside the text margin at every width** — they are prose, not machine content, and the `.full-bleed` utility from 2.1 must not touch them.
+
+Footnotes are the hard half, because GFM's output does not match §10.5 in three specific ways:
+
+1. **The back-reference glyph is `↩` (U+21A9), which is not in the fonts.** `docs/glyph-coverage.md` records the subset as Basic Latin + Latin-1 Supplement + §2.11's navigation glyphs + prose punctuation. U+21A9 is in none of those, so it would render from a fallback family — a font mismatch on a glyph, which is precisely the failure ADR-0007a exists to prevent, and one nothing in the toolchain would flag. **Replace it with `←`**, which is subset, and whose assigned meaning in §2.11 is "previous in sequence" — exactly what a back-reference is.
+2. **GFM emits a visually-hidden `<h2>Footnotes</h2>`.** That is a real `h2` in the document: it would enter Astro's `headings` array, therefore the TOC, and it would break 3.3's contiguity validator by being an unnumbered `h2`. Both problems have the same one-line answer, and it is worth adopting as the general rule: **the TOC and the numbering validator both filter on "has a section number"**, so any structural heading that isn't a numbered article section is excluded by construction rather than by a list of exceptions. Replace the hidden `h2`'s text with §10.5's `REFERENCES` label, drop its `sr-only` class (§10.5 wants that label visible) and give it `--t-label`.
+3. **The reference marker.** §2.11 and §8.3 both specify mono 11 superscript in `--c-accent`, **no underline** — the one link kind in the system that doesn't get one. `--fs-meta-xs` is 11px, which clears the 10.5 floor; set it explicitly rather than inheriting `sup`'s default `smaller`, which would compute from the parent and drop below the floor in a caption.
+
+The rest of §10.5 is markup: rows of accent mono numeral + text at `--t-ui`, 12px gap, external references carrying `↗`, repo paths at `--fs-repo-path` with a `--c-rule-2` underline, the block placed `--sp-apparatus` after the body.
+
+**Exit:** every glyph in the rendered fixture resolves from a subset font — checked in devtools' rendered-fonts panel, not by eye; the TOC and the numbering validator both ignore the references heading; a callout and a quote both stay inside the 20px text margin at 390 while a `pre` beside them does not.
+
+#### 3.6 · The article header band
+
+Per §10.2 — gutter, breadcrumb, `h1`, lead, metadata row above a hairline. Five details are load-bearing:
+
+- **The band's padding is asymmetric, and `.band` is not.** §10.2 specifies 56 top / 40 bottom, while `layout.css`'s `.band` is `padding-block: var(--sp-band-y)` on both edges. Add a `.band--header` modifier there (not a fourth column structure — §22.9 is about grid structures, and this is a padding variant on the existing band). §10.2 gives no tablet or mobile values, so derive them from the discipline §3.3 already uses: bottom padding is one band-scale step below top at each tier — **40 / 32 / 24** (desktop / tablet / mobile) against `--sp-band-y`'s 56 / 40 / 32. All three are on the 4px scale; none is invented.
+- **`--fs-display-long` finally gets used.** §3.7's "title over 90 characters at <760 steps 28 → 26" cannot be a CSS length query. Apply the class in the component from `title.length > 90` at build time — exact, zero runtime, and it consumes the token Phase 1 created and left dangling.
+- **The breadcrumb drops its last segment below 760** (§6·16). Do it with `display: none`, and record _why_ that is not a stacking-law-02 violation: §6·16 states the reason itself — the article number is still present in the metadata row on the same screen. This is the same shape of sanctioned override as the masthead's role text in 2.3, and like that one it deserves a comment so a later reader doesn't "fix" it.
+- **The metadata row is a description list, not a flex row of spans.** §18.3 is specific about this: "the metadata row is a description list with visually hidden terms, so `14 min` is announced as 'reading time, 14 minutes'." So it is a `<dl>` of `<dt>` / `<dd>` pairs with `.visually-hidden` terms, laid out as a wrapping flex row — markup and appearance are two separate decisions here, and only the appearance is in §6·09. `base.css` already has the utility from 1.4.
+- **The gutter duplicates the article number, and that needs checking against the screenshots.** §10.2 puts number / section / series in the gutter; §6·09's canonical metadata row _begins_ with the number. At ≥1280 both are visible, so `038` renders twice on one screen. §3.6's relocation table says the gutter's number moves into "the first line of the two-line metadata block" below 1280 — which is where the metadata row already puts it, so there is nothing to relocate and the duplication is desktop-only. That reads as deliberate (the gutter is the spine), but it is exactly the kind of thing to confirm against `docs/reference/article/1320-light.png` before building rather than after, in the same spirit as 2.1's note about the `minmax()` gutter tracks.
+
+**Exit:** the header band matches the reference screenshots at 390 / 900 / 1320 in both themes; a 148-character title (T4's fixture) steps to 26px at 390 and wraps without truncation; the metadata row wraps to two lines at 390 in the same fixed order with no datum dropped.
+
+#### 3.7 · The static TOC — a bring-forward, argued
+
+Phase 5 owns "TOC island". **Recommend bringing the static TOC forward to here**, for the same reason stylelint moved to 1.6 and Playwright to 2.7: at ≥1280 the TOC _is_ the gutter track, and without it the phase's own exit criterion — "the article reads correctly at all six matrix combinations" — cannot honestly be judged at two of the six. What Phase 3 builds is the markup, the spine and the three responsive forms. Phase 5 keeps the island and wires the active state to a `.is-active` class that Phase 3 ships with nothing setting it.
+
+It also costs less than it looks, given OD-10: the entries come from Astro's `headings`, filtered to numbered `h2`/`h3`. No `toc.ts` extraction is needed in this phase.
+
+**One constraint is worth stating because it forces the markup shape.** §6·15 wants three forms: a sticky list at ≥1280, an **open** disclosure with a `CONTENTS — 6 SECTIONS` summary row at 760–1279, and a **closed** disclosure at <760. `open` is an attribute, not a style — CSS cannot toggle it at a breakpoint, and doing it with `matchMedia` would mean a fourth island, a flash of the wrong state on first paint, and a dependency on fragile UA `details` styling. So: **two nodes**, each `display: none` outside its range — a `<details open>` for ≥760 whose `summary` is hidden at ≥1280 (where §6·15 wants a plain list), and a plain `<details>` for <760. Neither element's `open` attribute ever has to change. Both carry `.gutter` and sit in source order before the prose, which is what lets one node serve two positions: at 760–1279 the grid is a single column so it lands "below the lead", and at ≥1280 `.layout-article`'s first track plus `.gutter`'s sticky rule from 2.1 put it in the gutter with no extra placement rule. The cost is a few hundred bytes of duplicated markup; `display: none` keeps the inactive one out of the accessibility tree, so nothing is announced twice.
+
+The rest: `CONTENTS` label at `--t-label`, mono 11.5 entries on a 1px hairline spine with 12–13px left padding, `h3` entries indented a further 12px, `--toc-cap` (150px, another Phase 1 token used for the first time) as the internal scroll cap above 20 sections, and **absent entirely below three `h2`s** (§6·15, §21.3) — a build-time condition, not a CSS one, since the element should not exist rather than be hidden.
+
+**Exit:** the TOC renders in all three forms at 1320 / 900 / 390; a fixture with two `h2`s renders no TOC element at all; keyboard navigation through the closed disclosure at 390 opens it and reaches every entry.
+
+#### 3.8 · T3 checks 2, 3 and 7 — the ones Phase 2 deferred by name
+
+§2.7 deferred the remaining seven T3 checks because they "assert things (type floors in prose, measure width, scroll regions) that don't exist yet". Three of them now exist, and all three are checks that prose can violate invisibly:
+
+- **Check 2 · Type floors** — no computed `font-size` below 10.5px anywhere; body ≥ 17px at 390; metadata ≥ 11.5px; code ≥ 12.5px. **The code floor must be scoped to `pre code`**, not to all `code`: inline code in a mono caption legitimately computes to 10.5px under 3.4's `max()` clamp, and an unscoped assertion would fail on correct output.
+- **Check 3 · Measure** — every prose block's content box ≤ 680px. **Scope to `.prose > *`**, not to the article: §10.2 explicitly permits header content to run to 760 (`--header-w`), so an article-wide assertion would fail on a correct header band.
+- **Check 7 · Heading structure** — one `h1` per page, no `h4`, no skipped levels. Partly redundant with 3.3's build-time guard, which is the point: the guard sees the Markdown, this sees the DOM, and the references heading in 3.5 is exactly the kind of thing that passes one and not the other.
+
+Two more are one-liners while the file is open and worth taking: **check 6** (computed `box-shadow` is `none` on every element) and **check 10** (with `prefers-reduced-motion: reduce`, every computed transition duration is `0s` — the direct test of 1.4's global override, which has never actually been asserted).
+
+**A trap in the stub's exit criterion, worth fixing rather than inheriting.** It says "measure verified at **68ch** desktop / 38–40ch mobile". Do not write that as a `ch`-based assertion. CSS `ch` is the advance width of `0`, not the average width of a prose character, and for a serif face the two differ by several percent in the direction that matters here — 680px of Source Serif at 18.5px measures somewhere near 73 CSS `ch` while carrying the ~68 characters per line the design intends. (Measure it against the real subset file rather than taking that figure from me; the point is the discrepancy, not its size.) An assertion written in `ch` would report the measure as too wide and invite someone to "fix" it by narrowing `--measure`, which §22.10 forbids absolutely. **Assert 680px; verify the character count once, by hand, by counting a rendered line.**
+
+One small refactor: `tests/e2e/chrome.spec.ts` hardcodes `const PAGE = '/dev/layout-check'`. Turn it into a list so the fixture route joins the matrix, rather than copying the file.
+
+**Exit:** `pnpm check:e2e` runs checks 1, 2, 3, 4, 5, 6, 7 and 10 across 3 widths × 2 themes on both the chrome page and the article fixture; each newly added check is proven to fail on a deliberate violation and then pass once it is removed.
+
+#### 3.9 · Extend the specimen page
+
+Small, and it closes the gap that let 3.2's callout bug through. The specimen page (1.7) renders every `--t-*` bundle but nothing for a component-local `--fs-*` with no bundle behind it — which is why a 16px mobile callout sat in `tokens.css` unnoticed since Phase 1.
+
+Add: the three callout kinds in both themes, a quote with attribution, a prose paragraph with an inline link, an external link, inline code and a footnote reference — and the new `--t-callout` bundle beside the existing ones. This keeps the page doing the job it was built for: "every subsequent phase's _does this look right_ question gets answered by comparing against this one page."
+
+**Exit:** the specimen page renders every prose component in both themes at all three widths.
+
+---
+
+**Phase 3 overall exit criteria:**
+
+- OD-10 (section-number authority) and OD-11 (paragraph → `h3`) resolved, with ADR-0018, and the three §10 conflicts corrected **at source** in `DESIGN_SYSTEM.md` — §06's mobile `h2` row, §10.5's 56, and §10.5's back-reference glyph.
+- `docs/decisions/README.md` indexes every ADR on disk, and its next-number line is correct.
+- `--fs-callout` renders 15.5px at 390 and 16px above; `--fs-callout-mobile` is gone.
+- The Markdown pipeline fails the build on: an `h4`, an unknown directive, a nested callout, a code block inside a callout, and a non-contiguous section number — each proven by a deliberate violation.
+- A 3,000-word real article renders correctly at 390 / 900 / 1320 in both themes, with code blocks, tables and figures present but deliberately unstyled pending Phase 4.
+- Every glyph in the rendered article resolves from a subset font — no fallback-family glyph anywhere.
+- A link broken mid-URL keeps its accent rule on both fragments, with no change in line height and no shadow property in the codebase.
+- Callouts and quotes stay inside the text margin at every width; `.full-bleed` touches neither.
+- The TOC renders in all three §6·15 forms, and is absent entirely below three `h2`s.
+- T3 checks 2, 3, 6, 7 and 10 join 1, 4 and 5 in `pnpm check:e2e`, each proven to fail on a real violation.
+- Measure asserted in **pixels** (≤ 680), not in `ch`.
+- Still exactly the islands ADR-0017 budgets — the static TOC adds none.
 
 ### Phase 4 · Code, terminal, figures, tables _(2–3 days)_
 
