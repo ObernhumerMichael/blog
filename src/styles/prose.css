@@ -1,0 +1,222 @@
+/* =============================================================================
+   prose.css — Phase 3.4. §10.3 (body typography/spacing), §10.4 (lists),
+   §3.4 (responsive type — already baked into the tokens themselves).
+
+   Scoped to a single .prose class on the article body wrapper, not bare
+   element selectors — Markdown output carries no classes of its own, and a
+   bare `p`/`h2`/`ul` selector would leak into the masthead, the footer and
+   every index row built in Phase 6. Lives in @layer components alongside
+   the rest of Phase 2+'s component CSS.
+
+   OUT OF SCOPE here, on purpose (see IMPLEMENTATION_PLAN.md's own Phase 3
+   sub-phase split):
+     - blockquote / callout markup — Phase 3.5.
+     - pre/table/figure INTERNAL styling (chrome, syntax colour, captions)
+       — Phase 4. This file only gives them the generic 32px prose-block
+       margin so they don't fuse into the paragraph above/below; how they
+       look inside stays unstyled until then.
+     - footnote reference/backref link treatment — Phase 3.5. Explicitly
+       excluded from the general link rule below so 3.5 starts from a clean
+       slate rather than having to fight this file's underline.
+   ============================================================================= */
+
+@layer components {
+  .prose {
+    font: var(--t-body);
+    color: var(
+      --c-text-prose
+    ); /* §2.2 deviation 1 / §25.1 — NOT --c-text.
+      This is the one place in the codebase that should reference this
+      token; dark-theme running prose sits one step under headings. */
+
+    /* The measure never grows (§22.10). Redundant-by-design once this class
+       also lives inside .layout-measure's grid cell (Phase 5/6 — that cell
+       already caps at var(--measure)); necessary here because the current
+       dev fixture (Phase 3.1) renders .prose directly inside <main> with no
+       grid ancestor to constrain it. Harmless duplication either way. */
+    max-width: var(--measure);
+    margin-inline: auto;
+
+    /* Contains child margin-collapsing at this element's own boundary
+       (Phase 3.4 note below) without a manual :first-child/:last-child
+       margin reset for every element type this file touches. */
+    display: flow-root;
+  }
+
+  /* The gap before/after .prose itself (article header -> body, body ->
+     apparatus) is a DIFFERENT relationship (§5.3, §10.3's "Body ->
+     apparatus: 96") owned by whatever precedes/follows this block, not by
+     the first/last prose element's own rhythm token — otherwise the two
+     would stack and double the gap. */
+  .prose > :first-child {
+    margin-top: 0;
+  }
+  .prose > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* ===========================================================================
+     BODY TEXT (§10.3)
+
+     Rhythm strategy: each element declares ONLY the margin its own
+     relationship to a NEIGHBOUR requires, on both edges, and lets normal CSS
+     margin-collapsing (larger of two touching margins wins) resolve the
+     asymmetric pairs §10.3's table lists — e.g. paragraph -> paragraph is
+     24, but paragraph -> h2 is 56: a paragraph's margin-bottom (24)
+     collapsing against the FOLLOWING h2's margin-top (56) resolves to 56
+     for free, and h2 -> paragraph (16) falls out the same way from h2's
+     margin-bottom colliding with the next paragraph's margin-top (0, since
+     paragraphs only carry a bottom margin). This is why every rule below
+     sets one direction only unless the token differs from 0 on both.
+     =========================================================================== */
+
+  .prose p {
+    margin: 0 0 var(--sp-para) 0;
+    text-wrap: pretty;
+  }
+
+  /* ===========================================================================
+     LINKS (§8.2, §8.3 "Inline prose" / "External, in prose" rows)
+     =========================================================================== */
+
+  .prose a:not([data-footnote-ref]):not([data-footnote-backref]) {
+    /* reset.css already sets color:inherit + text-decoration:none on every
+       `a` — inherit here correctly picks up --c-text-prose above, per
+       §8.2's "inherits --c-text" (read as "inherits the running colour",
+       not a literal override back to the chrome-level token). */
+    text-decoration: underline;
+    text-decoration-color: var(--c-accent);
+    text-decoration-thickness: var(--bw);
+    text-underline-offset: 0.15em;
+    /* What makes this a RULE rather than a decoration (§8.2's own word):
+       drawn per line box, so a link broken mid-URL keeps it on both
+       fragments with no change in line height — the entire reason this is
+       a text-decoration and not the shadow trick the original stub named
+       (both box-shadow and text-shadow are on T2's disallowed list). */
+    text-decoration-skip-ink: none;
+    /* §10.10: "mono spans in flow break at any character" — link text is
+       the other half of that rule (inline code is the first, below); a
+       90-character URL used as its own link text must not push the page
+       sideways (§10.11). */
+    overflow-wrap: anywhere;
+    transition:
+      color var(--dur) var(--ease),
+      text-decoration-color var(--dur) var(--ease);
+  }
+
+  .prose a:not([data-footnote-ref]):not([data-footnote-backref]):hover,
+  .prose a:not([data-footnote-ref]):not([data-footnote-backref]):active {
+    /* §8.2: "text and underline both move to --c-accent-hi." Never
+       underline-ON-hover — the underline is already permanent above; only
+       colour changes here. */
+    color: var(--c-accent-hi);
+    text-decoration-color: var(--c-accent-hi);
+  }
+
+  /* ===========================================================================
+     INLINE CODE (§13.4)
+     `:not(pre) > code` scopes this to inline code specifically — a fenced
+     code block's `<pre><code>` pairing is Phase 4's, and must not pick up
+     this sunken-chip treatment.
+     =========================================================================== */
+
+  .prose :not(pre) > code {
+    font-family: var(--font-mono);
+    /* §13.4: "sized relatively, never a fixed pixel size" — 0.86em of the
+       parent. Collides with the 10.5px type floor inside an 11.5px mono
+       caption/metadata context (11.5 * 0.86 = 9.89px); max() resolves it
+       without a second, context-specific rule. Only engages in that
+       mono-inside-mono case — in running prose, 0.86em is already above
+       the floor and wins normally. */
+    font-size: max(0.86em, var(--fs-label));
+    /* Not in §13.4's own list, but needed: with no line-height set here, a
+       code span inherits the running paragraph's 1.72 (correct for spacing
+       WRAPPED lines of prose, meaningless for a short inline chip) and
+       computes it against its OWN font-size — 1.72 * 15.91px ≈ 27px of line
+       box before padding even applies. Confirmed against
+       docs/reference/article/1320-light-full.png at matched scale: that
+       chip measures roughly half this rule's pre-fix height. 1 is the same
+       choice already made for --t-label/--t-section-num, for the same
+       reason — a short baseline-aligned mono run doesn't need its own
+       leading. */
+    line-height: 1;
+    background: var(--c-sunken);
+    border: var(--bw) solid var(--c-rule);
+    border-radius: var(--radius-sm);
+    padding: 1px 5px;
+    overflow-wrap: anywhere; /* §10.10 — see the link rule above */
+  }
+
+  /* ===========================================================================
+     HEADINGS (§10.3 spacing; component 06 anatomy)
+     =========================================================================== */
+
+  .prose h2 {
+    font: var(--t-h2);
+    color: var(
+      --c-text
+    ); /* headings stay at full strength in both themes —
+      §2.2 deviation 1 only steps DOWN running body text, not headings. */
+    margin: var(--sp-para-h2) 0 var(--sp-h2-para) 0;
+    text-wrap: pretty;
+  }
+
+  .prose h3 {
+    font: var(--t-h3);
+    color: var(--c-text);
+    margin: var(--sp-para-h3) 0 var(--sp-h3-para) 0;
+    text-wrap: pretty;
+    /* Deliberately no .section-number treatment here — §6·06: h3 numbers
+       are "in the text itself" and "carry no separate mono span", unlike
+       h2. remark-section-numbers.ts (Phase 3.3) already leaves h3 text
+       untouched for exactly this reason; nothing to style differently. */
+  }
+
+  /* The accent mono number remark-section-numbers.ts (Phase 3.3) splits off
+     an h2's authored "NN · " prefix into. h3 never has one of these — see
+     above. */
+  .prose .section-number {
+    font: var(--t-section-num);
+    color: var(--c-accent);
+    margin-right: var(--sp-h2-num-gap);
+  }
+
+  /* ===========================================================================
+     LISTS (§10.4)
+     reset.css already zeroes ul/ol margin AND padding-left, so both are set
+     here from a known zero rather than fighting a browser default.
+     =========================================================================== */
+
+  .prose ul,
+  .prose ol {
+    font: var(--t-body);
+    margin: var(--sp-prose-block) 0;
+    padding-left: var(--sp-list-indent);
+  }
+
+  .prose li {
+    padding-left: var(
+      --sp-4
+    ); /* §2.6's documented use of this step —
+      optical nudge between the marker and the item text, not a rhythm
+      value, so it stays a bare token rather than a semantic alias. */
+  }
+
+  .prose li + li {
+    margin-top: var(--sp-12);
+  }
+
+  /* ===========================================================================
+     BLOCK ELEMENTS THAT AREN'T STYLED YET (§10.3 "Prose -> block element")
+     Phase 4 gives pre/table their real chrome; this is only the rhythm
+     rule that keeps them from fusing into the paragraph above/below in the
+     meantime — and, per the margin-collapsing strategy above, doubles as
+     the eventual "block -> prose: 32" relationship for free once a
+     following paragraph's own margin-top (0) collapses against it.
+     =========================================================================== */
+
+  .prose pre,
+  .prose table {
+    margin: var(--sp-prose-block) 0;
+  }
+}

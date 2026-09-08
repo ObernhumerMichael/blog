@@ -31,7 +31,15 @@
     "    lower one — see docs/decisions and the base.css color-scheme",
     "    incident) are a semantic, cross-file cascade issue. No lint rule",
     "    catches this; it was found by testing actual behavior, which is",
-    "    the only thing that reliably would."
+    "    the only thing that reliably would.",
+    "",
+    "Phase 3.4: transition-property's allow-list below includes",
+    "text-decoration-color, which the original Phase 1.6 list omitted.",
+    "§17.1's exhaustive what-animates list names 'link and nav colour and",
+    "underline' — §8.2's hover state moves text AND underline colour",
+    "together, so this was the allow-list being incomplete, not the design",
+    "being violated. §17.1 is the authority for this list; consult it before",
+    "adding another property here."
   ],
 
   "rules": {
@@ -79,8 +87,8 @@
       "font": ["/^var\\(--t-[a-z0-9-]+\\)$/", "/^inherit$/"],
 
       "transition-property": [
-        "/^(color|background-color|border-color|outline-color|height)$/",
-        "/^(color|background-color|border-color|outline-color|height)(,\\s*(color|background-color|border-color|outline-color|height))*$/"
+        "/^(color|background-color|border-color|outline-color|text-decoration-color|height)$/",
+        "/^(color|background-color|border-color|outline-color|text-decoration-color|height)(,\\s*(color|background-color|border-color|outline-color|text-decoration-color|height))*$/"
       ]
     },
 

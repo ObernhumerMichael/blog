@@ -165,7 +165,16 @@
 
     --font-serif: 'Source Serif 4 Var', 'Source Serif 4 Fallback', Georgia, serif;
     --font-sans: 'IBM Plex Sans Var', 'IBM Plex Sans Fallback', system-ui, sans-serif;
-    --font-mono: 'IBM Plex Mono', 'IBM Plex Mono Fallback', monospace;
+    /* Phase 3.4 — real bug found here: this said 'IBM Plex Mono', missing
+       the " Var" suffix that fonts.css's @font-face actually registers
+       (and that --font-serif/--font-sans both correctly include for their
+       own families). Every --font-mono use sitewide — code, labels,
+       metadata, table cells, footer, TOC — has been silently rendering in
+       'IBM Plex Mono Fallback' this whole time, never the real self-hosted
+       font. Found while chasing why inline code looked oversized against
+       docs/reference: the fallback face's metrics render measurably larger
+       than the real one at the same nominal font-size. */
+    --font-mono: 'IBM Plex Mono Var', 'IBM Plex Mono Fallback', monospace;
 
     /* =====================================================================
        4 · TYPE SCALE — primitives (§2.5, §3.4)
@@ -269,6 +278,10 @@
       No existing token covered this: --fs-code is 13.5/12.5 and
       --fs-table-cell is 13 but semantically unrelated. Constant at every
       width — §10.5 gives no mobile step for it. */
+    --fs-section-num: 0.75rem; /* 12px at <760 — component 06's "Number mono
+      400 13 (12 mobile) accent". >=760 override (13px) is in the responsive
+      block below. Numerically close to --fs-table-cell/--fs-repo-path but a
+      different token: different component, different responsive behaviour. */
 
     /* =====================================================================
        5 · TYPE TOKENS — atomic bundles
@@ -305,6 +318,10 @@
        precedent as --t-quote's inline 1.6: not worth a standalone --lh-*
        token for a value used in exactly one place. */
     --t-footer: 400 var(--fs-meta-sm)/1.9 var(--font-mono);
+    /* Component 06 — line-height 1, same reasoning as --t-label: a short
+       inline numeral baseline-aligned against the heading text next to it
+       doesn't need its own leading. */
+    --t-section-num: 400 var(--fs-section-num)/1 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
@@ -336,6 +353,14 @@
     --sp-18: 18px;
     --sp-22: 22px;
     --sp-28: 28px;
+    /* Phase 3.4 — §25.2's audit table of off-scale spacing values lists only
+       14/18/22/28 under E13, but component 06's own spec ("Gap 12 -> 10 at
+       mobile", the number-to-heading-text gap) uses 10, which appears
+       nowhere in that audit despite recurring elsewhere too (§8.1 button
+       row gap, §14.1/§14.2 figure-to-caption gap, §15.1 table head
+       padding-y). Same class of value as 14/18/22/28 — a genuine gap in
+       §25.2's own audit, not a new design decision. */
+    --sp-10: 10px;
 
     /* E1 — the single spacing value off the 4px scale. Set by the 12-column
        arithmetic of the 1320px frame, not by rhythm. It is a layout constant,
@@ -379,6 +404,11 @@
       rather than re-declared so the 4px scale stays the single source —
       this is coincidentally the same number as the mobile prose-block step
       above, but a different relationship; don't collapse the two names. */
+    --sp-h2-num-gap: var(
+      --sp-10
+    ); /* component 06: the section-number-to-
+      heading-text gap, "12 -> 10 at mobile". <760 value; the >=760 override
+      lives in the responsive breakpoint block below. */
 
     /* =====================================================================
        7 · SIZING (§2.7)
@@ -475,6 +505,8 @@
         have been. */
       --fs-row-title: 1.09375rem; /* 17.5px — spec 17–17.5, upper chosen (§05) */
       --fs-wordmark: 0.875rem; /* 14px — tablet tier (§7.4) */
+      --fs-section-num: 0.8125rem; /* 13px — component 06, "12 -> 10 at
+        mobile" read the other direction: 13 from 760 up. */
 
       /* Spacing (§3.3) */
       --page-margin: var(--sp-32);
@@ -485,6 +517,7 @@
       --sp-meta-gap: var(--sp-22);
       --sp-h2-para: var(--sp-16); /* finding A: 16 from 760 up */
       --sp-para-h3: var(--sp-32); /* OD-11/ADR-0018: 32 from 760 up */
+      --sp-h2-num-gap: var(--sp-12); /* component 06: 12 from 760 up */
     }
   }
 

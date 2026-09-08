@@ -26,9 +26,8 @@
 @import './reset.css';
 @import './base.css';
 @import './layout.css';
+@import './prose.css';
 
-/* Phase 3:
-   @import "./prose.css";
-   Phase 4:
+/* Phase 4:
    @import "./code.css";
 */

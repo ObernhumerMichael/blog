@@ -1,5 +1,5 @@
 ---
-layout: ../../../layouts/BaseLayout.astro
+layout: ../../../layouts/ProseLayout.astro
 number: 1
 title: 'A reproducible homelab: what ansible-playbook actually guarantees'
 lead: "Three Raspberry Pis, one playbook, and the gap between idempotent and reproducible — the difference showed up six weeks later, when the monitoring stack that was supposed to catch it didn't."

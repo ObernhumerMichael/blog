@@ -1,0 +1,28 @@
+---
+// ProseLayout — Phase 3.4's minimal stand-in for the real article layout.
+//
+// NOT Instrumented.astro (IMPLEMENTATION_PLAN.md §3's layout A: the full
+// gutter/measure/aside grid, header band, TOC, apparatus). That's Phase
+// 5/6's job, once the `writing` collection schema is real. This file does
+// exactly one thing: give prose.css's `.prose` class something to attach
+// to, so a Markdown page authored with a `layout:` frontmatter key (as the
+// Phase 3.1 fixture is) reads correctly ahead of the real page existing.
+//
+// Also closes a gap flagged back in Phase 3.1: Astro's `layout:` mechanism
+// on a `.md` file delivers frontmatter as `Astro.props.frontmatter` (a
+// nested object), not spread onto BaseLayout's flat `title`/`description`
+// props — so the fixture's `<title>` fell back to the site name. Forwarding
+// them here is a two-line fix, now that something actually needs to sit
+// between the `.md` file and BaseLayout.
+import BaseLayout from './BaseLayout.astro';
+
+const { frontmatter } = Astro.props as {
+  frontmatter?: { title?: string; lead?: string };
+};
+---
+
+<BaseLayout title={frontmatter?.title} description={frontmatter?.lead}>
+  <div class="prose">
+    <slot />
+  </div>
+</BaseLayout>

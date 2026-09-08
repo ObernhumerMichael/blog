@@ -34,7 +34,10 @@ export default function rehypeProseLinks() {
       }
       if (origin === SITE_ORIGIN) return; // internal, fully-qualified link
 
-      node.children.push({ type: 'text', value: ' ↗' });
+      // §8.2: "a trailing ↗ after a hair space" — U+200A, not an ASCII
+      // space. Caught re-reading the spec closely while writing prose.css
+      // (Phase 3.4); harmless, narrow correction to an already-shipped rule.
+      node.children.push({ type: 'text', value: ' ↗' });
     });
   };
 }
