@@ -6,9 +6,16 @@ import remarkDirective from 'remark-directive';
 import remarkHeadingDepth from './src/plugins/remark-heading-depth.ts';
 import remarkDirectives from './src/plugins/remark-directives.ts';
 import remarkSectionNumbers from './src/plugins/remark-section-numbers.ts';
+import remarkCodeMeta from './src/plugins/remark-code-meta.ts';
 import remarkReadingTime from './src/plugins/remark-reading-time.ts';
 import rehypeProseLinks from './src/plugins/rehype-prose-links.ts';
 import rehypeToc from './src/plugins/rehype-toc.ts';
+// Phase 4.1 (AD-05) — the site's one Shiki theme, mapped onto §2.3's seven
+// syntax roles via var(--syn-*)/var(--code-*)/var(--diff-*) references into
+// tokens.css. Node 24 (this project's pinned engine) supports import
+// attributes for static JSON imports natively; no bundler-specific syntax
+// needed.
+import shikiLedgerTheme from './src/plugins/shiki-ledger-theme.json' with { type: 'json' };
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,8 +40,9 @@ export default defineConfig({
   // AD-04: MDX is added only when a concrete article
   // needs it, not by default — enabling it globally is exactly the "arbitrary
   // component injection into prose" pressure DESIGN_SYSTEM.md §22.8 exists to
-  // resist. rehype-code-chrome.ts and the Shiki theme are Phase 4's; the four
-  // prose-structure plugins below land in Phase 3.3.
+  // resist. The four prose-structure plugins below landed in Phase 3.3; the
+  // Shiki theme and language gate landed in Phase 4.1; rehype-code-chrome.ts
+  // (the filename/language/copy chrome bar) is Phase 4.2/4.3's.
   //
   // AD-11 (rev. ADR-0017): Svelte is the sole client-side framework, used
   // for four small islands (theme toggle interaction, TOC scroll-spy,
@@ -42,6 +50,91 @@ export default defineConfig({
   // list and the reasoning for not using client:load by default.
   integrations: [svelte()],
   markdown: {
+    // Phase 4.1 (Finding B) — Astro's DEFAULT is the `github-dark` preset,
+    // which writes literal hex into every code block's inline `style`
+    // attribute (confirmed directly against dist/ output: 29 hex colours
+    // across the Phase 3 fixture alone). These two options are how that
+    // gets replaced; verified they belong at the TOP level of `markdown`,
+    // not inside `unified()` — read `UnifiedProcessorOptions`' type
+    // definition in the installed @astrojs/markdown-remark@7.2.4: it has no
+    // highlighting fields at all. `AstroMarkdownOptions` (the type these
+    // two keys actually belong to) documents them as "cross-cutting
+    // options ... honoured regardless of which processor is selected", and
+    // tracing `unified()`'s own `createRenderer` confirms it: the shared
+    // top-level markdown config is spread into the processor first, and
+    // only remarkPlugins/rehypePlugins/remarkRehype/gfm/smartypants are
+    // overridden from `unified()`'s own options — shikiConfig and
+    // syntaxHighlight pass through untouched.
+    shikiConfig: {
+      // AD-05 / §2.3 — one custom theme (src/plugins/shiki-ledger-theme.json,
+      // constant across both site themes per E2/§13.1 — the code ground
+      // never changes, only its border does, which is code.css's rule, not
+      // this file's), seven roles, all var(--syn-*) / var(--code-*) /
+      // var(--diff-*) references into tokens.css rather than literals, so
+      // Shiki's inline `style` output never carries a hex colour (this
+      // file's exit criterion) and a code block re-themes itself from
+      // tokens.css alone like everything else in the system. The JSON file
+      // itself carries no comments (it's excess-property-checked against
+      // Shiki's ThemeRegistration/ThemeRegistrationRaw types when imported
+      // here — confirmed by trying: an extra top-level key failed `astro
+      // check` even as a harmless documentation field), so its rationale
+      // lives here instead:
+      //   - Deliberately NOT Shiki's built-in `css-variables` preset theme.
+      //     Checked its source (@shikijs/core's createCssVariablesTheme):
+      //     it exposes nine roles and collapses constant.numeric and
+      //     constant.language into one "token-constant" bucket, so §2.3's
+      //     separate number (--syn-number) and literal/boolean
+      //     (--syn-literal) roles can't both be expressed through it. That
+      //     preset IS the proof that Shiki accepts var() where it expects a
+      //     colour, though — shiki-ledger-theme.json relies on exactly
+      //     that mechanism.
+      //   - Its scope groupings are adapted from that same preset's
+      //     tokenColors list (a real, battle-tested scope-to-role mapping
+      //     already covering the grammars in @shikijs/langs), regrouped
+      //     from its 9 roles onto this design's 7 (comment, keyword/key,
+      //     string, literal/boolean, number, function/identifier,
+      //     foreground — §25.4 corrects the spec's stated "five" to
+      //     seven). Punctuation and operators are deliberately left
+      //     unmapped so they inherit --code-fg (§2.3: "Punctuation and
+      //     operators stay at foreground colour").
+      //   - Its markup.inserted/markup.deleted entries map the diff
+      //     grammar's own line-level scopes to text colour only. The
+      //     leading +/- glyph and the line-tint bar are Phase 4.3's job (a
+      //     transformer plus code.css, not a theme colour).
+      //   - Fidelity note: a solid default, not yet checked pixel-by-pixel
+      //     against docs/reference/ — that visual pass belongs to 4.2's
+      //     exit criterion ("matches docs/reference/article/1320-light.png"),
+      //     once real highlighted content exists to compare.
+      //
+      // The JSDoc cast below: importing JSON via `with { type: 'json' }`
+      // widens its string fields (e.g. "dark" → `string`) instead of
+      // narrowing them to literals the way a bare `resolveJsonModule`
+      // import would, so the object's inferred shape doesn't structurally
+      // satisfy Shiki's ThemeRegistrationRaw (which additionally wants a
+      // legacy, unused `settings` array from the raw TextMate theme
+      // interface it extends) without help. The JSON itself is a real,
+      // working Shiki theme either way — this cast only tells `astro
+      // check` that, the same way real-world custom Shiki themes commonly
+      // need to.
+      theme: /** @type {import('shiki').ThemeRegistrationRaw} */ (
+        /** @type {unknown} */ (shikiLedgerTheme)
+      ),
+      // @shikijs/transformers (AD-05) is an installed dependency as of this
+      // phase but not yet consumed — line-number tracks, the {a-b}
+      // highlight-range tint, and the diff leading-glyph chrome are Phase
+      // 4.3's job, once remark-code-meta.ts grows the rest of its meta
+      // parsing. Left empty here rather than wired in early and unused.
+      transformers: [],
+    },
+    syntaxHighlight: {
+      type: 'shiki',
+      // §13.3 / §23.4 — the terminal block has no syntax highlighting at
+      // all, only a hand-styled prompt glyph and success token (Phase
+      // 4.5). Excluding it here means its `<pre><code
+      // class="language-terminal">` reaches rehype as plain, unhighlighted
+      // text — a cleaner boundary than registering a fake grammar for it.
+      excludeLangs: ['terminal'],
+    },
     // Astro 7.2.6 ships a NEW default Markdown processor ("Sätteri") and
     // deprecated the top-level `remarkPlugins`/`rehypePlugins` fields in
     // favour of an explicit `processor`. IMPLEMENTATION_PLAN.md's Phase
@@ -52,7 +145,7 @@ export default defineConfig({
     // `unified()` is the modern equivalent — same remark/rehype pipeline,
     // just opted into explicitly instead of implied by top-level keys.
     processor: unified({
-      // Order matters (Phase 3.3):
+      // Order matters (Phase 3.3, extended Phase 4.1):
       //   1. remark-heading-depth   — fail fast on h4+ before anything
       //      else has to reason about a depth it doesn't expect.
       //   2. remark-directive       — the npm package; turns `:::name`
@@ -64,7 +157,11 @@ export default defineConfig({
       //      Phase 4's).
       //   4. remark-section-numbers — OD-10/ADR-0018: split + validate the
       //      authored `NN · ` / `n.m ·` heading prefixes.
-      //   5. remark-reading-time    — Phase 3.6: word count + reading time
+      //   5. remark-code-meta       — Phase 4.1: validates every fenced
+      //      code block's language against consts.ts's CODE_LANGS, before
+      //      remark-rehype/rehypeShiki gets a chance to swallow an unknown
+      //      one as a silent "plaintext" fallback with only a console.warn.
+      //   6. remark-reading-time    — Phase 3.6: word count + reading time
       //      for §6·09's metadata row, written to file.data.astro.frontmatter
       //      (Astro's documented mechanism for computed frontmatter). Runs
       //      last so it counts the fully-resolved tree.
@@ -73,6 +170,7 @@ export default defineConfig({
         remarkDirective,
         remarkDirectives,
         remarkSectionNumbers,
+        remarkCodeMeta,
         remarkReadingTime,
       ],
       // rehype-prose-links: adds the external-link "↗" as real markup.

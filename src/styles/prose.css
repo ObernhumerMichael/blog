@@ -352,6 +352,27 @@
     margin: var(--sp-prose-block) 0;
   }
 
+  /* Phase 4.1 regression, found by T3 check 1 (§10.11's absolute no-
+     horizontal-page-scroll rule) rather than assumed: every Shiki-
+     highlighted `pre` already carries `overflow-x: auto` in its own inline
+     `style` (Astro's transformer sets it unconditionally), which is what
+     let `.prose pre`'s bare rhythm rule above get away with saying nothing
+     about overflow so far. The terminal block (§13.3) is deliberately
+     excluded from Shiki (astro.config.mjs, markdown.syntaxHighlight.
+     excludeLangs) so it never gets that inline style — its raw
+     `white-space: pre` content was stretching `.prose` to its longest
+     unbreakable line (measured: 765px at a 350px track) and pushing the
+     whole page into horizontal scroll. One line, scoped to `pre` only
+     (table's real scroll-region treatment is Phase 4.7's, a different
+     mechanism — a pinned first column, not a bare overflow-x): a stand-in
+     for the real scroll container Phase 4.2/4.5 give every `pre`, code or
+     terminal alike, with its own chrome. Harmless to keep even once that
+     lands — Shiki's inline style always wins over this by CSS origin
+     order regardless of specificity, so this never overrides it. */
+  .prose pre {
+    overflow-x: auto;
+  }
+
   /* ===========================================================================
      FOOTNOTE REFERENCE MARKER (§10.5, §8.3's "Footnote reference" row)
      Markup from remark-gfm/mdast-util-to-hast:

@@ -151,7 +151,7 @@ by a handler after every successful playbook run, specifically so the
 dashboard could answer "when did each node last actually converge" instead
 of just "is it up right now."
 
-```jinja2 title="ansible/roles/monitoring/templates/prometheus.yml.j2"
+```jinja title="ansible/roles/monitoring/templates/prometheus.yml.j2"
 global:
   scrape_interval: 15s
 

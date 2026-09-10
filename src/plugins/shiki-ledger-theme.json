@@ -1,0 +1,95 @@
+{
+  "name": "ledger",
+  "type": "dark",
+
+  "colors": {
+    "editor.background": "var(--c-code-bg)",
+    "editor.foreground": "var(--code-fg)"
+  },
+
+  "tokenColors": [
+    {
+      "scope": ["comment", "string.quoted.docstring.multi"],
+      "settings": { "foreground": "var(--syn-comment)" }
+    },
+    {
+      "scope": [
+        "keyword",
+        "keyword.control",
+        "keyword.operator.new",
+        "keyword.other.template",
+        "storage",
+        "storage.type",
+        "storage.modifier",
+        "storage.control.clojure",
+        "entity.name.tag",
+        "entity.name.tag.yaml",
+        "entity.other.attribute-name",
+        "support.type.property-name",
+        "support.type.property-name.json",
+        "meta.property-name",
+        "punctuation.separator.key-value",
+        "punctuation.definition.template-expression"
+      ],
+      "settings": { "foreground": "var(--syn-keyword)" }
+    },
+    {
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.regexp",
+        "string.interpolated",
+        "string.template",
+        "string.unquoted.plain.out.yaml",
+        "markup.fenced_code",
+        "markup.inline",
+        "punctuation.definition.string"
+      ],
+      "settings": { "foreground": "var(--syn-string)" }
+    },
+    {
+      "scope": [
+        "constant.language",
+        "constant.other.placeholder",
+        "constant.character.format.placeholder",
+        "constant.character",
+        "variable.language.this",
+        "variable.other.object",
+        "variable.other.class",
+        "variable.other.constant"
+      ],
+      "settings": { "foreground": "var(--syn-literal)" }
+    },
+    {
+      "scope": ["constant.numeric"],
+      "settings": { "foreground": "var(--syn-number)" }
+    },
+    {
+      "scope": [
+        "support.function",
+        "support.class",
+        "support.type",
+        "entity.name.type",
+        "entity.name.class",
+        "entity.name.function",
+        "entity.other.inherited-class",
+        "meta.function-call",
+        "meta.instance.constructor",
+        "variable.function",
+        "variable.parameter",
+        "variable.parameter.function",
+        "variable.other.readwrite",
+        "punctuation.definition.variable"
+      ],
+      "settings": { "foreground": "var(--syn-function)" }
+    },
+    {
+      "scope": ["markup.inserted", "markup.inserted.diff"],
+      "settings": { "foreground": "var(--diff-add-fg)" }
+    },
+    {
+      "scope": ["markup.deleted", "markup.deleted.diff"],
+      "settings": { "foreground": "var(--diff-del-fg)" }
+    }
+  ]
+}

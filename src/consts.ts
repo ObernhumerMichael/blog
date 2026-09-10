@@ -43,3 +43,74 @@ export const SITE_LINKS = {
   github: GITHUB_URL,
   pgp: PGP_URL,
 };
+
+// Phase 4.1 (§13.2) — the closed vocabulary of fence languages a code block
+// may declare, validated by remark-code-meta.ts and failing the build on
+// anything outside it. Same shape and same reason as the tag registry
+// IMPLEMENTATION_PLAN.md §6 describes for content tags ("prevents #linux /
+// #Linux drift"): Shiki itself only warns-and-falls-back-to-plaintext on an
+// unknown or misspelled grammar name (confirmed by reading
+// @astrojs/internal-helpers' highlighter wrapper — it try/catches
+// loadLanguage and swallows the error), which is how `jinja2` sat silently
+// unhighlighted in the Phase 3 fixture since it was written (the real
+// grammar is named `jinja`; `jinja2` isn't a registered alias). A warning
+// in a build log is not enforcement.
+//
+// One canonical name per language, not every Shiki alias — `bash` not
+// `sh`/`shell`/`shellscript`, `python` not `py`, `yaml` not `yml`,
+// `typescript` not `ts` — for the same drift-prevention reason the tag
+// registry forces one lowercase form per tag rather than accepting
+// synonyms. Each id below is verified present in the installed
+// @shikijs/langs@4.4.3 (`ls .../@shikijs/langs/dist/*.mjs`), except the two
+// that aren't real grammars:
+//   - `terminal` — not a Shiki language at all. §13.3's terminal block is a
+//     distinct component with no syntax highlighting; it's excluded from
+//     the highlighter entirely (markdown.syntaxHighlight.excludeLangs in
+//     astro.config.mjs) and reaches rehype as plain text. Listed here so
+//     the validator recognises it as a deliberate, not a missing, tag.
+//   - `plaintext` — Shiki's own always-loaded fallback grammar. Listed so
+//     genuinely non-code verbatim text (a raw error dump, not shell
+//     output) can be tagged honestly instead of borrowing an unrelated
+//     language for its highlighting.
+//
+// Extend this list — don't reach for an unregistered alias — when a real
+// article needs a language that isn't here yet.
+export const CODE_LANGS = [
+  // Infra / config — the homelab and Ansible content this site's launch
+  // set (IMPLEMENTATION_PLAN.md Phase 10) is written around.
+  'yaml',
+  'toml',
+  'ini',
+  'json',
+  'jsonc',
+  'dotenv',
+  'diff',
+  'dockerfile',
+  'nginx',
+  'systemd',
+  'hcl',
+  'sql',
+  'jinja',
+  // Shell and general-purpose scripting.
+  'bash',
+  'python',
+  // Web / markup.
+  'html',
+  'css',
+  'markdown',
+  'http',
+  // Compiled / typed languages, for CTF writeups and general programming
+  // posts.
+  'c',
+  'cpp',
+  'rust',
+  'go',
+  'typescript',
+  'javascript',
+  'asm',
+  // The two non-Shiki-grammar pseudo-languages, see above.
+  'terminal',
+  'plaintext',
+] as const;
+
+export type CodeLang = (typeof CODE_LANGS)[number];
