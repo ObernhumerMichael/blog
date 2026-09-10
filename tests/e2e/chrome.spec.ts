@@ -1,8 +1,13 @@
 import { test, expect, type Page } from '@playwright/test';
+import { PAGES } from './pages';
 
 // 2.7 — bringing T3 checks 1, 4, 5 forward (IMPLEMENTATION_PLAN.md §2.7).
-// Targets /dev/layout-check: the only page currently wired to BaseLayout,
-// so the only place the real Masthead/Footer/mobile-menu chrome renders.
+// Originally hardcoded to /dev/layout-check, the only page wired to
+// BaseLayout at the time. 3.8 adds /dev/fixtures/article to the matrix (it
+// shares the same Masthead/Footer/mobile-menu chrome via BaseLayout, so
+// these checks are just as meaningful there) — looping over the shared
+// PAGES list rather than copying this file per page, per 3.8's own
+// instruction.
 //
 // Element enumeration uses page.evaluate + native querySelectorAll rather
 // than Playwright's own $$/$$eval: Playwright's selector engine pierces
@@ -10,72 +15,86 @@ import { test, expect, type Page } from '@playwright/test';
 // (<astro-dev-toolbar>, injected by `astro dev` on every page) as if it
 // were page content. Native querySelectorAll doesn't cross shadow
 // boundaries, so the toolbar's shadow-DOM children are excluded for free.
-
-const PAGE = '/dev/layout-check';
+//
+// Visibility is checked with .checkVisibility(), not
+// `.getClientRects().length > 0` (this file's own original filter,
+// inherited from 2.7). Found the hard way, extending this file to
+// /dev/fixtures/article in 3.8: a CLOSED <details> (the mobile TOC
+// disclosure) still lays out its hidden content — Chromium keeps real
+// geometry for it, it just isn't painted or reachable by a real Tab press
+// — so getClientRects() reports it as present while real keyboard
+// navigation correctly skips it entirely. checkVisibility() matches what
+// a real Tab press does; a rect-count check doesn't. This never surfaced
+// against /dev/layout-check because that page has no <details> at all.
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-test('no horizontal page scroll', async ({ page }) => {
-  await page.goto(PAGE);
-  const overflows = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
-  );
-  expect(overflows).toBe(false);
-});
+for (const PAGE of PAGES) {
+  test(`no horizontal page scroll — ${PAGE}`, async ({ page }) => {
+    await page.goto(PAGE);
+    const overflows = await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+    expect(overflows).toBe(false);
+  });
+}
 
-test('touch targets: controls ≥44px, menu rows ≥48px, at 390', async ({ page }) => {
-  test.skip(page.viewportSize()?.width !== 390, 'only meaningful at mobile width');
+for (const PAGE of PAGES) {
+  test(`touch targets: controls ≥44px, menu rows ≥48px, at 390 — ${PAGE}`, async ({
+    page,
+  }) => {
+    test.skip(page.viewportSize()?.width !== 390, 'only meaningful at mobile width');
 
-  await page.goto(PAGE);
-  await page.click('.menu-trigger');
-  // Assertion-based wait, not a fixed sleep: the dev server compiles routes
-  // on demand, so the island's hydration time varies (fast once Vite's
-  // cache is warm, much slower on a cold first hit) — a fixed timeout was
-  // observed to race and miss the panel on a cold compile.
-  await expect(page.locator('.menu-trigger')).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('.menu-row').first()).toBeVisible();
+    await page.goto(PAGE);
+    await page.click('.menu-trigger');
+    // Assertion-based wait, not a fixed sleep: the dev server compiles routes
+    // on demand, so the island's hydration time varies (fast once Vite's
+    // cache is warm, much slower on a cold first hit) — a fixed timeout was
+    // observed to race and miss the panel on a cold compile.
+    await expect(page.locator('.menu-trigger')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('.menu-row').first()).toBeVisible();
 
-  // Scoped to controls (<button>), not plain <a> links: the wordmark and
-  // footer links are real, already-shipped text links well under 44px, and
-  // §7.3's own exit criterion ("every control clears 44px") is narrower
-  // than §18.5's general wording. That link-sizing gap is a known, deferred
-  // item for full T3 in Phase 8 — not this check's job.
-  const controls = await page.evaluate(() =>
-    Array.from(
-      document.querySelectorAll(
-        'header button:not([disabled]), footer button:not([disabled])',
+    // Scoped to controls (<button>), not plain <a> links: the wordmark and
+    // footer links are real, already-shipped text links well under 44px, and
+    // §7.3's own exit criterion ("every control clears 44px") is narrower
+    // than §18.5's general wording. That link-sizing gap is a known, deferred
+    // item for full T3 in Phase 8 — not this check's job.
+    const controls = await page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll(
+          'header button:not([disabled]), footer button:not([disabled])',
+        ),
+      )
+        .filter((el) => el.checkVisibility())
+        .map((el) => {
+          const r = el.getBoundingClientRect();
+          return { cls: el.className, w: r.width, h: r.height };
+        }),
+    );
+    expect(controls.length).toBeGreaterThan(0);
+    for (const c of controls) {
+      expect(c.w, `"${c.cls}" width`).toBeGreaterThanOrEqual(44);
+      expect(c.h, `"${c.cls}" height`).toBeGreaterThanOrEqual(44);
+    }
+
+    const rowHeights = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('header .menu-row')).map(
+        (el) => el.getBoundingClientRect().height,
       ),
-    )
-      .filter((el) => el.getClientRects().length > 0)
-      .map((el) => {
-        const r = el.getBoundingClientRect();
-        return { cls: el.className, w: r.width, h: r.height };
-      }),
-  );
-  expect(controls.length).toBeGreaterThan(0);
-  for (const c of controls) {
-    expect(c.w, `"${c.cls}" width`).toBeGreaterThanOrEqual(44);
-    expect(c.h, `"${c.cls}" height`).toBeGreaterThanOrEqual(44);
-  }
-
-  const rowHeights = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('header .menu-row')).map(
-      (el) => el.getBoundingClientRect().height,
-    ),
-  );
-  expect(rowHeights.length).toBeGreaterThan(0);
-  for (const h of rowHeights) {
-    expect(h).toBeGreaterThanOrEqual(48);
-  }
-});
+    );
+    expect(rowHeights.length).toBeGreaterThan(0);
+    for (const h of rowHeights) {
+      expect(h).toBeGreaterThanOrEqual(48);
+    }
+  });
+}
 
 async function countFocusable(page: Page) {
   return page.evaluate(
     (sel) =>
-      Array.from(document.querySelectorAll(sel)).filter(
-        (el) => el.getClientRects().length > 0,
-      ).length,
+      Array.from(document.querySelectorAll(sel)).filter((el) => el.checkVisibility())
+        .length,
     FOCUSABLE,
   );
 }
@@ -91,59 +110,61 @@ async function tabAndAssertRing(page: Page, stop: number) {
   expect(ring.width, `tab stop ${stop}`).toBeGreaterThan(0);
 }
 
-test('focus ring is visible on every focusable element', async ({ page }) => {
-  await page.goto(PAGE);
+for (const PAGE of PAGES) {
+  test(`focus ring is visible on every focusable element — ${PAGE}`, async ({ page }) => {
+    await page.goto(PAGE);
 
-  // Unscoped: base.css's :focus-visible rule is unconditional — no stated
-  // exception for any element — so this deliberately also exercises the
-  // skip link and the diagnostic page's own controls, not just
-  // Masthead/Footer.
-  if (page.viewportSize()?.width !== 390) {
-    const count = await countFocusable(page);
-    expect(count).toBeGreaterThan(0);
-    for (let i = 0; i < count; i++) {
+    // Unscoped: base.css's :focus-visible rule is unconditional — no stated
+    // exception for any element — so this deliberately also exercises the
+    // skip link and the diagnostic page's own controls, not just
+    // Masthead/Footer.
+    if (page.viewportSize()?.width !== 390) {
+      const count = await countFocusable(page);
+      expect(count).toBeGreaterThan(0);
+      for (let i = 0; i < count; i++) {
+        await tabAndAssertRing(page, i + 1);
+      }
+      return;
+    }
+
+    // At 390, the panel's links/theme-control only exist in the DOM once
+    // open, inserted in document order right where .menu-trigger sits — not
+    // appended at the end — so opening it partway through a single pass only
+    // works if we know exactly which tab stop it is: its 0-based index among
+    // closed-state focusables. Tab there for real, verifying the ring at
+    // every stop including the trigger itself, then click that
+    // *already-focused* trigger to open it. Clicking an element that already
+    // holds keyboard focus fires a real click without moving focus anywhere
+    // — confirmed directly — so Tab's own sequence anchor stays exactly where
+    // it was and the rest of the (now-open) tab order continues correctly.
+    //
+    // Two things this deliberately avoids, both confirmed as real problems:
+    // page.click() as the FIRST touch on the trigger jumps focus straight to
+    // it, desyncing Tab's anchor from a count computed beforehand — the loop
+    // then overshoots past the last real element into Astro's dev-toolbar
+    // custom element (Tab-reachable via a JS `tabIndex` property, invisible
+    // to the selector-based count here). And pressing Enter/Space on the
+    // trigger via the keyboard, rather than clicking it, doesn't reliably
+    // fire a click in this headless engine once a page.evaluate() call has
+    // happened in between — an engine quirk, not a real accessibility gap.
+    const triggerIndex = await page.evaluate((sel) => {
+      const list = Array.from(document.querySelectorAll(sel)).filter((el) =>
+        el.checkVisibility(),
+      );
+      return list.indexOf(document.querySelector('.menu-trigger')!);
+    }, FOCUSABLE);
+    expect(triggerIndex).toBeGreaterThanOrEqual(0);
+
+    for (let i = 0; i <= triggerIndex; i++) {
       await tabAndAssertRing(page, i + 1);
     }
-    return;
-  }
+    await page.click('.menu-trigger');
+    await expect(page.locator('.menu-trigger')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('.menu-row').first()).toBeVisible();
 
-  // At 390, the panel's links/theme-control only exist in the DOM once
-  // open, inserted in document order right where .menu-trigger sits — not
-  // appended at the end — so opening it partway through a single pass only
-  // works if we know exactly which tab stop it is: its 0-based index among
-  // closed-state focusables. Tab there for real, verifying the ring at
-  // every stop including the trigger itself, then click that
-  // *already-focused* trigger to open it. Clicking an element that already
-  // holds keyboard focus fires a real click without moving focus anywhere
-  // — confirmed directly — so Tab's own sequence anchor stays exactly where
-  // it was and the rest of the (now-open) tab order continues correctly.
-  //
-  // Two things this deliberately avoids, both confirmed as real problems:
-  // page.click() as the FIRST touch on the trigger jumps focus straight to
-  // it, desyncing Tab's anchor from a count computed beforehand — the loop
-  // then overshoots past the last real element into Astro's dev-toolbar
-  // custom element (Tab-reachable via a JS `tabIndex` property, invisible
-  // to the selector-based count here). And pressing Enter/Space on the
-  // trigger via the keyboard, rather than clicking it, doesn't reliably
-  // fire a click in this headless engine once a page.evaluate() call has
-  // happened in between — an engine quirk, not a real accessibility gap.
-  const triggerIndex = await page.evaluate((sel) => {
-    const list = Array.from(document.querySelectorAll(sel)).filter(
-      (el) => el.getClientRects().length > 0,
-    );
-    return list.indexOf(document.querySelector('.menu-trigger')!);
-  }, FOCUSABLE);
-  expect(triggerIndex).toBeGreaterThanOrEqual(0);
-
-  for (let i = 0; i <= triggerIndex; i++) {
-    await tabAndAssertRing(page, i + 1);
-  }
-  await page.click('.menu-trigger');
-  await expect(page.locator('.menu-trigger')).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('.menu-row').first()).toBeVisible();
-
-  const totalCount = await countFocusable(page);
-  for (let i = triggerIndex + 1; i < totalCount; i++) {
-    await tabAndAssertRing(page, i + 1);
-  }
-});
+    const totalCount = await countFocusable(page);
+    for (let i = triggerIndex + 1; i < totalCount; i++) {
+      await tabAndAssertRing(page, i + 1);
+    }
+  });
+}

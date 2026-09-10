@@ -129,6 +129,25 @@ export default defineConfig({
   // etc.). All interactivity is < 4KB of vanilla script across three islands
   // (theme, TOC/progress, copy control) — see IMPLEMENTATION_PLAN.md AD-11.
 
+  // 3.8: Astro's dev toolbar (<astro-dev-toolbar>, injected by `astro dev`
+  // on every page) turned out not to be inert for T3's focus-order check —
+  // its shadow-DOM children carry a real, non-`-1` tabIndex, so they're
+  // genuinely Tab-reachable in the real accessibility tree even though
+  // native querySelectorAll can't see them (open shadow roots don't cross
+  // that boundary, which chrome.spec.ts's own comment already relies on
+  // for element *counting*). The two facts collide once a page has enough
+  // real focusable content that the toolbar's own stops fall inside the
+  // Tab range the test walks: reproduced directly on /dev/fixtures/article
+  // at 390 — tab stop 35 landed on the toolbar (outlineStyle "none", no
+  // ring by design, it's not part of the design system), which is a false
+  // failure, not a real one. It never surfaced on the smaller
+  // /dev/layout-check page only because that page doesn't have enough
+  // focusable elements to reach that far. Disabling the toolbar removes it
+  // from the tab order entirely rather than working around it per-test.
+  devToolbar: {
+    enabled: false,
+  },
+
   build: {
     // Predictable, hashed filenames per page — keeps the atomic-release
     // rsync + symlink-swap deploy (IMPLEMENTATION_PLAN.md §10) simple to

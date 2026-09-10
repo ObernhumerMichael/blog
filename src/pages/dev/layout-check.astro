@@ -47,7 +47,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       border: var(--bw) solid var(--c-rule);
       border-radius: var(--radius-sm);
     }
+    .page-title {
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      padding: var(--sp-16) var(--page-margin) 0;
+    }
   </style>
+
+  <!-- 3.8: T3 check 7 ("one h1 per page") failed here honestly — this page
+       had none. Real gap, not a contrived one; fixed rather than excluded
+       from the check. -->
+  <h1 class="page-title">Layout check</h1>
 
   <div class="frame">
     <!-- Band 1 · layout B, the workhorse -->

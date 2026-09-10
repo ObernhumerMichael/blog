@@ -18,7 +18,11 @@ interface Props {
 const { showLabel = false, class: className } = Astro.props;
 ---
 
-<button type="button" class:list={['theme-control', className]} data-theme-control>
+<button
+  type="button"
+  class:list={['theme-control', { 'theme-control--labeled': showLabel }, className]}
+  data-theme-control
+>
   <svg class="glyph" viewBox="0 0 16 16" aria-hidden="true">
     <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
     ></circle>
@@ -56,12 +60,30 @@ const { showLabel = false, class: className } = Astro.props;
        masthead, which was throwing off the article TOC's sticky offset
        (layout.css's --masthead-h) by the same margin. Scoping the floor to
        coarse pointers restores both the masthead's real height and the
-       spec'd touch target where it actually applies. */
+       spec'd touch target where it actually applies — for THIS instance,
+       the icon-only one inline in the masthead.
+
+       The labeled instance (showLabel, below) is a different case: it only
+       ever renders inside the <760 mobile menu panel, which is a touch
+       context by construction regardless of what `pointer` actually
+       reports — 3.8's own T3 checks run headless at a 390px viewport
+       without touch emulation, so `pointer: coarse` is false there even
+       though a real phone at that width would be touch, and the same is
+       true of an ordinary desktop browser window narrowed to 390. A
+       context that's reliably touch shouldn't depend on that media query
+       to get its floor, so it's unconditional here instead — confirmed as
+       a real gap, not a hypothetical one, by 3.8's touch-target check
+       actually failing against it (34px) before this rule existed. */
     @media (pointer: coarse) {
       .theme-control {
         min-width: var(--target-min);
         min-height: var(--target-min);
       }
+    }
+
+    .theme-control--labeled {
+      min-width: var(--target-min);
+      min-height: var(--target-min);
     }
 
     .theme-control:hover {
