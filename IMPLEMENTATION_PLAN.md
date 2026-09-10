@@ -1013,11 +1013,205 @@ Add: the three callout kinds in both themes, a quote with attribution, a prose p
 - Measure asserted in **pixels** (≤ 680), not in `ch`.
 - Still exactly the islands ADR-0017 budgets — the static TOC adds none.
 
-### Phase 4 · Code, terminal, figures, tables _(2–3 days)_
+### Phase 4 · Code, terminal, figures, tables _(4–5 days — revised up from 2–3: the stub counts four components but the real work is a syntax-highlighting layer that has to be taken away from Astro's defaults first, an island that cannot reach the markup it belongs to, and three separate scroll regions that each own §10.11's absolute no-horizontal-page-scroll guarantee)_
 
-The hard parts, per §7 of this document. Custom Shiki theme, rehype chrome plugin, pinned line numbers, terminal component, figure directive with `kind`, table scroll regions.
+Eleven sub-phases. Like Phases 2 and 3 this one opens with findings, and for the same reason: two of them invalidate work already committed, and one of them would have made every component in the phase silently wrong at desktop.
 
-**Exit:** all twelve fixtures from T4 render correctly and pass T3. Particularly: 210-char code line scrolls without the page scrolling; 7-column table pins its first column; four consecutive code blocks keep their 24px of page ground.
+Three scope corrections to the stub, all of which change what "done" means:
+
+- **The stub's exit criterion — "all twelve fixtures from T4 render correctly" — cannot be met in this phase.** Six of §25.6's twelve stress tests are machine-content cases and belong here: 210-character code line, 7-column table, 3840×2160 screenshot, image-free article, four consecutive code blocks, long caption. The other six (148-character title, 8 tags, 90-word article, 9,400-word / 34-section article, long URL in prose, project with no source) are either already covered by Phase 3 (long title, long URL) or depend on the collection schema, the conditional apparatus and the projects index, none of which exist before Phases 5–6. Building them here would mean authoring six fixtures against a schema that is still a stub. **Phase 4 owns six fixtures; Phase 6's exit inherits the remaining six.**
+- **Inline code is not in this phase.** §13.4 landed in Phase 3.4 as a prose-typography rule. What remains of §13 here is §13.2, §13.3 and §13.5 — the two block components and their mobile behaviour.
+- **Two new global stylesheets, not one.** §3's tree names `code.css`. Figures (§14) and tables (§15) are Markdown-generated too, so they need global CSS as much as code does, and all three share the caption (§14.2) and the scroll-region affordances (§10.11). Adding `blocks.css` beside `code.css` — shared caption/scroll primitives plus §14 and §15 — is the same category of small necessary addition as `fonts.css` in Phase 1.3 and `global.css` in Phase 2. Both go in `@layer components`.
+
+#### 4.0 · Four findings, and two decisions that need your call
+
+| #   | Finding                                                                                                           | Effect                                                                                                      | Status                                          |
+| --- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| A   | **E6's container context is on the wrong element**, and the 700px query would match at every width                | Code, figures and tables would take their mobile treatment on desktop                                       | Resolved below; blocks 4.2, 4.6, 4.7 — ADR-0019 |
+| B   | **Astro's default Shiki (`github-dark`) is live right now** and writes literal hex into inline `style` attributes | §2.3 violated on every code block in the build, invisibly to T2 (stylelint cannot see inline styles)        | Resolved in 4.1                                 |
+| C   | **`filter` is on T2's `property-disallowed-list`**, and E15's dark-mode dimming needs `brightness()`              | A registered exception is unimplementable under the current lint config                                     | Resolved in 4.6 — narrow scoped override        |
+| D   | **Astro already emits the diff `+`/`−` marker** as a `user-select: none` span, in ASCII                           | §13.2's "mandatory leading glyphs" is half-built already; the remaining question is ASCII `-` vs U+2212 `−` | Resolved below                                  |
+
+**Finding A · the container query would match everywhere.** Phase 2.1 put `container-type: inline-size` on `.layout-measure`, per §5 of this document ("the article body wrapper"). The measure is 680px. E6's threshold is 700px. **A container that is 680px wide at desktop is under 700px at every width the site has**, so `@container (max-width: 700px)` would be permanently true and all three components would go full-bleed inside the measure at 1320 — the exact opposite of §14.3 ("media never extends beyond the measure at desktop; there is no full-bleed figure variant") and §13.5.
+
+Measured in Chromium against the real Phase 3 fixture, not derived from the CSS:
+
+| Candidate container                    | 390     | 900     | 1320     | `(max-width: 700px)` matches at |
+| -------------------------------------- | ------- | ------- | -------- | ------------------------------- |
+| `.layout-measure` / `.prose` (current) | 350     | 680     | 680      | **all three widths** — wrong    |
+| Band content box (`.band` inner width) | **350** | **836** | **1208** | 390 only — correct              |
+
+So E6's container is the **band-level body wrapper**, not the measure column: the element whose width is the page's content width, which is what actually tracks the viewport. Move `container-type: inline-size` off `.layout-measure` and onto the article body wrapper in `layout.css`, with the arithmetic in a comment so it isn't "tidied" back onto the measure later.
+
+Two consequences worth stating rather than discovering:
+
+- **A 5px disagreement window at the breakpoint.** With `--page-margin: 32` from 760 up, the band content box is 696px at a 760px viewport and 700px at 764px — so between 760 and 764 inclusive the container query still reads "narrow" while the media queries have already switched to tablet. A code block is full-bleed there while the prose around it uses tablet margins. This is cosmetically harmless (full-bleed at 760 looks like full-bleed at 759), and the alternative — moving the threshold to 696 — would contradict §4.2's single stated container breakpoint and T2's own (documented, unenforceable) 700px restriction. **Accept it and record it**; do not invent a third number.
+- **`ProseLayout.astro`'s comment is wrong and must be corrected at source.** It records that adding `container-type: inline-size` to `.prose` "collapsed it to 0 width with the article's full height crammed into an unreadable single column." That does not reproduce: tested both ways in Chromium 151 — injected at runtime and declared statically in `prose.css` with a full reload — `.prose` measured 350 / 680 / 680 at the three widths, identical to baseline, with the container query correctly matching inside it. Inline-size containment does not opt a grid item out of stretch alignment (auto inline margins do, which is the neighbouring note in `prose.css`, and that one _is_ right). Whatever was seen there, it wasn't containment. Correct the comment when the container moves, and don't carry the folklore forward — the next person to need a container context will believe it.
+
+**Finding D · the diff glyph.** `@astrojs/internal-helpers`' own Shiki wrapper already splits a leading `+`/`-` off each diff line into its own `user-select: none` span, so it survives copy-paste as absence rather than as a stray character. §13.2 writes the removal glyph as `−` (U+2212), which is in the font subset. **Keep the ASCII `-` in the code text anyway.** The code area is verbatim machine content; substituting a typographic minus into a diff would produce a hunk that doesn't apply if anyone copies it, and §13.2's `−` is describing what the reader sees, not asking for a character swap in the payload. Style the existing marker span; don't rewrite it.
+
+##### OD-12 · How does a Svelte island reach markup generated inside Markdown? **(blocking 4.4)**
+
+§13.2 requires a copy control on every code block. ADR-0017 assigns it to `CopyButton.svelte`. Those two are not currently reconcilable: the chrome bar is generated inside the Markdown pipeline, and Astro's `client:*` directives only exist in `.astro` and `.mdx` templates — a hast tree cannot instantiate an island. MDX is ruled out by AD-04 for exactly the reason that would apply here.
+
+| Option                                                                                  | Cost                                                                                                                                |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Mount one `CopyButton` per block from a script in the layout (`mount()` from Svelte 5)  | N component instances per page; re-implements hydration by hand; ADR-0017's "narrowest directive" rule stops meaning anything       |
+| **One `CodeCopy.svelte` per page, `client:visible`, delegating clicks for every block** | One island regardless of block count; one `aria-live` region per button still needed; the button markup is server-rendered and real |
+| Drop back to a vanilla inline script, as the theme resolver already is                  | Simplest, but reopens ADR-0017 two weeks after it was accepted, for the one behaviour that ADR explicitly kept                      |
+
+**Recommendation: the middle one.** The chrome bar server-renders a real `<button hidden>` with its 44px target and mono 11 label; the single island un-hides every such button on mount and owns the delegated click, the clipboard write, and the 1.2s label swap. No JS, no dead control — which matters because a copy button that silently does nothing is worse than no copy button. It satisfies §13.2 (always present, label swap not a toast, politely announced), ADR-0017 (Svelte owns the interaction), and the bundle budget (one island, not one per fence).
+
+##### OD-13 · How is a caption authored? **(blocking 4.8, and therefore 4.2/4.6/4.7's exit)**
+
+§13.2, §14.2 and §15.1 all require a numbered caption — `Listing n —`, `Fig. n —`, `Table n —` — in mono 11.5 muted, below the block and, at mobile, _outside_ its full-bleed. Markdown has syntax for none of this. GFM tables have no caption at all, and a fenced block cannot carry four lines of prose in its meta string.
+
+The Phase 3 fixture already improvised the convention: a paragraph immediately after the block, starting `Table 1 — …`. Formalise that.
+
+**Recommendation: the caption is the paragraph immediately following the block, recognised by its `Fig. n — ` / `Listing n — ` / `Table n — ` prefix**, promoted into the block's caption slot by a remark plugin, with the numbers **authored, not generated** — the same trade-off OD-10 already settled for section numbers, decided the same way and for the same three reasons (one authoring model rather than two, the number is visible in the diff when it changes, and prose that says "see Listing 3" stays true because the author wrote both). A validator enforces contiguity from 1 per kind, and fails the build on a caption paragraph that follows nothing captionable, or a block whose caption is missing. Emphasis markers in the source (`_Table 1 — …_`) are dropped: the caption has its own type treatment and does not inherit italics.
+
+The alternative — `:::figure{caption="…"}` and a `caption=` fence meta — puts unquotable prose inside an attribute string, and gives tables nowhere to live at all. Note that figures are the one kind where the caption sits _inside_ the directive, so the plugin handles two shapes; that's four lines of branching, not two mechanisms.
+
+#### 4.1 · The Shiki layer — taking it away from the defaults
+
+Finding B is live in `dist/` today: every `<pre>` carries `class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8"`, 29 inline hex colours across the fixture, and T2 cannot see any of it.
+
+1. **Configuration goes at `markdown.shikiConfig` / `markdown.syntaxHighlight`, not inside `unified()`.** Verified against the installed `@astrojs/markdown-remark@7.2.4`: `UnifiedProcessorOptions` has no highlighting fields, and `AstroMarkdownOptions` documents `syntaxHighlight` and `shikiConfig` as "cross-cutting options … honoured regardless of which processor is selected." The Phase 3.3 comment in `astro.config.mjs` predicting this ("the Shiki theme is Phase 4's") is right about the phase and silent about the location; the location is the top level.
+2. **Author `src/plugins/shiki-ledger-theme.json` against §2.3's seven roles, with `var(--code-*)` colour values** so the palette stays in `tokens.css` (AD-05) and the code block themes itself from the same file as everything else. The tokens already exist (`--code-fg`, `--code-kw`-family, `--code-hl-*`, `--diff-*`, added in Phase 1) — this maps TextMate scopes onto them. **Do not use Shiki's built-in `css-variables` theme**: it exposes nine roles, and it collapses `constant.numeric` and `constant.language` into one `token-constant`, so §2.3's separate literal/boolean (`oklch(0.74 0.12 300)`) and number (`oklch(0.80 0.09 60)`) cannot both be expressed. Checked in `@shikijs/core@4.4.3`'s `createCssVariablesTheme` source, not assumed from its name. That theme is still the proof that `var()` values are accepted where Shiki expects a colour, which is the mechanism the custom theme relies on — confirm it by building, since it's the one load-bearing assumption here.
+3. **`excludeLangs: ['terminal']`.** A language in `syntaxHighlight.excludeLangs` is left entirely untouched by the highlighter — the `<pre><code class="language-terminal">` survives to the rehype stage as plain text. That is exactly what §13.3 wants: the terminal has no syntax highlighting, only a prompt glyph and a success token, and it is a separate component rather than a theme variant (§23.4). This is a cleaner boundary than registering a fake grammar.
+4. **Fail the build on an unknown fence language.** Shiki's fallback is `console.warn` plus `plaintext`, which is how `jinja2` in the Phase 3 fixture has been silently rendering unhighlighted since it was written (`jinja` is the real grammar name; `jinja2` is not, and `@shikijs/langs` confirms only the former exists). A warning in a build log is not enforcement — Phase 3.3's discipline applies: add the language check to `remark-code-meta.ts` (4.3) against an explicit allow-list in `consts.ts`, and fail. Fix the fixture to `jinja`, matching §20.9's own language token.
+5. **Install `@shikijs/transformers`** (AD-05) — it is not currently a dependency.
+
+**Exit:** no hex literal appears in any built page's inline styles; a code block's colours change when a `--code-*` token changes; a fence tagged `jinja2` fails the build with a message naming the valid alternatives; a ` ```terminal ` fence reaches rehype unhighlighted.
+
+#### 4.2 · `code.css` and the chrome — the block that isn't an embed
+
+`global.css` already carries the `/* Phase 4: @import "./code.css"; */` stub. The tokens this needs that don't exist yet, in the shape Phase 3.2 established:
+
+| Token                          | Value                             | Source                                                                                                                                                                            |
+| ------------------------------ | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--code-chrome-muted`          | the language token's colour       | §13.2 says "mono 10.5 muted" — but `--c-muted` is theme-dependent and the chrome bar is not (E2). Needs its own value inside the code palette, like `--code-filename` already has |
+| `--term-label`                 | host-label colour                 | §13.3's uppercase mono host label, same reasoning                                                                                                                                 |
+| `--fs-term` / `--t-term`       | mono 13 / 1.8, 12.5 at <760       | §13.3. Not `--t-code`: different size _and_ different line height, and §23.4 exists to stop these two collapsing into one                                                         |
+| `--fs-caption` / `--t-caption` | mono 11.5 / 1.6, **11 at mobile** | §14.2. `--fs-meta-sm` is 11.5 but constant; the mobile step is real                                                                                                               |
+| `--sp-9`                       | 9px                               | §13.2's `9/14` chrome padding and §15.1's 9–11px row padding. Same class of value as `--sp-10` in Phase 3.4 — a gap in §25.2's audit of E13 sub-steps, not a new decision         |
+
+Then the block itself, per §13.2 and §13.5. Four things that are not transcription:
+
+1. **The scroll lives on the `<pre>`, and it is not yours.** Astro's wrapper appends `; overflow-x: auto;` to the `<pre>`'s inline `style` unconditionally. Inline styles beat every cascade layer, so `code.css` must work _with_ that, not declare its own `overflow` and wonder why nothing changes. Shiki also sets `tabindex="0"` on the `<pre>` already, which is most of T3 check 9 for code blocks for free — assert it rather than re-adding it.
+2. **Radius requires a fill and the mobile block has none.** §2.9: full-bleed below 700 (container, per finding A) drops the radius and the side borders, leaving two hairlines. Because the escape is `.full-bleed`'s negative margin from Phase 2.1, the block spans the viewport while its caption does not — 4.8 owns that half.
+3. **The light-theme border is the only thing that changes between themes** (§13.1, E2). One `border-color` declaration under the theme override; nothing else in `code.css` is theme-aware, and a reviewer should be able to confirm that by reading the file.
+4. **Scrollbar colour is explicit.** `tokens.css` already carries the warning from Phase 1: `color-scheme: dark` on the code block would flip every token inside it and break §13.1's light-theme border. Use `scrollbar-color` with code-palette values instead — the note anticipated this component; this is where it gets consumed.
+
+**Exit:** a code block matches `docs/reference/article/1320-light.png` at desktop and `390-dark.png` at mobile, including the chrome bar's filename/language/copy tracks; `pnpm check:css` passes; the block's ground is identical in both themes and only its border differs.
+
+#### 4.3 · Meta, line numbers, highlighting, diff
+
+The fence meta (` ```yaml title="…" {14-16} `) is silently dropped today — confirmed in the built output, which has no `title` attribute anywhere and every line as a bare `class="line"`.
+
+**Where the chrome is built matters, because of one ordering fact:** `rehypeShiki` runs _before_ user rehype plugins, and it replaces the `<pre>` wholesale. A rehype plugin therefore cannot see `node.data.meta` — it is gone by the time the plugin runs. Two places still can: a **remark** plugin (mdast `code.meta` is a plain string on the node) and a **Shiki transformer** (Astro forwards meta as `{ __raw }`). Split the work along that seam:
+
+1. **`remark-code-meta.ts`** — parses `title=`, `host=` and the highlight range, validates the language against the allow-list (4.1), validates a `title` is present on every non-terminal fence (§13.2 wants the **full repo-relative path**, and a basename should fail rather than degrade), and wraps the code node in the figure-shaped container that carries the chrome bar and the copy button. Wrapping in remark rather than rehype also keeps the wrapper outside the node Shiki replaces.
+2. **Transformers, via `shikiConfig.transformers`** — `transformerMetaHighlight` for the `{14-16}` tint plus the 2px inset bar, and the line-number track. The number track is a **two-track grid with the numbers outside the scroll container** (§13.5), not `position: sticky` and not a `::before` counter: at column 60 a sticky number stops being that line's number. Numbers appear **only above twelve lines** (§13.2, and §25.4 confirms the rule is normative even though the reference frames show numbers on a four-line block — do not "fix" this to match the screenshot).
+3. **Highlight geometry.** The tint spans the full scroll width, which means the tinted element must be as wide as the scroll content (`min-width: 100%` on the line, not a background on a fixed-width row), and the 2px bar is inset on the line so it stays visible at any scroll offset. §18.4: position _and_ tint, so it survives greyscale.
+
+**Exit:** a 13-line block shows numbers and a 12-line block does not; the highlight tint reaches the right-hand end of a 210-character line and the accent bar is still visible after scrolling to it; a `title=` naming only a basename fails the build.
+
+#### 4.4 · The copy control (OD-12)
+
+`CodeCopy.svelte`, one instance per article, `client:visible`, delegating for every `[data-copy]` in the body. Server-rendered `<button hidden>` in the chrome bar: mono 11, `--radius-sm`, hairline in `--code-control-border`, 44px target, label `copy`. On activation: clipboard write, label → `copied` for 1.2s, border takes `--c-accent`, announced through an `aria-live="polite"` span — a text change, not a toast, not an animation (§13.2). Hover lightens border and label (§16.2). Failure path: the clipboard API can reject (permissions, insecure context) — swap the label to `failed`, restore after the same 1.2s, and don't throw.
+
+**Exit:** copy works from every block on the page with one island in the bundle; with JS disabled no control is shown; the label change is announced; `pnpm check:svelte` passes.
+
+#### 4.5 · Terminal block — a separate component, deliberately
+
+§23.4 documents the confusion risk in advance, so the test of this sub-phase is whether the two components share code they shouldn't. They share the caption and the scroll region; they share nothing else.
+
+Per §13.3: `--c-term-bg` ground (one step below code), uppercase mono host label `TERMINAL — PI-02` at 10.5–11px / +0.1em above a `--term-chrome-rule` hairline, `$` prompt in `--term-prompt`, `--term-fg` foreground, success tokens in `--term-success`, mono 13 / 1.8 (12.5 at <760). **No line numbers, no copy control, no language token, no filename.** Identical at every width — the `@container` rule that makes the code block full-bleed applies to the terminal only for the full-bleed itself, not for type or chrome.
+
+The prompt and success token are the one place a "highlighter" is written by hand: a small rehype pass over the excluded-language block that wraps a leading `$ ` and `[+]`-style success markers. Keep it to those two; §13.3 lists exactly two coloured things, and a third would be a syntax theme by the back door.
+
+**Exit:** code and terminal blocks sit adjacent in the fixture and are visibly different objects at all three widths in both themes; the terminal has no copy control and no numbers at any width; four consecutive blocks alternate grounds and keep 24px of page ground between them (§10.10).
+
+#### 4.6 · Figures — the directive, the `kind`, and the dimming exception
+
+`remark-directives.ts` currently throws on `:::figure` by name, with a comment pointing at this phase. Extend it rather than adding a second plugin.
+
+- **`kind` is required, and its absence fails the build.** `diagram | screenshot | photo` (§7.3 of this document): E15 and §2.2 deviation 6 dim diagrams and photos to ~92% in dark mode and leave screenshots untouched, and nothing in the markup can infer which is which. Screenshots additionally sit on `--c-sunken` with a `--c-rule` border (§14.1) so a light UI capture does not bleed into a light page.
+- **Finding C · the dimming needs `filter`, which T2 forbids.** `property-disallowed-list` bans `box-shadow`, `text-shadow`, `filter` and `backdrop-filter` — written against §2.10 and §1.12, which are about shadows and blur, not about brightness. `opacity: 0.92` is not a substitute: it composites the image against the page ground rather than darkening it, so it lightens a dark-on-transparent diagram instead. **Add a stylelint override permitting `filter` in `blocks.css` only**, in the `exceptions` layer, with the comment naming E15 — the same pattern as the `tokens.css` and `fonts.css` overrides that already exist, and the fourth registered exception to need CSS.
+- **The image itself goes through `astro:assets`.** Keep the mdast `image` node intact inside the directive rather than emitting raw HTML: Astro's `remarkCollectImages` runs after user remark plugins, so a real image node still gets `srcset`, intrinsic `width`/`height`, a modern format and `loading="lazy"` — §14.4's "3840×2160 served at 780w" is the pipeline's job, not a manual `<img>`'s. This only applies to sources relative to the Markdown file; the Phase 3 fixture's `/dev/homelab-architecture.svg` comes from `public/` and is passed through untouched. T4's 4K fixture must therefore use a **collection-relative asset**, or it will prove nothing.
+- **Height cap 65vh at every width** (`--img-cap`, another Phase 1 token used for the first time), sizes by role from `--fig-h-*`, square corners, no shadow, no device mock.
+- **Alt text is non-empty, always** (§18.6, cross-entry invariant 7). Fail the build on an empty alt inside a `:::figure` — decorative images do not exist in this design, so an empty alt is an authoring mistake by definition.
+- **Tap-to-full-size below 760** (§14.3, §14.4) is a `<a href={src} target=_self>` wrapper on wide diagrams — no lightbox, no island, no overlay. §12 has no modal and this is not the place to invent one.
+
+**Exit:** a diagram dims in dark mode and a screenshot beside it does not, verified by eye against `docs/reference/article/390-dark.png` and by a computed-style assertion; `:::figure` without a `kind` fails the build; an empty alt fails the build; the 4K fixture ships a width-appropriate modern-format source.
+
+#### 4.7 · Tables — the scroll region
+
+A rehype plugin (`rehype-table-region.ts`, running after Shiki like everything else in that stage) wraps every `table` in the region §15.2 specifies. The table markup itself is GFM's; the region and the affordances are ours.
+
+- **Sticky first column** on the page ground, so a value is never orphaned from its row label. Note that §15.1 forbids vertical rules — the pinned column is separated by ground, not by a border.
+- **Two affordances, both required**: a `--scroll-fade` (26px) ground-coloured fade on the overflowing edge, and a mono `scroll →` marker on the caption line that flips to `← scroll` at the end and disappears when everything fits. The marker is the only part of a table that needs JS-free state — do it with `scroll-driven` detection via the same mechanism 2.6 chose for the masthead ground, or accept a static marker; **do not add an island for it.**
+- **Focusable and arrow-scrollable**, `role="region"`, `aria-label` from the caption (§15.2, §18.2 — the commonly-missed half, and T3 check 9). Unlike code blocks, nothing adds `tabindex="0"` for you here.
+- **No hover on data rows** (§15.1, §23.4). Worth a comment in `blocks.css`: index rows _do_ have one and they look identical.
+- **Never reflows to cards.** Cell floor mono 12.5. Head row `--t-label` above a `--c-rule` hairline, `--c-rule-2` top rule, `--c-rule-in` between rows, no bottom rule on the last row, no zebra.
+- **Prose cells and alignment are authored, not inferred**: identifying column left, numeric and date columns right (§15.1); a column carrying explanation rather than data is sans 13.5 `--c-text-2`. GFM's `---:` alignment syntax covers the numeric case; the prose-cell case needs a convention — reuse the column-alignment marker rather than inventing an attribute, and document that a left-aligned non-first column renders as a prose cell.
+- **At tablet**: in the measure normally, a scroll region early above five columns.
+- **E7 middle-truncated digests** — the only content truncation in the system besides E8. Implement as a `<span title>` with the full value, so hover and copy both give the whole string.
+
+**Exit:** the 7-column fixture at 390 pins its first column, shows both affordances, and the page does not scroll sideways; the region is reachable by Tab and scrollable by arrow key; no data row has a hover state; a digest cell copies its full value.
+
+#### 4.8 · Captions and the numbering validator (OD-13)
+
+One small plugin closing three components at once, and the thing that makes §5.5's most-cited rule real: **the caption stays inside the 20px text margin while the block goes full-bleed** — implemented as caption-outside-the-bleed-wrapper, not as padding on the block (§7.3 of this document, and §5.5's own note that this is what keeps a full-bleed block attached to the article).
+
+The validator mirrors `remark-section-numbers.ts`: contiguity from 1 per kind, three independent counters, build fails on a gap, a duplicate, or a caption paragraph that follows nothing captionable. Terminal blocks share the code counter — the reference frames caption a terminal as `Listing 2`, which is the only evidence either way and is consistent with §14.2 giving `Listing n —` to "code" as a category rather than to component 19 specifically.
+
+Caption type is `--t-caption` in `--c-muted`, 10px below the block (`--sp-10`), 32px to the following prose. No length limit (§14.2, and T4's long-caption fixture).
+
+**Exit:** every block in the fixture has a numbered caption; renumbering one out of sequence fails the build; a caption stays inside the text margin at 390 while its block spans the viewport, verified at all three widths.
+
+#### 4.9 · The six machine-content fixtures (T4)
+
+Under `src/pages/dev/fixtures/`, each routable and each in the T3 matrix: **210-character code line · 7-column table · 3840×2160 screenshot · image-free article · four consecutive code blocks · long caption.** The remaining six from §25.6 are listed in Phase 6's exit criteria instead of being faked against a stub schema here.
+
+These are the highest-leverage part of the enforcement system precisely because they are the cases real content hits and hand-checking misses. Author them as real content — a real 210-character `kubectl` line, a real seven-column benchmark table — for the same reason Phase 3.1 rejected lorem ipsum.
+
+**Exit:** all six render at 390 / 900 / 1320 in both themes and pass every T3 check now wired.
+
+#### 4.10 · T3 checks 8 and 9, and the horizontal-scroll check that finally has teeth
+
+- **Check 9 · scroll regions are focusable and arrow-scrollable** — code blocks, terminal blocks and tables. Deferred from Phase 2.7 by name because none of the three existed. Assert both halves: `tabindex` reachable, and `scrollLeft` actually moves on `ArrowRight`.
+- **Check 8 · contrast** — axe-core plus direct assertions on the documented §18.1 ratios. Brought forward here rather than left to Phase 8 because §2.3's seven roles are the one palette in the system held to a lightness band rather than to a contrast ratio, and this is the moment they first render.
+- **Check 1 · no horizontal page scroll** has been passing since Phase 2 against pages that could not violate it. With a 210-character code line and a seven-column table in the matrix it becomes the check the plan always claimed it was (§10.11, "the single highest-value automated check in the whole system"). Prove it again on the new fixtures, and prove the failure direction: remove the `overflow-x` on a `pre`, watch it go red, put it back.
+
+**Exit:** `pnpm check:e2e` runs checks 1–10 except 4's row-height half across both existing pages plus the six new fixtures; each newly added check is proven to fail on a deliberate violation and pass once removed.
+
+#### 4.11 · Extend the specimen page
+
+Per the precedent 3.9 set — the specimen page is where a token with no bundle behind it stops hiding. Add: a code block with and without line numbers, with a highlighted line and a diff hunk; a terminal block; all three figure kinds side by side in both themes (the only place the E15 distinction is visible as a comparison rather than one image at a time); a table with a prose cell, a right-aligned numeric column and a truncated digest; and the three caption forms.
+
+This also seeds `dev/gallery.astro` in Phase 7 with five of the twenty components already rendered in their states.
+
+**Exit:** the specimen page renders every §13/§14/§15 component in both themes at all three widths.
+
+---
+
+**Phase 4 overall exit criteria:**
+
+- E6's container context sits on the band-level body wrapper, with the 350 / 836 / 1208 arithmetic recorded, and the 700px query matches at 390 only — ADR-0019.
+- `ProseLayout.astro`'s containment comment is corrected at source rather than carried forward.
+- OD-12 (island-in-Markdown) and OD-13 (caption authoring) resolved and recorded.
+- No built page contains an inline hex colour; the code palette is driven entirely from `tokens.css`.
+- The build fails on: an unknown fence language, a fence without a repo-relative `title`, a `:::figure` without a `kind`, an empty alt, and a caption number out of sequence — each proven by a deliberate violation.
+- `jinja2` in the Phase 3 fixture is corrected to `jinja`, and had been silently rendering as plaintext since Phase 3.1.
+- Code and terminal are two components sharing only the caption and the scroll region.
+- Line numbers appear above twelve lines and not at twelve, in both the reference-screenshot case and the fixture.
+- A diagram dims in dark mode; a screenshot does not; `filter` is permitted in exactly one file, scoped to E15.
+- Captions stay inside the text margin at 390 while their blocks span the viewport.
+- The page scrolls horizontally at no width, on any of the six new fixtures, with a 210-character code line and a seven-column table present.
+- Every scroll region is focusable and arrow-scrollable.
+- Still one island per behaviour, not one per block; bundle stays inside ADR-0017's 10KB gzip budget.
 
 ### Phase 5 · Content model and the article page _(1–2 days)_
 
