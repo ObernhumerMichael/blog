@@ -518,6 +518,64 @@ const glyphs = [
       tab to me
     </button>
 
+    <h2>Prose components (§6·10, §10, §11) — added Phase 3.9</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      Every <code>--t-*</code> bundle above is rendered directly on a token, so a wrong value
+      is caught immediately. Component-local sizes like
+      <code>--fs-callout</code> have no such bundle to sit beside — the only way a wrong one
+      shows up is a real component rendered wrong, which is exactly what 3.2's mobile callout
+      bug slipped past. This section is that check.
+    </p>
+    <div class="prose">
+      <p>
+        A prose paragraph, same as any other, with an <a href="/writing/">
+          inline link</a
+        >, an <a href="https://example.com/">external link&#8202;↗</a>, some <code
+          >inline code</code
+        >, and a footnote reference<sup
+          ><a data-footnote-ref href="#specimen-fn-1">1</a></sup
+        >.
+      </p>
+
+      <div class="callout callout--note" data-callout="note">
+        <p class="callout__label">NOTE</p>
+        <div class="callout__body">
+          <p>
+            The default callout kind — accent marker, sunken ground. Body text renders in <code
+              >--t-callout</code
+            >, not <code>--t-body</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout--warning" data-callout="warning">
+        <p class="callout__label">WARNING</p>
+        <div class="callout__body">
+          <p>
+            Warning and correction share the same treatment: marker and label switch to <code
+              >--c-warn</code
+            >, ground switches to
+            <code>--c-warn-bg</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout--correction" data-callout="correction">
+        <p class="callout__label">CORRECTION</p>
+        <div class="callout__body">
+          <p>Same treatment as warning — the two are visually identical.</p>
+        </div>
+      </div>
+
+      <blockquote>
+        <p>
+          Idempotent means it doesn't break what's already there. Reproducible means I can
+          tell you, in advance, exactly what will be there.
+        </p>
+        <p>— a quote with attribution, mono, muted, beneath the text</p>
+      </blockquote>
+    </div>
+
     <h2>Glyphs (§2.11)</h2>
     <div class="glyph-row">
       {
