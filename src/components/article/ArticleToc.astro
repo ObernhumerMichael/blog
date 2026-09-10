@@ -1,0 +1,391 @@
+---
+// ArticleToc.astro — Phase 3.7, §15 / §6·15. A bring-forward from Phase 5
+// (see IMPLEMENTATION_PLAN.md's own argument for why): at >=1280 the TOC IS
+// the gutter track, so the article can't honestly be judged against the
+// reference screenshots at two of the six width/theme combinations without
+// it. What THIS phase builds is the markup, the spine and the three
+// responsive forms; Phase 5 keeps the static shape and wires the active
+// state to a real `.is-active` class via a scroll-spy island — nothing in
+// this file ever sets it.
+//
+// Two <details> nodes, not three — the plan is explicit about the cost:
+// "a few hundred bytes of duplicated markup" for a <details open> covering
+// >=760 (summary hidden >=1280, where §6·15 wants a plain list) and a plain
+// <details> covering <760. Neither's `open` attribute ever changes; CSS
+// display:none does the width-switching, so there's no flash of the wrong
+// state and no fourth JS island.
+//
+// One deliberate deviation from the plan's literal wording: it says both
+// nodes "carry .gutter" themselves. They don't here — ProseLayout.astro
+// wraps this component in a single `.gutter` div instead. Reason: a
+// display:none element is excluded from CSS grid's auto-placement
+// entirely, so if EITHER <details> carried .gutter directly as a grid
+// child, the "fewer than three h2s" case (showToc below, no TOC rendered
+// at all) would leave the grid with only ONE real child (.prose) and no
+// second one to correctly claim the measure track — .prose would get
+// auto-placed into the gutter's own track instead. A wrapper div that
+// always exists, empty or not, keeps that track occupied and .prose
+// exactly where it belongs regardless of whether a TOC renders into it.
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface Props {
+  headings: Heading[];
+  numberedHeadingFlags: boolean[];
+}
+
+const { headings, numberedHeadingFlags } = Astro.props;
+
+// rehype-toc.ts (this phase) marks which headings are numbered article
+// sections, positionally — see that file for why position, not text or
+// slug matching, is what lines these two arrays up.
+const numbered = headings.filter((_, i) => numberedHeadingFlags[i]);
+
+// §21.3 / §3.7: "Fewer than three h2s: no TOC at all" — a build-time
+// condition, not a CSS one, so the element doesn't exist rather than sit
+// hidden.
+const h2Count = numbered.filter((h) => h.depth === 2).length;
+const showToc = h2Count >= 3;
+
+// §10.10: "Very long article (34 sections): TOC gains its 150px scroll
+// cap" — the OTHER build-time condition, on the same basis as showToc.
+const isLong = h2Count > 20;
+
+// The TOC numbers itself 1, 2, 3... — NOT the article's own zero-padded
+// "01"/"02" section numbers. Checked against
+// docs/reference/article/900-light.png: the CONTENTS panel there reads
+// "1 · The rule", "2 · Inventory first", not "01 · ...". h3 entries get no
+// number of their own (nothing in §15 describes one — only the extra
+// indent), just their title with the authored "n.m · " prefix stripped.
+// A heading can contain a real link (e.g. §6·05's "5.1 · Reading the
+// [textfile collector](...) the hard way" in the fixture) — rehype-prose-
+// links.ts (Phase 3.3) already ran by the time this component sees
+// `headings`, so that link's own " ↗" is baked into `text` too,
+// mid-sentence. Correct on the actual heading; wrong pulled into a TOC
+// entry, so it's stripped here specifically (the exact hair-space + arrow
+// sequence that plugin appends, not a generic "any arrow" strip).
+const EXTERNAL_LINK_MARK = / ↗/g;
+
+let ordinal = 0;
+const entries = numbered.map((h) => {
+  if (h.depth === 2) ordinal += 1;
+  return {
+    slug: h.slug,
+    depth: h.depth,
+    ordinal: h.depth === 2 ? ordinal : null,
+    // h2: the article's own "01 · " prefix is stripped and replaced by the
+    // TOC's own sequential ordinal (the span above) — see this file's own
+    // header comment on why the two numbering schemes differ. h3: §6's
+    // "n.m subsections... carry no separate mono span" rule applies here
+    // too — the authored "2.1 · " prefix stays as plain text, it just
+    // isn't pulled into a coloured span the way the h2 ordinal is.
+    title:
+      h.depth === 2
+        ? h.text.replace(/^\d+(?:\.\d+)?\s*·?\s*/, '').replace(EXTERNAL_LINK_MARK, '')
+        : h.text.replace(EXTERNAL_LINK_MARK, ''),
+  };
+});
+---
+
+{
+  showToc && (
+    <Fragment>
+      <details open class="toc toc--wide">
+        <summary class="toc-summary">
+          <span>
+            CONTENTS — {h2Count} SECTION{h2Count === 1 ? '' : 'S'}
+          </span>
+        </summary>
+        <p class="toc-label">CONTENTS</p>
+        <ol class:list={['toc-list', { 'toc-list--capped': isLong }]}>
+          {entries.map((entry) => (
+            <li class:list={['toc-item', { 'toc-item--h3': entry.depth === 3 }]}>
+              <a href={`#${entry.slug}`}>
+                {entry.depth === 2 && (
+                  <>
+                    <span class="toc-num">{entry.ordinal} ·</span>{' '}
+                  </>
+                )}
+                {entry.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+
+      <details class="toc toc--narrow">
+        <summary class="toc-summary">
+          <span>
+            CONTENTS — {h2Count} SECTION{h2Count === 1 ? '' : 'S'}
+          </span>
+        </summary>
+        <ol class:list={['toc-list', { 'toc-list--capped': isLong }]}>
+          {entries.map((entry) => (
+            <li class:list={['toc-item', { 'toc-item--h3': entry.depth === 3 }]}>
+              <a href={`#${entry.slug}`}>
+                {entry.depth === 2 && (
+                  <>
+                    <span class="toc-num">{entry.ordinal} ·</span>{' '}
+                  </>
+                )}
+                {entry.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </Fragment>
+  )
+}
+
+<style>
+  @layer components {
+    .toc {
+      display: none;
+    }
+
+    /* >=760: the <details open> node. Its own open attribute never
+       changes — CSS alone decides whether it's the sticky desktop list or
+       the tablet disclosure. */
+    @media (min-width: 760px) {
+      .toc--wide {
+        display: block;
+      }
+    }
+
+    /* <760: the plain, closed-by-default <details> node. */
+    @media (max-width: 759px) {
+      .toc--narrow {
+        display: block;
+      }
+    }
+
+    /* ===========================================================================
+       SUMMARY / LABEL
+       "CONTENTS — N SECTIONS" is the disclosure's own accessible name at
+       760-1279 and <760. >=1280 there's no disclosure interaction left to
+       name — summary hides and .toc-label (plain text, not a summary)
+       takes over as §6·15's "plain list" heading.
+       =========================================================================== */
+
+    .toc-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      cursor: pointer;
+    }
+
+    /* The summary row reads as its own heading, separated from the list
+       below it by a rule — scoped to [open] specifically, not just the
+       boxed forms generally: .toc--narrow starts closed, and without this
+       scoping the rule still rendered with nothing below it but the box's
+       own padding, an orphaned line in dead space (caught by actually
+       opening it and looking, not assumed from the CSS). .toc--wide is
+       always open, so this is unconditional for it in practice. Harmless
+       at >=1280, where the summary itself is already display:none
+       (above).
+
+       The rule needs to reach the box's own left/right border, not stop
+       at the summary's inherited content edge — the box's own padding
+       (--sp-16) insets the summary same as everything else, so a plain
+       border-bottom here stopped 16px short on each side. Pulled back out
+       with a matching negative margin, then padding-inline re-adds the
+       same 16px so the CONTENTS text and the +/- glyph sit exactly where
+       they did before — only the rule itself now runs edge to edge. */
+    .toc--wide[open] > .toc-summary,
+    .toc--narrow[open] > .toc-summary {
+      margin-inline: calc(-1 * var(--sp-16));
+      padding-inline: var(--sp-16);
+      padding-bottom: var(--sp-12);
+      margin-bottom: var(--sp-12);
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    .toc-label {
+      display: none;
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin: 0 0 var(--sp-14) 0; /* §15: "14px under the label" */
+    }
+
+    @media (min-width: 1280px) {
+      .toc--wide > .toc-summary {
+        display: none;
+      }
+      .toc-label {
+        display: block;
+      }
+    }
+
+    /* §2.11: "+"/"−" — disclosure closed/open. The written responsive
+       table (§15) only names this glyph on the <760 row, but
+       docs/reference/article/900-light.png shows the tablet form (open by
+       default) carrying a "−" at the same right-aligned position too —
+       the reference is authoritative, so both forms get it. .toc--wide's
+       copy is only ever visible at 760-1279 in practice: >=1280 hides the
+       whole summary (below), so there's no glyph left to show there. */
+    .toc--wide > .toc-summary::after,
+    .toc--narrow > .toc-summary::after {
+      content: '+';
+      color: var(--c-muted);
+    }
+    .toc--wide[open] > .toc-summary::after,
+    .toc--narrow[open] > .toc-summary::after {
+      content: '−';
+    }
+
+    /* Tablet-only hairline frame around the whole disclosure (§15: "a
+       CONTENTS — 6 SECTIONS summary row in a hairline frame"). Radius 4 —
+       §1.7's own component table (and §12.1's disclosure row) name the TOC
+       frame specifically as one of the --radius exceptions to "a bordered-
+       but-unfilled box is square" (that rule is §2.9's default, not
+       universal; a previous pass here misapplied it to this component).
+       Gone at >=1280 (sticky gutter list, no frame) and at <760 (its own
+       frame is on .toc--narrow instead). */
+    @media (min-width: 760px) and (max-width: 1279px) {
+      .toc--wide {
+        border: var(--bw) solid var(--c-rule);
+        border-radius: var(--radius);
+        padding: var(--sp-16);
+      }
+    }
+
+    .toc--narrow {
+      border: var(--bw) solid var(--c-rule);
+      border-radius: var(--radius);
+      padding: var(--sp-16);
+    }
+
+    /* ===========================================================================
+       THE LIST
+       =========================================================================== */
+
+    .toc-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    /* §15: "below the lead, two columns" — column-major flow (1/2/3 in the
+       first column, 4/5/6 in the second) is what CSS multi-column gives
+       for free, and matches the reference screenshot's own layout exactly
+       — a grid with grid-auto-flow:column would need an explicit row
+       count to do the same thing. */
+    @media (min-width: 760px) and (max-width: 1279px) {
+      .toc-list {
+        column-count: 2;
+        column-gap: var(--sp-16);
+      }
+    }
+
+    .toc-list--capped {
+      max-height: var(--toc-cap);
+      overflow-y: auto;
+    }
+
+    /* The 1px hairline spine (§15: "a 1px hairline spine with 12-13px of
+       left padding") lives on the LIST, not the item, and only at >=1280
+       (the desktop sticky list) — confirmed against docs/reference/
+       article/1320-light.png, where "1 The rule" through "4 Cost, in
+       hours" sit on one unbroken line. A per-item border with margin-gaps
+       between items (an earlier approach) rendered as visibly separate
+       dashes instead of one line, since margin sits outside the border
+       box. Neither boxed form gets it: the 760-1279 two-column list has
+       no single left edge to hang one continuous border off
+       (docs/reference/article/900-light.png shows none), and the <760
+       open disclosure sits inside its own hairline frame already — a
+       second, redundant hairline immediately inside that frame's own
+       left edge read as visual noise, not a spine. */
+    .toc--wide .toc-list {
+      border-left: var(--bw) solid var(--c-rule);
+    }
+
+    @media (min-width: 760px) and (max-width: 1279px) {
+      .toc--wide .toc-list {
+        border-left: none;
+      }
+    }
+
+    .toc-item {
+      padding-left: 0; /* flush — matches the boxed forms, which have no
+        spine to pad away from */
+      break-inside: avoid; /* don't split one entry across the two tablet
+        columns */
+    }
+
+    .toc-item--h3 {
+      padding-left: var(--sp-12); /* nested under its h2, spine or not */
+    }
+
+    /* >=1280 alone has the spine (above) to pad away from. */
+    @media (min-width: 1280px) {
+      .toc-item {
+        padding-left: var(--sp-12); /* "12-13px of left padding" */
+      }
+      .toc-item--h3 {
+        padding-left: calc(var(--sp-12) * 2); /* "a further 12px" */
+      }
+    }
+
+    .toc-item + .toc-item {
+      margin-top: var(--sp-8); /* §15: "8-9px between items" */
+    }
+
+    .toc-item a {
+      display: block;
+      font: var(--t-toc);
+      color: var(--c-muted);
+      text-decoration: none;
+      padding-left: var(--sp-8);
+    }
+
+    .toc-item a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+    }
+
+    /* §15's Typography line ("muted by default, --c-text for the active
+       item") names only the text colour, not a separate treatment for the
+       number — confirmed against 1320-light.png, where "1"/"2"/"3"/"4" are
+       the same muted grey as their titles, not accented. Inherits from
+       .toc-item a instead of setting its own colour.
+
+       No margin/padding on this span for the gap before the title — tried
+       both, and confirmed by hovering a live entry at 4x zoom that this
+       build's .toc-item a:hover underline breaks across EITHER: the
+       ancestor's text-decoration doesn't reliably paint across a nested
+       inline box's own margin or padding once you actually zoom in and
+       look, spec aside. The gap is a literal space character in the
+       markup instead (a sibling text node of .toc-num, not inside it —
+       see the template above), so the underline has ordinary text to
+       paint under the whole way across, and this rule has nothing left
+       to set. */
+
+    /* §15 "States": active = full-strength text PLUS a 2px accent tick on
+       the spine. Nothing in this phase ever adds .is-active — Phase 5's
+       scroll-spy island does, per the plan's own framing of what stays
+       there. Growing the border 1px -> 2px would shift the text right by
+       1px; the matching negative margin cancels that.
+       NOTE for whoever wires the scroll-spy island: the spine now only
+       exists at >=1280 (above), on .toc-list rather than the item, so
+       this per-item border-left swap has no base border to grow from —
+       it'll need to target .toc-list's border instead, or overlay its own
+       marker. Neither boxed form (760-1279 two-column, <760 disclosure)
+       has a spine at all, so an active tick there needs its own solution
+       regardless. */
+    .toc-item.is-active {
+      border-left: var(--bw-marker) solid var(--c-accent);
+      margin-left: calc(var(--bw) - var(--bw-marker));
+    }
+    .toc-item.is-active > a {
+      color: var(--c-text);
+    }
+  }
+</style>

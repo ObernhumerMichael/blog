@@ -8,6 +8,7 @@ import remarkDirectives from './src/plugins/remark-directives.ts';
 import remarkSectionNumbers from './src/plugins/remark-section-numbers.ts';
 import remarkReadingTime from './src/plugins/remark-reading-time.ts';
 import rehypeProseLinks from './src/plugins/rehype-prose-links.ts';
+import rehypeToc from './src/plugins/rehype-toc.ts';
 
 // https://astro.build/config
 export default defineConfig({
@@ -75,7 +76,10 @@ export default defineConfig({
         remarkReadingTime,
       ],
       // rehype-prose-links: adds the external-link "↗" as real markup.
-      rehypePlugins: [rehypeProseLinks],
+      // rehype-toc (Phase 3.7): records which headings are numbered
+      // sections, positionally, for ArticleToc.astro to filter
+      // Astro.props.headings against — see that file's own header comment.
+      rehypePlugins: [rehypeProseLinks, rehypeToc],
       // gfm/smartypants default to true already — footnotes (3.5) and
       // curly quotes both depend on that, and the subset fonts were built
       // assuming SmartyPants output (docs/reference/glyph-coverage.md).

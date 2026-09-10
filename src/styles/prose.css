@@ -31,13 +31,37 @@
       This is the one place in the codebase that should reference this
       token; dark-theme running prose sits one step under headings. */
 
-    /* The measure never grows (§22.10). Redundant-by-design once this class
-       also lives inside .layout-measure's grid cell (Phase 5/6 — that cell
-       already caps at var(--measure)); necessary here because the current
-       dev fixture (Phase 3.1) renders .prose directly inside <main> with no
-       grid ancestor to constrain it. Harmless duplication either way. */
+    /* The measure never grows (§22.10). Phase 3.7 put .prose inside
+       .layout-article's real grid (ProseLayout.astro) — this still caps
+       it below 760, where that grid is a single fluid column wider than
+       680, and at >=760 it's now mostly redundant with the measure
+       TRACK's own 680px sizing. Harmless duplication either way. */
     max-width: var(--measure);
-    margin-inline: auto;
+
+    /* NOT margin-inline: auto, even though centering an under-width block
+       reads like the obvious way to express "don't grow past the
+       measure". Confirmed by testing (toggling it live against the
+       rendered page, not reasoned from the spec): auto margins on a grid
+       item opt it OUT of the grid's default stretch alignment on that
+       axis, same as they would for a flex item. With them, .prose sized
+       itself to max-width (680) regardless of its actual ~350px track at
+       390 and pushed the page into horizontal scroll; without them, it
+       stretches to fill the track like every other grid item here and
+       max-width only ever clamps it, never expands it. Below 760's
+       single-column grid this is moot (the track already IS 680 or less);
+       it only matters once layout-article's >=1280 columns exist.
+
+       Grid items also default to `min-width: auto`, which factors a
+       descendant's min-content size into the item's own automatic
+       minimum — and a `<pre>` block's min-content width is essentially
+       its longest unbreakable line (`white-space: pre` forbids wrapping).
+       Kept as a second guard even after the fix above, since a future
+       wide-content case could still blow the track out the same way
+       before that <pre>'s own overflow-x:auto (Phase 4) gets a chance to
+       contain it. Both effects were caught by an actual scrollWidth check
+       at 390px against the Phase 3.1 fixture's real terminal block, not
+       assumed — and both are inert wherever .prose has no grid ancestor. */
+    min-width: 0;
 
     /* Contains child margin-collapsing at this element's own boundary
        (Phase 3.4 note below) without a manual :first-child/:last-child

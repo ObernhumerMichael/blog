@@ -87,11 +87,24 @@
      ========================================================================= */
 
   /* A · Article shape — gutter / measure / aside.
-     Used by the article page and the project detail page. */
+     Used by the article page and the project detail page.
+
+     row-gap and column-gap are split rather than one `gap`: below 1280
+     the gutter (TOC) and measure (prose) stack as two ROWS, and the
+     content that immediately follows the TOC is always an h2 (the
+     article's first section) — so it gets the same breathing room any
+     h2 gets from the paragraph before it (prose.css's --sp-para-h2),
+     not the 44px --grid-gap constant, which is a horizontal-only value
+     fixed by the 1320 frame's column arithmetic (E1) and too tight here
+     (confirmed empirically: the TOC read as glued to the section below
+     it at 44px, next to 56-64px of header-band padding above it). At
+     >=1280 the three tracks sit in one row, so row-gap never applies and
+     column-gap alone governs — still the exact E1 value. */
   .layout-article {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--grid-gap);
+    row-gap: var(--sp-para-h2);
+    column-gap: var(--grid-gap);
   }
 
   /* B · Labelled band — gutter beside a content block of any structure.

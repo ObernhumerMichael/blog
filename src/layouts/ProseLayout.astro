@@ -15,23 +15,56 @@
 // them here is a two-line fix, now that something actually needs to sit
 // between the `.md` file and BaseLayout.
 //
-// Phase 3.6: now also renders the article header band before .prose. Still
-// not Instrumented.astro — no TOC/aside tracks, no apparatus — just the
-// header, which is real content every Phase 3 fixture needs regardless.
+// Phase 3.6: now also renders the article header band before .prose.
+//
+// Phase 3.7: the body is now wrapped in the REAL layout-article grid
+// (layout.css §5.2, built in Phase 2.1 and unused until now) instead of
+// .prose floating free — not a Phase 5 pull-forward so much as a
+// prerequisite: the TOC's own exit criterion ("the article reads correctly
+// at all six matrix combinations") is unjudgeable without a real gutter
+// column for it to sit in at >=1280, and layout-article's CSS was already
+// complete, just waiting for a consumer. Still not Instrumented.astro —
+// no aside content (share/progress are Phase 5), no apparatus band, no
+// collection-backed routing.
 import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/article/ArticleHeader.astro';
+import ArticleToc from '../components/article/ArticleToc.astro';
 
-const { frontmatter } = Astro.props as {
-  frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'];
+const { frontmatter, headings } = Astro.props as {
+  frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'] & {
+    numberedHeadingFlags?: boolean[];
+  };
+  headings: ComponentProps<typeof ArticleToc>['headings'];
 };
 ---
 
 <BaseLayout title={frontmatter.title} description={frontmatter.lead}>
   <article>
     <ArticleHeader frontmatter={frontmatter} />
-    <div class="prose">
-      <slot />
+    <div class="frame">
+      <div class="band layout-article">
+        <div class="gutter">
+          <ArticleToc
+            headings={headings}
+            numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
+          />
+        </div>
+        <!-- Not .layout-measure here, deliberately — tested it, and
+             adding container-type:inline-size to .prose while it's a grid
+             item collapsed it to 0 width with the article's full height
+             crammed into an unreadable single column (confirmed by
+             measuring its rendered box, not assumed from reading the CSS).
+             CSS size containment on the inline axis appears to interfere
+             with a grid item's default stretch sizing in this Chromium
+             build. .layout-measure's container-query context (needed for
+             Phase 4's code/table components) isn't consumed by anything
+             yet, so it's left off here rather than shipped broken; picking
+             it back up is whichever phase actually needs it. -->
+        <div class="prose">
+          <slot />
+        </div>
+      </div>
     </div>
   </article>
 </BaseLayout>

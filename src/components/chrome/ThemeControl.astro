@@ -40,13 +40,28 @@ const { showLabel = false, class: className } = Astro.props;
       background: none;
       color: var(--c-text);
       cursor: pointer;
-      min-width: var(--target-min);
-      min-height: var(--target-min);
       justify-content: center;
 
       transition-property: border-color;
       transition-duration: var(--dur);
       transition-timing-function: var(--ease);
+    }
+
+    /* --target-min (§18.5) is "44px on touch", not 44px everywhere — it
+       was previously applied unconditionally, which grew this button past
+       its icon+padding size (16+8+8=32px) to 44px even with a mouse. The
+       masthead's own spec (§7.1) is a fixed 60px height built from 20px
+       padding-y around exactly this control; a 44px-tall control inside
+       20px padding is 84px, not 60 — confirmed by measuring the rendered
+       masthead, which was throwing off the article TOC's sticky offset
+       (layout.css's --masthead-h) by the same margin. Scoping the floor to
+       coarse pointers restores both the masthead's real height and the
+       spec'd touch target where it actually applies. */
+    @media (pointer: coarse) {
+      .theme-control {
+        min-width: var(--target-min);
+        min-height: var(--target-min);
+      }
     }
 
     .theme-control:hover {

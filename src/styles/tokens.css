@@ -362,6 +362,12 @@
     /* §16 breadcrumb: "Mono 400 11.5 (11 at mobile)". Single-line, doesn't
        wrap — line-height 1, same short-run reasoning as --t-label above. */
     --t-breadcrumb: 400 var(--fs-breadcrumb)/1 var(--font-mono);
+    /* Phase 3.7 — §15 TOC entries: "Mono 400 11.5/1.45". --fs-meta-sm was
+       already commented "captions, footer, TOC" back when it was declared
+       — this is the first component to actually consume it for that. 1.45
+       doesn't match any existing --lh-* token, so it's inline here, same
+       precedent as --t-quote's 1.6 / --t-callout's 1.62 above. */
+    --t-toc: 400 var(--fs-meta-sm)/1.45 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
@@ -483,7 +489,16 @@
     --measure-about: 66ch; /* about + experience descriptions */
     --measure-bio: 64ch; /* author block bio (§10.6) */
 
-    --masthead-h: 60px; /* fixed at >=1280; below, a consequence of padding */
+    /* Measured (Playwright bounding box), not the component comment's
+       stated "60px fixed height" — 20px padding-y (40 total) plus a 34px
+       tall ThemeControl (16px glyph + 8px padding + 1px border, each
+       side) plus the 1px bottom rule land it at 75px at >=1280. Getting
+       to a literal 60 would mean shrinking ThemeControl's padding well
+       below the 8px used for the same control elsewhere (e.g. the code-
+       block copy button) — a masthead-specific redesign, not something
+       this value should paper over. This is the real number the article
+       TOC's sticky offset (layout.css) needs, below. */
+    --masthead-h: 75px; /* fixed at >=1280; below, a consequence of padding */
     --row-min-h: 48px; /* index and menu rows (§18.5) */
     --target-min: 44px; /* every interactive element on touch (§18.5) */
 
@@ -497,7 +512,11 @@
     --fig-h-arch: 230px; /* case-study architecture diagram */
     --fig-h-article: 250px; /* article diagram */
 
-    --toc-cap: 150px; /* mobile TOC scroll cap above 20 sections (E4) */
+    --toc-cap: 150px; /* TOC scroll cap above 20 sections (E4). §15's own
+      responsive table only lists this under <760, but §10.10's "very long
+      article" stress case states it width-agnostically ("TOC gains its
+      150px scroll cap") — applied to both disclosure forms, not just
+      mobile, so the two don't contradict each other. */
     --scroll-fade: 26px; /* spec 24–28; midpoint chosen */
     --instrument-w: 210px; /* project instrument track (spec 190–210) */
 
