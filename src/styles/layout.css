@@ -41,6 +41,33 @@
     padding-inline: var(--page-margin);
     padding-block: var(--sp-band-y);
     border-bottom: var(--bw) solid var(--c-rule);
+
+    /* E6 / §4.2 — the system's ONE container query, moved here from
+       .layout-measure (ADR-0019). Figures, code blocks and tables need to
+       consult the page's actual content width, not their own column's: at
+       >=1280 the measure column is a fixed 680px at every viewport, which
+       would make the 700px query permanently true and put every code
+       block, figure and table into their mobile full-bleed treatment on
+       desktop. A .band's content box (after its own padding-inline) tracks
+       the real page width instead — measured directly against the
+       Phase 3 fixture: 350 / 836 / 1208px at 390 / 900 / 1320, so the
+       700px query matches at 390 only, as §13.5/§14.3/§15.2 require.
+
+       Declaring it on .band rather than .layout-article specifically means
+       every band — not just the article shape — is a valid container,
+       which project detail (also layout A, §5.2) will need too.
+
+       Known 5px window: at a 760–764px viewport, --page-margin is already
+       32 (>=760), so the band content box is 696–704px — straddling 700.
+       The container query and the 760px media-query breakpoint disagree
+       for those 4px. Accepted rather than "fixed" with a third number —
+       §4.2 states one container breakpoint, and the visible effect is
+       full-bleed appearing one page-load early at an already-borderline
+       width, not a layout break.
+
+       inline-size containment does not clip (that would be `contain:
+       paint`), so the full-bleed utility below still escapes correctly. */
+    container-type: inline-size;
   }
 
   /* §5.3: "The last band before the footer has no bottom rule (the footer's
@@ -117,18 +144,14 @@
   }
 
   /* C · Full-measure block — a single measure-width column.
-     Also serves as the measure CELL inside layout A, which is why it carries
-     the container context (see below) rather than duplicating it. */
+     Also serves as the measure CELL inside layout A. Does NOT carry the
+     E6 container context (that moved to .band — see above, ADR-0019). */
   .layout-measure {
-    /* E6 / §4.2 — the system's ONE container query. Figures, code blocks and
-       tables consult their own container (<700) rather than the viewport, so
-       an article body embedded in a narrower context still behaves. Declared
-       here in Phase 2; nothing consumes it until Phases 3–4. Establishing it
-       later would mean editing layout after components already depend on it.
-
-       inline-size containment does not clip (that would be `contain: paint`),
-       so the full-bleed utility below still escapes correctly. */
-    container-type: inline-size;
+    /* Deliberately NOT the E6 container context (moved to .band, ADR-0019,
+       Phase 4.0) — .layout-measure is a fixed 680px from 760 up, which
+       would make the 700px query permanently true and put every code
+       block, figure and table into full-bleed at every width. See .band
+       above for the corrected container and the arithmetic behind it. */
   }
 
   /* §3.3: the measure is fluid below 760, capped at 680 from 760 up. At

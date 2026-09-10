@@ -27,6 +27,9 @@ lives.
 | [0016](./ADR-0016-bp-gutter-corrected.md)                 | `--bp-gutter` corrected 1100px → 1280px (OD-08)                                |
 | [0017](./ADR-0017-sevelte.md)                             | Svelte replaces the vanilla-JS-only island constraint                          |
 | [0018](./ADR-0018-section-numbers-and-prose-spacing.md)   | Section numbers authored in Markdown; prose-spacing corrections (OD-10, OD-11) |
+| [0019](./ADR-0019-e6-container-context-corrected.md)      | E6's container context moved from `.layout-measure` to `.band`                 |
+| [0020](./ADR-0020-code-copy-island-strategy.md)           | One delegating `CodeCopy` island, not one per block (OD-12)                    |
+| [0021](./ADR-0021-caption-authoring-convention.md)        | Captions are the paragraph after the block, authored numbers (OD-13)           |
 
 ## Format
 
@@ -37,7 +40,7 @@ option can point back here instead of re-arguing it).
 
 ## Adding a new one
 
-Next number is 0019. Follow the existing format. If a decision corrects an
+Next number is 0022. Follow the existing format. If a decision corrects an
 earlier one, say so explicitly in the new ADR's Status line — don't silently
 edit the old one, since the "why we changed our mind" is itself worth
 keeping.

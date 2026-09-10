@@ -50,17 +50,22 @@ const { frontmatter, headings } = Astro.props as {
             numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
           />
         </div>
-        <!-- Not .layout-measure here, deliberately — tested it, and
-             adding container-type:inline-size to .prose while it's a grid
-             item collapsed it to 0 width with the article's full height
-             crammed into an unreadable single column (confirmed by
-             measuring its rendered box, not assumed from reading the CSS).
-             CSS size containment on the inline axis appears to interfere
-             with a grid item's default stretch sizing in this Chromium
-             build. .layout-measure's container-query context (needed for
-             Phase 4's code/table components) isn't consumed by anything
-             yet, so it's left off here rather than shipped broken; picking
-             it back up is whichever phase actually needs it. -->
+        <!-- Not .layout-measure here — .prose sets its own max-width
+             (--measure, prose.css) and never needed the class for sizing.
+             CORRECTION (Phase 4.0, ADR-0019): this comment previously
+             claimed that adding container-type:inline-size directly to
+             .prose collapsed it to a 0-width column. That does not
+             reproduce — tested again in Chromium 151, both injected at
+             runtime and declared statically with a full reload, and
+             .prose measured identically to baseline (350/680/680) either
+             way, with a @container query correctly matching inside it.
+             Whatever was observed originally, it wasn't containment. The
+             real reason .prose isn't the E6 container is architectural,
+             not a Chromium bug: the measure column is a fixed 680px from
+             760 up, which would make the 700px query permanently true.
+             The container now lives on .band (layout.css), whose content
+             box actually tracks the page width — see that file for the
+             350/836/1208 arithmetic. -->
         <div class="prose">
           <slot />
         </div>
