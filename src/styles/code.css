@@ -1,0 +1,320 @@
+/* =============================================================================
+   code.css — Phase 4.2. DESIGN_SYSTEM.md §13.1/§13.2 (code block anatomy),
+   §13.5 (code at <760), §2.9 (radius), §14.2 (caption — shared with figures
+   and tables, §14.1/§15.1).
+
+   SCOPE, stated up front because it isn't obvious from the file alone:
+   Today, the ONLY real markup in a built page is Shiki's own
+   `<pre class="astro-code">` (Phase 4.1) — no chrome bar exists yet.
+   `remark-code-meta.ts` doesn't parse `title=`/`host=` until Phase 4.3
+   ("wraps the code node in the figure-shaped container that carries the
+   chrome bar and copy button"), and the copy button isn't hydrated until
+   Phase 4.4 (ADR-0020). Section 1 below is real and live — verified against
+   the actual build. Section 2 is written against the markup contract
+   ADR-0020 already commits `rehype-code-chrome.ts` to (`.code-block`,
+   `[data-copy]`, `[data-copy-target]`), so 4.3/4.4 only have to emit
+   matching markup rather than invent a second contract — verified by
+   hand-building a throwaway fixture in that shape against
+   docs/reference/article/1320-light.png and 390-dark.png (Chromium, both
+   themes, three widths), then discarding it. It is not exercised by any
+   route yet; 4.3/4.4/4.10 are what make it real.
+
+   Imported after prose.css (global.css), same @layer components — wins
+   ties against prose.css's bare `.prose pre { margin; overflow-x }` rhythm
+   rule (§10.3) by source order, without needing extra specificity.
+   ============================================================================= */
+
+@layer components {
+  /* ===========================================================================
+     1 · THE BARE <pre> — real markup, Phase 4.1
+     =========================================================================== */
+
+  /* Astro's Shiki transformer already writes `background-color`, `color` and
+     `overflow-x: auto` into this element's inline `style` (astro.config.mjs,
+     markdown.shikiConfig) — inline styles beat every cascade layer
+     regardless of specificity, so this rule does not re-declare any of the
+     three. It adds what Shiki doesn't: border, radius, padding, type and
+     the scrollbar palette. Shiki also sets `tabindex="0"` already — nothing
+     here re-adds it; 4.10's T3 pass asserts it rather than this file. */
+  .prose pre.astro-code {
+    font: var(--t-code);
+    color: var(
+      --code-fg
+    ); /* restates Shiki's own inline `color:` under a
+      named token, so the declared source of truth is this file, not a
+      literal Shiki copied into the DOM — harmless duplicate today (same
+      value, inline still wins); only matters if a future Shiki stops
+      writing it. */
+
+    padding: var(--sp-16) var(--sp-18); /* §13.2 code area: 16 / 18 */
+    border: var(--bw) solid var(--code-border); /* §13.1 — colour is the
+      only theme-dependent part; the light/dark pair lives in the token
+      (tokens.css), not here. */
+    border-radius: var(--radius);
+
+    /* tokens.css's TRAP comment: never `color-scheme` on this element — it
+       would resolve every var(--code-*)/var(--syn-*) reference inside
+       through light-dark() and break the constant-across-themes ground
+       (§13.1). scrollbar-color instead: thumb a shade brighter than the
+       chrome hairlines so it's findable, track the code ground itself. */
+    scrollbar-color: var(--code-control-border) var(--c-code-bg);
+  }
+
+  /* §4.2/Finding A (ADR-0019) — the container is `.band`, not `.prose`
+     (layout.css); a 680px `.layout-measure` container would match this
+     query at every width, not just mobile. §13.5: full-bleed, radius AND
+     the two INLINE borders drop; the top/bottom hairlines stay, which is
+     where "two hairlines" comes from. The escape reuses `.full-bleed`'s own
+     negative-margin formula (layout.css) rather than requiring the
+     `.full-bleed` class itself — no wrapper exists around a bare `<pre>`
+     yet (see file header), and the value has to match that utility exactly
+     or the block and the rest of the mobile full-bleed system (menu panel,
+     later figures/tables) would disagree by construction. */
+  @container (max-width: 700px) {
+    .prose pre.astro-code {
+      margin-inline: calc(var(--page-margin) * -1);
+      border-radius: 0;
+      border-inline-width: 0;
+    }
+  }
+
+  /* ===========================================================================
+     2 · THE CHROME BAR, GUTTER AND CAPTION — forward-declared (§13.2, §14.2)
+     Markup lands in 4.3 (wrapper + meta) and 4.4 (copy button hydration,
+     ADR-0020); terminal's OWN chrome is Phase 4.5 and styled there, not
+     here (§23.4 — the two must stay independently editable).
+     =========================================================================== */
+
+  /* The wrapper owns the border/radius/fill as ONE rounded rectangle;
+     `overflow: hidden` clips the chrome bar's top corners and the code
+     area's bottom corners to it without either child needing its own
+     radius. Once this wrapper is present, `pre.astro-code` inside it is
+     flush — see the override at the bottom of this section, which turns
+     off the standalone border+radius from section 1 rather than doubling
+     it up. */
+  .code-block {
+    /* prose.css's `.prose pre { margin: var(--sp-prose-block) 0; }` (§10.3)
+       only matches a literal `pre` element — this wrapper is a `figure`,
+       so the block-to-prose rhythm has to be re-stated here or it's lost
+       entirely once a code block gains its chrome. Found the same way as
+       the two bugs above: rendering the wrapped shape and comparing
+       against the un-wrapped one, not assumed to carry over. */
+    margin: var(--sp-prose-block) 0;
+
+    background: var(
+      --c-code-bg
+    ); /* belt-and-suspenders under the rounded
+      corners `overflow: hidden` clips to — the chrome bar, gutter and
+      `<pre>` each already paint their own ground, but a bare wrapper
+      background means there's no page-coloured pixel to leak through at
+      a clipped corner regardless of how those three children tile. */
+    border: var(--bw) solid var(--code-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  @container (max-width: 700px) {
+    .code-block {
+      margin-inline: calc(var(--page-margin) * -1);
+      border-radius: 0;
+      border-inline-width: 0;
+    }
+  }
+
+  /* Filename bar. §13.2 anatomy 1: `--c-code-bg` lightened, bottom hairline,
+     9/14 padding, filename left, language token + copy control right. */
+  .code-block__chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-14);
+    padding: var(--sp-9) var(--sp-14);
+    background: var(--code-chrome-bg);
+    border-bottom: var(--bw) solid var(--code-chrome-rule);
+  }
+
+  /* Mono 11.5 — the block's primary identity line, the full repo-relative
+     path (4.3 validates this at build time; a basename fails). Truncates
+     with an ellipsis at <760 per §13.5 ("the only truncation permitted
+     besides digests") — never the language token or copy control, which
+     is why min-width: 0 lives on this element specifically and flex-shrink
+     stays at its default (1) only here. */
+  .code-block__filename {
+    font-family: var(--font-mono);
+    font-size: var(
+      --fs-meta-sm
+    ); /* 11.5px — §13.2, same value §14.2 gives
+      captions from 760 up; a separate declaration, not var(--t-caption),
+      since this is a single-line label, not caption body text. */
+    line-height: 1;
+    color: var(--code-filename);
+
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Language token + copy control. Never shrink, never wrap (§13.5) — the
+     filename gives up space to these two, not the other way around. */
+  .code-block__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-12);
+    flex: none;
+  }
+
+  .code-block__lang {
+    font-family: var(--font-mono);
+    font-size: var(
+      --fs-label
+    ); /* 10.5px — §13.2's "language token (mono
+      10.5 muted)". NOT var(--t-label): that bundle bakes in weight 500 and
+      §2.5's uppercase tracking, and the reference screenshots show the
+      language token lowercase and untracked ("yaml", "python") — a
+      different typographic role that happens to share a size. */
+    line-height: 1;
+    color: var(--code-chrome-muted);
+  }
+
+  /* Copy control (§13.2, ADR-0020). Server-rendered `hidden` until
+     CodeCopy.svelte (4.4) un-hides it on mount — that hide/reveal is the
+     island's job, not this file's; this only styles the visible state.
+     Focus ring is base.css's global `:focus-visible` rule, inherited. */
+  .code-block__copy {
+    font-family: var(--font-mono);
+    font-size: var(--fs-meta-xs); /* 11px — §13.2 "Hairline button, mono 11" */
+    line-height: 1;
+    color: var(--code-filename);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--target-min);
+    min-height: var(--target-min);
+    padding-inline: var(--sp-8);
+
+    background: none;
+    border: var(--bw) solid var(--code-control-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+
+    transition-property: border-color, color;
+    transition-duration: var(--dur);
+    transition-timing-function: var(--ease);
+  }
+
+  .code-block__copy:hover {
+    border-color: var(--code-filename);
+    color: var(--code-fg);
+  }
+
+  /* 1.2s "copied"/"failed" label swap (§13.2, ADR-0020) — CodeCopy.svelte
+     (4.4) toggles this attribute; the border-only accent change (no toast,
+     no animation) lives here so the island's own code stays free of style
+     decisions. */
+  .code-block__copy[data-copy-state='copied'] {
+    border-color: var(--c-accent);
+  }
+
+  .code-block__copy[data-copy-state='failed'] {
+    border-color: var(--diff-del-fg);
+  }
+
+  /* Body: gutter (conditional, >12 lines — §13.2 anatomy 2) beside the
+     scrollable code area. Two tracks so the numbers stay OUTSIDE the
+     `<pre>`'s own `overflow-x` container (§13.5 "numbers pin, code
+     scrolls") — a `::before` counter or `position: sticky` on a line both
+     live INSIDE that scroll container and drift at any scroll offset,
+     which is exactly what this structure avoids. `:has()` picks the
+     single- vs two-column layout without a modifier class — 4.3 only ever
+     needs to decide whether `.code-block__gutter` exists, not which class
+     to add alongside it. */
+  .code-block__body {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .code-block__body:has(.code-block__gutter) {
+    grid-template-columns: auto 1fr;
+  }
+
+  .code-block__gutter {
+    /* §13.2 anatomy 2: "mono at code size" — same bundle as the code area
+       itself, colour overridden below */
+    font: var(--t-code);
+    color: var(--code-linenum);
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: var(--sp-16) 0 var(--sp-16) var(--sp-16); /* §13.2: "16px left
+      padding"; top/bottom match the code area's own so numbers line up
+      with their row from the first line */
+    background: var(
+      --c-code-bg
+    ); /* real bug, found by rendering a scratch
+      fixture rather than assumed: with no background of its own this
+      track showed the PAGE ground through it, not the code ground — the
+      reference screenshots show the numbers sitting on the same surface
+      as the code, not a distinct strip. */
+    border-right: var(--bw) solid var(--code-chrome-rule);
+
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .code-block__body pre.astro-code {
+    /* Flush inside the wrapper (section 1's border/radius/padding-x stay;
+       the wrapper, not this element, now owns the outer edge). */
+    margin: 0; /* real bug, found the same way as the gutter background
+      above: prose.css's `.prose pre { margin: var(--sp-prose-block) 0; }`
+      (§10.3's block-to-prose rhythm rule) still matches this nested `pre`
+      — same element, same `.prose` ancestor — and was opening a 32px gap
+      both above it (under the chrome bar) and below it (above the
+      caption). That rhythm now belongs to `.code-block` itself (above,
+      restated there because prose.css's rule only ever matches a literal
+      `pre`/`table` element and stops applying once this one is wrapped in
+      a `figure`) — this nested `pre` goes back to flush. */
+    border: 0;
+    border-radius: 0;
+  }
+
+  @container (max-width: 700px) {
+    /* Keeping the `pre` element in this selector isn't decorative — a
+       second real bug, found by rendering the mobile fixture and watching
+       the gutter numbers disappear entirely. `.code-block__body .astro-code`
+       (two classes, 0-2-0) loses a specificity contest against section 1's
+       `.prose pre.astro-code` (0-2-1: the bare `pre` element tips it),
+       which ALSO matches this nested element and ALSO fires at this same
+       container width — its `margin-inline: calc(var(--page-margin) * -1)`
+       was winning, shoving this `<pre>` 20px left of where the grid placed
+       it and stretching its auto width by 40px to compensate, which is
+       what actually made the gutter column look empty: the `<pre>` was
+       rendered on top of it. Matching `pre.astro-code` here (0-2-1) ties
+       section 1 on specificity, and a tie goes to whichever rule is later
+       in the cascade — this file, section 2 — so this wins for real. */
+    .code-block__body pre.astro-code {
+      margin-inline: 0; /* the wrapper itself already escapes (above);
+        without this, section 1's rule would ALSO shift this nested pre
+        and double the offset */
+    }
+  }
+
+  /* Caption (§14.2, shared with figures §14.1 and tables §15.1 — same
+     type, same "Fig./Listing/Table n —" prefix, same position). 10px
+     below the block; promoted from the following paragraph by 4.8's
+     remark plugin (OD-13), so the tag it lands on isn't fixed by this
+     file — styled by class regardless of whether that turns out to be a
+     real `<figcaption>` or a `<p>`. */
+  .code-block__caption {
+    font: var(--t-caption);
+    color: var(
+      --c-muted
+    ); /* the one themed value here — the caption sits
+      on the PAGE ground below the block, not inside it, so it follows the
+      page theme like any other prose text (§14.2 doesn't ask for anything
+      code-specific) */
+    margin-top: var(--sp-10);
+  }
+}

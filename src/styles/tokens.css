@@ -138,6 +138,32 @@
     --code-control-border: oklch(0.34 0.01 75);
     --code-filename: oklch(0.7 0.012 75); /* §13.2 */
     --term-chrome-rule: oklch(0.28 0.008 75);
+    /* Phase 4.2 — §13.2's filename (0.70, --code-filename above) and
+       language token ("mono 10.5 muted") are two DIFFERENT chrome-text
+       weights, not one reused value: the filename is the block's primary
+       identity, the language token is secondary. Sits below --code-filename
+       and above --code-linenum (0.45, the dimmest chrome text, reserved for
+       the number gutter) — same three-tier chrome-text hierarchy the
+       reference screenshots show (bright path, dim language, dimmer still
+       numbers). */
+    --code-chrome-muted: oklch(0.5 0.01 75);
+    /* §13.3's uppercase host label ("TERMINAL — PI-02"), muted. Same
+       numeric value as --code-chrome-muted above by coincidence of both
+       being "secondary chrome text on a dark ground" — kept as a SEPARATE
+       token, not an alias, because §23.4 explicitly forbids code and
+       terminal chrome sharing a value that a future edit to one could
+       silently drag along the other. */
+    --term-label: oklch(0.5 0.01 75);
+    /* §13.1: "a visible hairline in light, none in dark" — the ONE place
+       the code block's own colour responds to the PAGE theme (everything
+       else above is constant across both, §2.2 deviation/§25.1). Needs its
+       own light-dark() pair for exactly that reason, unlike its siblings.
+       Light value matches --c-rule's light-theme channel exactly (0.9 0.008
+       75) rather than inventing a new hairline number; dark is transparent,
+       not a dim colour — code.css sets border-width unconditionally, so
+       this is what actually makes the border disappear in dark, not a
+       width toggle. */
+    --code-border: light-dark(oklch(0.9 0.008 75), transparent);
 
     /* Line highlighting — tint AND a 2px inset marker (§13.2, §18.4).
        17% sits at the midpoint of the specified 16–18% range. */
@@ -271,7 +297,10 @@
       never actually rendered at the mobile tier; kept equal to the tablet
       value rather than inventing a third, unused number. Desktop override
       (13.5px, §7.3) is in the 1280 block below. */
-    --fs-meta-sm: 0.71875rem; /* 11.5px — captions, footer, TOC */
+    --fs-meta-sm: 0.71875rem; /* 11.5px — footer, TOC. NOT captions (Phase
+      4.2 corrects this stale comment): captions need a real 11px mobile
+      step this token doesn't have, so they get their own --fs-caption
+      instead of reusing this one, even though the two agree from 760 up. */
     --fs-meta-xs: 0.6875rem; /* 11px  — spec 10.5–11 */
     --fs-table-cell: 0.78125rem; /* 12.5px at mobile; 13px from 760 — FLOOR */
     --fs-repo-path: 0.8125rem; /* 13px — §10.5 references-block repo paths.
@@ -285,6 +314,18 @@
     --fs-breadcrumb: 0.6875rem; /* 11px at <760 — component 16's "Mono 400
       11.5 (11 at mobile)". >=760 override (11.5px) is in the responsive
       block below. */
+    --fs-term: 0.78125rem; /* 12.5px at <760 — §13.3's "mono 13/1.8 (12.5 at
+      <760)". Coincidentally equal to --fs-code's OWN mobile value, but a
+      separate token: it diverges from --fs-code at >=760 (13px, not
+      13.5px) — the >=760 override is below. §23.4 requires code and
+      terminal type to stay independently editable; collapsing them here
+      because they agree at one breakpoint would silently reopen that. */
+    --lh-term: 1.8; /* constant at every width — §13.3 gives no responsive
+      step, same as --lh-code having none of its own. */
+    --fs-caption: 0.6875rem; /* 11px at <760 — §14.2's "mono 11.5 (11 at
+      mobile)". Numerically equal to --fs-meta-xs, kept separate for the
+      same reason as --fs-term above. >=760 override (11.5px) is below. */
+    --lh-caption: 1.6; /* §14.2, constant at every width */
 
     /* =====================================================================
        5 · TYPE TOKENS — atomic bundles
@@ -312,6 +353,14 @@
     --t-meta: 400 var(--fs-meta)/var(--lh-meta) var(--font-mono);
     --t-label: 500 var(--fs-label)/var(--lh-label) var(--font-mono);
     --t-code: 400 var(--fs-code)/var(--lh-code) var(--font-mono);
+    /* Phase 4.2 — §13.3 terminal body type and §14.2 figure/listing/table
+       caption type. Real bundles, not one-off component text (ThemeControl's
+       `.label` precedent, longhand font-family/font-size/line-height, is for
+       genuinely single-use control text — captions and terminal output both
+       recur across every code/terminal/figure/table block on a page, the
+       same "reused enough to earn a token" bar --t-code itself clears). */
+    --t-term: 400 var(--fs-term)/var(--lh-term) var(--font-mono);
+    --t-caption: 400 var(--fs-caption)/var(--lh-caption) var(--font-mono);
     /* Italic is used for quotes ONLY (§2.5 typographic laws). */
     --t-quote: italic 400 var(--fs-quote)/1.6 var(--font-serif);
     /* §6·10 — 1.62 inline for the same reason --t-quote's 1.6 is: a single-use
@@ -407,6 +456,11 @@
        padding-y). Same class of value as 14/18/22/28 — a genuine gap in
        §25.2's own audit, not a new design decision. */
     --sp-10: 10px;
+    /* Phase 4.2 — same gap in §25.2's own audit as --sp-10 above: §13.2's
+       9/14 code-chrome-bar padding and §15.1's 9–11px table-row padding
+       both use 9, which the audit table doesn't list either. A real
+       component interior sub-step the design uses, not a new decision. */
+    --sp-9: 9px;
 
     /* E1 — the single spacing value off the 4px scale. Set by the 12-column
        arithmetic of the 1320px frame, not by rhythm. It is a layout constant,
@@ -575,6 +629,8 @@
       --fs-ui: 0.90625rem; /* 14.5px */
       --fs-meta: 0.75rem; /* 12px */
       --fs-code: 0.84375rem; /* 13.5px */
+      --fs-term: 0.8125rem; /* 13px — §13.3: 13 from 760 up */
+      --fs-caption: 0.71875rem; /* 11.5px — §14.2: 11.5 from 760 up */
 
       --fs-table-cell: 0.8125rem; /* 13px */
       --fs-callout: 1rem; /* 16px — was a no-op before the base-value bug
