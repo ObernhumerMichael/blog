@@ -3,21 +3,22 @@
    §13.5 (code at <760), §2.9 (radius), §14.2 (caption — shared with figures
    and tables, §14.1/§15.1).
 
-   SCOPE, stated up front because it isn't obvious from the file alone:
-   Today, the ONLY real markup in a built page is Shiki's own
-   `<pre class="astro-code">` (Phase 4.1) — no chrome bar exists yet.
-   `remark-code-meta.ts` doesn't parse `title=`/`host=` until Phase 4.3
-   ("wraps the code node in the figure-shaped container that carries the
-   chrome bar and copy button"), and the copy button isn't hydrated until
-   Phase 4.4 (ADR-0020). Section 1 below is real and live — verified against
-   the actual build. Section 2 is written against the markup contract
-   ADR-0020 already commits `rehype-code-chrome.ts` to (`.code-block`,
-   `[data-copy]`, `[data-copy-target]`), so 4.3/4.4 only have to emit
-   matching markup rather than invent a second contract — verified by
-   hand-building a throwaway fixture in that shape against
-   docs/reference/article/1320-light.png and 390-dark.png (Chromium, both
-   themes, three widths), then discarding it. It is not exercised by any
-   route yet; 4.3/4.4/4.10 are what make it real.
+   SCOPE.
+   Section 1 styles the bare `<pre class="astro-code">` Shiki always
+   produces (Phase 4.1). Section 2 styles the chrome bar `remark-code-
+   meta.ts` now wraps every non-terminal fence in (Phase 4.3) — real
+   markup as of this phase, not forward-declared: `.code-block`,
+   `.code-block__chrome`, `[data-copy]` and the rest match what that
+   plugin actually emits, verified against the real build, not just a
+   throwaway fixture. The copy button carries `data-copy` only — NOT
+   `data-copy-target` (ADR-0020's sketch of it, corrected once Phase 4.3
+   hit the reason: any id assigned before Shiki runs is discarded when
+   Shiki wholesale-replaces the `<pre>`, so the 4.4 island finds its code
+   text via `closest('.code-block')` instead). Section 3 styles the
+   `{a-b}`-highlighted and `diff` lines the Phase 4.3 Shiki transformers
+   (astro.config.mjs) mark. Terminal chrome (§13.3) is still out of scope
+   everywhere in this file — Phase 4.5, kept independently editable per
+   §23.4.
 
    Imported after prose.css (global.css), same @layer components — wins
    ties against prose.css's bare `.prose pre { margin; overflow-x }` rhythm
@@ -46,7 +47,20 @@
       value, inline still wins); only matters if a future Shiki stops
       writing it. */
 
-    padding: var(--sp-16) var(--sp-18); /* §13.2 code area: 16 / 18 */
+    padding-block: var(
+      --sp-16
+    ); /* §13.2 code area: 16 vertical. The
+      horizontal half (18px) used to live here too, but §13.2's "the tint
+      spans the full scroll width" means a highlighted/diff `.line`'s
+      background has to reach THIS element's own edges — and a background
+      painted on `.line` (section 3) can never paint past `pre`'s own
+      padding box, no matter how wide the grid column under it stretches.
+      Moved to `.astro-code .line` itself (section 3) instead: same 18px
+      visual inset for ordinary text (nothing moves), but now it's inside
+      the box a highlighted/diff line's background paints across, not
+      outside it — which is also what puts that background flush against
+      the gutter's hairline on the left, per §13.2's other clause ("the
+      bar is inset on the LINE rather than the container"). */
     border: var(--bw) solid var(--code-border); /* §13.1 — colour is the
       only theme-dependent part; the light/dark pair lives in the token
       (tokens.css), not here. */
@@ -204,6 +218,25 @@
     transition-timing-function: var(--ease);
   }
 
+  /* Real bug, reported as the whole chrome bar looking "too big": the
+     comment above assumed the `hidden` ATTRIBUTE would keep this button
+     out of layout on its own until 4.4 ships, but the browser's own
+     `[hidden] { display: none }` rule lives in the UA stylesheet — and
+     author styles win over UA styles regardless of specificity, so this
+     rule's own `display: inline-flex` was overriding it unconditionally.
+     The button was rendering at its full `--target-min` 44×44 touch-
+     target size, with NO island yet to un-hide it on purpose, which is
+     what was inflating `.code-block__chrome`'s height (44px button + 9px
+     top/bottom padding) well past what the 11.5px filename line actually
+     needs. Restating `display: none` under `[hidden]` — MORE specific
+     than the bare class above (an attribute selector added to it), so it
+     wins independent of source order too — makes the button invisible
+     and out of flow exactly when Phase 4.4 hasn't hydrated it yet, same
+     as any other element using `hidden` correctly. */
+  .code-block__copy[hidden] {
+    display: none;
+  }
+
   .code-block__copy:hover {
     border-color: var(--code-filename);
     color: var(--code-fg);
@@ -316,5 +349,200 @@
       page theme like any other prose text (§14.2 doesn't ask for anything
       code-specific) */
     margin-top: var(--sp-10);
+  }
+
+  /* ===========================================================================
+     3 · HIGHLIGHT AND DIFF LINES — real, Phase 4.3
+     transformerMetaHighlight and shikiDiffLines (astro.config.mjs) mark
+     the affected `.line` elements with `highlighted` / `diff-add` /
+     `diff-del` DURING Shiki's own render, so they exist in the same build
+     that produces the `<pre>` — nothing here waits on a later phase.
+     =========================================================================== */
+
+  /* §13.2/§13.5: the tint has to reach the right-hand end of PRE'S OWN
+     content box, not just the longest line's content — two different
+     things, confirmed wrong the first time this was "verified". `display:
+     grid` alone turns every `.line` into an implicit-grid row in a single
+     auto-sized column, but an `auto` track's max sizing function does NOT
+     receive left-over free space (CSS Grid §11.3 distributes extra space
+     only to `fr` tracks in "Expand Flexible Tracks"; `justify-content:
+     normal` leaves the rest of the container unallocated, aligned to
+     `start`) — so the shared column, and every line's background with
+     it, stopped exactly at the longest line's own max-content width,
+     short of the container's actual edge whenever no single line was that
+     long. Real bug, reported as "the highlighting does not use the whole
+     width". The earlier verification (a short highlighted line next to a
+     200+ character one) only checked that both lines agree on ONE shared
+     width, which is true regardless of this bug — it never checked that
+     the shared width reaches the container's edge, which is the actual
+     failure. `minmax(max-content, 1fr)` fixes both at once: the
+     `max-content` floor keeps the column at least as wide as the longest
+     line (so `pre`'s own `overflow-x` still triggers exactly when it did
+     before), and the `1fr` ceiling lets it grow into whatever space the
+     longest line doesn't use, so a tinted row always reaches the visible
+     right edge regardless of how short every line in the block is.
+     Whitespace-only text nodes (the literal `\n` between `.line`
+     elements, kept for copy-paste fidelity — Finding D, Phase 4.0) still
+     form no grid item of their own (CSS Grid §3: "anonymous items are not
+     created for ... white space" runs of text), so they don't add empty
+     rows or a column of their own.
+
+     Correction — `minmax(max-content, 1fr)` alone still wasn't enough:
+     it stretches the column to fill `code`'s OWN box, but `code` sits
+     INSIDE `pre`'s horizontal padding (section 1), which is outside
+     `code`'s box entirely — so the tint still stopped 18px short of
+     `pre`'s real edges on both sides, reported back as the same "doesn't
+     use the whole width" complaint. That padding has since moved onto
+     `.astro-code .line` itself (section 1's comment, and the `.line` rule
+     below) — `code`'s box, and this column, now span all the way to
+     `pre`'s true edges, so stretching the column is what the earlier fix
+     always needed it to be. */
+  .prose pre.astro-code code {
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr);
+  }
+
+  /* Real bug, found by a genuinely blank source line (a bare `\n\n` in the
+     yaml fixture, not a hypothetical): an EMPTY `.line` — no text, no
+     token spans — has no intrinsic content, and grid's `auto` row sizing
+     computes an empty row's height as 0. A 0-height row doesn't reserve
+     any vertical space, so the FOLLOWING line's row starts at the same
+     y-position the blank row would have, and the two paint on top of
+     each other — this is the reported "off by one, with a white line":
+     every blank source line silently deletes a row, shifting every line
+     after it up by one against the gutter's numbers (which have no empty
+     items, so never collapse), and the shortfall shows as page-coloured
+     empty space at the BOTTOM of the code area, where the gutter (now
+     comparatively longer) runs past where the code area actually ends.
+     One line's worth of minimum height, matching what a real character
+     would have occupied, is enough to stop a blank row from collapsing —
+     verified against the same fixture the bug was found in. */
+  .astro-code .line {
+    min-height: calc(var(--fs-code) * var(--lh-code));
+    padding-inline: var(
+      --sp-18
+    ); /* moved down from `pre.astro-code`
+      (section 1) — same 18px inset for ordinary text, but now inside the
+      box each line's own highlight/diff background (below) paints, so
+      that background reaches all the way to `pre`'s true left and right
+      edges instead of stopping at a padding it used to sit outside of.
+      Every `.line` gets it, highlighted or not, so plain code keeps
+      exactly the text position it always had — only the tinted rows'
+      background actually extends any further than before. */
+  }
+
+  .astro-code .line.highlighted {
+    background: var(--code-hl-bg);
+  }
+
+  .astro-code .line.diff-add {
+    background: var(--diff-add-bg);
+  }
+
+  .astro-code .line.diff-del {
+    background: var(--diff-del-bg);
+  }
+
+  /* §13.2/§18.4: position AND tint, so the marker survives greyscale.
+     `position: sticky; left: 0` (not `absolute`) — a REAL bug, found by
+     scrolling a genuinely 200+-character highlighted line all the way
+     right and checking the bar's actual rendered position, not assumed
+     from the property names: `absolute` pins the bar to the LINE's own
+     box, which scrolls with the rest of that line's content exactly like
+     the text does — after scrolling right it was gone, the opposite of
+     "stays visible at any scroll offset". `sticky` computes its stuck
+     position against the nearest SCROLLING ancestor (`<pre>`, `overflow-x:
+     auto`) instead of the line's own box, so it stays pinned to the
+     visible left edge of the scroll viewport regardless of how far the
+     line's text has scrolled underneath it — the behaviour the text
+     actually asks for. This is NOT the same "sticky" ruled out for the
+     line-number gutter (4.3's own plan text) — that was about a sticky
+     NUMBER losing its row association at any vertical scroll; a sticky
+     BAR has no such association to lose, it only ever marks "this row is
+     highlighted", from any horizontal scroll position. */
+  .astro-code .line.highlighted::before,
+  .astro-code .line.diff-add::before,
+  .astro-code .line.diff-del::before {
+    content: '';
+    /* `inline-block`, NOT `block` — a second real bug, reported (this
+       wasn't a self-caught one) as garbled, overlapping text on a
+       highlighted line whose neighbour also had visible dark, page-
+       coloured gaps around it. `.line`'s own children are otherwise all
+       INLINE (the token spans) — CSS's block-in-inline rule wraps them in
+       an anonymous block when a `block`-level sibling (this bar) is
+       introduced, so the line's real content became two stacked boxes
+       (the bar, then an anonymous block holding all the text) inside a
+       `.line` whose height the OUTER grid had already fixed to one row —
+       the second, text-holding box had nowhere to go but overflow down
+       into the next row and paint on top of it. `inline-block` keeps the
+       bar IN the inline flow next to the token spans instead of splitting
+       it, at the cost of occupying a sliver of INLINE space at the line's
+       start rather than being fully out of flow — reported back as a
+       real, visible shift rather than the negligible one assumed here;
+       see the `margin-right` correction below, which cancels it.
+       Reproduced and fixed against the real Phase 3 fixture, not a
+       synthetic case — the fixture's own blank lines and the `{14-16}`
+       block are what surfaced it. */
+    display: inline-block;
+    position: sticky;
+    left: 0;
+    vertical-align: top; /* Correction — a real bug, reported as the
+      marker rendering "shifted to the top" of its own line. `inline-
+      block`'s default `vertical-align` is `baseline`, which anchors this
+      box's BOTTOM edge to the surrounding text's baseline and lets
+      `height: 100%` extend the rest of that height entirely UPWARD from
+      there — past the top of this line's own content and into the row
+      above, with nothing below the baseline to balance it out. `top`
+      anchors the box's own TOP edge to the top of the line box instead,
+      so its full height actually spans this line's row instead of
+      leaning into the previous one. */
+    width: var(--bw-marker);
+    margin-left: calc(
+      var(--sp-18) * -1
+    ); /* Correction — reported back as
+      the bar "staying where it previously was" instead of moving to the
+      gutter's hairline: `.line`'s own `--sp-18` padding-left (section 1's
+      correction) pushes EVERY inline child inward, this pseudo-element
+      included, so its natural flow position was still 18px in from the
+      line's true edge — and `position: sticky; left: 0` only clamps a
+      box that's ABOUT TO SCROLL PAST that edge, it never pulls a box
+      leftward from a natural position that's already to the right of it.
+      At scroll offset 0 nothing has scrolled past anything yet, so the
+      bar just sat at its unmoved, padded-in flow position — exactly the
+      complaint. This negative margin moves that flow position itself to
+      the line's true left edge (0), which is what `left: 0` needs it to
+      already be so scrolling has nothing left to clamp: the bar now
+      renders flush with the gutter's hairline (or the block's own edge,
+      diff blocks) from the very first paint, not only once scrolled. */
+    margin-right: calc(
+      var(--sp-18) - var(--bw-marker)
+    ); /* the other half of the same correction: shifting the bar 18px
+      left (above) would, uncorrected, also drag the FOLLOWING token span
+      18px left with it — reopening the exact text-shift bug the previous
+      `margin-right: calc(var(--bw-marker) * -1)` fixed. The two margins
+      have to be reasoned about together as one flow-space budget: the
+      bar's total margin-box width (marginLeft + width + marginRight) is
+      `-18 + 2 + 16 = 0`, so despite rendering 18px further left, it still
+      consumes exactly zero net inline space — the next element starts at
+      the same x it would if this pseudo-element didn't exist at all,
+      which is `.line`'s own padding-left (18px), matching every
+      unhighlighted line's text start. */
+    height: 100%; /* resolves against `.line`'s own (content-based, one
+      text row) height exactly as it would under `position: relative` —
+      `sticky` only changes how the element's OFFSET is computed on
+      scroll, not how percentage sizing resolves against its containing
+      block. */
+  }
+
+  .astro-code .line.highlighted::before {
+    background: var(--code-hl-marker);
+  }
+
+  .astro-code .line.diff-add::before {
+    background: var(--diff-add-fg);
+  }
+
+  .astro-code .line.diff-del::before {
+    background: var(--diff-del-fg);
   }
 }

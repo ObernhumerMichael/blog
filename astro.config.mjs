@@ -8,6 +8,8 @@ import remarkDirectives from './src/plugins/remark-directives.ts';
 import remarkSectionNumbers from './src/plugins/remark-section-numbers.ts';
 import remarkCodeMeta from './src/plugins/remark-code-meta.ts';
 import remarkReadingTime from './src/plugins/remark-reading-time.ts';
+import { transformerMetaHighlight } from '@shikijs/transformers';
+import shikiDiffLines from './src/plugins/shiki-diff-lines.ts';
 import rehypeProseLinks from './src/plugins/rehype-prose-links.ts';
 import rehypeToc from './src/plugins/rehype-toc.ts';
 // Phase 4.1 (AD-05) — the site's one Shiki theme, mapped onto §2.3's seven
@@ -41,8 +43,13 @@ export default defineConfig({
   // needs it, not by default — enabling it globally is exactly the "arbitrary
   // component injection into prose" pressure DESIGN_SYSTEM.md §22.8 exists to
   // resist. The four prose-structure plugins below landed in Phase 3.3; the
-  // Shiki theme and language gate landed in Phase 4.1; rehype-code-chrome.ts
-  // (the filename/language/copy chrome bar) is Phase 4.2/4.3's.
+  // Shiki theme and language gate landed in Phase 4.1; the filename/
+  // language/copy chrome bar is Phase 4.3's, built by remark-code-meta.ts
+  // rather than a separate rehype-code-chrome.ts (ADR-0020 sketched that
+  // filename before the ordering constraint below was pinned down —
+  // wrapping the mdast `code` node in remark keeps the wrapper outside
+  // rehypeShiki's wholesale replacement, and one plugin doing both the
+  // language-gate validation and the wrapping needs no second file).
   //
   // AD-11 (rev. ADR-0017): Svelte is the sole client-side framework, used
   // for four small islands (theme toggle interaction, TOC scroll-spy,
@@ -119,12 +126,23 @@ export default defineConfig({
       theme: /** @type {import('shiki').ThemeRegistrationRaw} */ (
         /** @type {unknown} */ (shikiLedgerTheme)
       ),
-      // @shikijs/transformers (AD-05) is an installed dependency as of this
-      // phase but not yet consumed — line-number tracks, the {a-b}
-      // highlight-range tint, and the diff leading-glyph chrome are Phase
-      // 4.3's job, once remark-code-meta.ts grows the rest of its meta
-      // parsing. Left empty here rather than wired in early and unused.
-      transformers: [],
+      // Phase 4.3. Line NUMBERS aren't here — they're built directly by
+      // remark-code-meta.ts (a plain line count from the raw fence text is
+      // all §13.2's ">12 lines" rule needs) as a sibling of the `<pre>`,
+      // not a transformer: a transformer can only reshape what's INSIDE
+      // the `<pre>`/`<code>` it's given, and @astrojs/markdown-remark's
+      // highlight.js takes only `result.children[0]` of whatever a
+      // transformer's `root` hook returns as the replacement for the
+      // original `<pre>` (confirmed by reading its source) — a second
+      // sibling node returned from `root` is silently dropped, not
+      // inserted. transformerMetaHighlight IS a transformer, correctly:
+      // the `{14-16}` tint has to mark actual rendered `.line` elements
+      // INSIDE the code Shiki is already highlighting, which only Shiki
+      // itself can do mid-render. shikiDiffLines (this repo, not an
+      // official package — see its own header) does the equivalent for
+      // `diff`-language fences: §13.2's leading +/− glyph already renders
+      // via shiki-ledger-theme.json; this adds the secondary line tint.
+      transformers: [transformerMetaHighlight(), shikiDiffLines()],
     },
     syntaxHighlight: {
       type: 'shiki',
@@ -157,10 +175,14 @@ export default defineConfig({
       //      Phase 4's).
       //   4. remark-section-numbers — OD-10/ADR-0018: split + validate the
       //      authored `NN · ` / `n.m ·` heading prefixes.
-      //   5. remark-code-meta       — Phase 4.1: validates every fenced
+      //   5. remark-code-meta       — Phase 4.1 validates every fenced
       //      code block's language against consts.ts's CODE_LANGS, before
       //      remark-rehype/rehypeShiki gets a chance to swallow an unknown
       //      one as a silent "plaintext" fallback with only a console.warn.
+      //      Phase 4.3 adds title validation and wraps the node in its
+      //      chrome-bar container, BEFORE remark-rehype/rehypeShiki ever
+      //      run — see that file's own header for why it has to be here
+      //      and not a rehype plugin.
       //   6. remark-reading-time    — Phase 3.6: word count + reading time
       //      for §6·09's metadata row, written to file.data.astro.frontmatter
       //      (Astro's documented mechanism for computed frontmatter). Runs

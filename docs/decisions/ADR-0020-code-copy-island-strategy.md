@@ -65,7 +65,33 @@ buttons it serves.
 - A vanilla-script fallback for this one behaviour while every other
   interactive behaviour stays on Svelte.
 
+## Correction (Phase 4.3)
+
+Two details above didn't survive contact with the actual pipeline:
+
+- **The chrome bar is built by `src/plugins/remark-code-meta.ts` (remark),
+  not a `rehype-code-chrome.ts`.** Phase 4.3's own ordering research
+  (`rehypeShiki` runs before user rehype plugins and replaces the `<pre>`
+  wholesale) means a rehype plugin never sees the pre-Shiki `<pre>` to wrap
+  in the first place — only a remark plugin, wrapping the mdast `code`
+  node before Shiki ever runs, keeps the wrapper outside what Shiki
+  replaces. One plugin doing the language-gate validation (4.1) and the
+  wrapping (4.3) needs no second file.
+- **The button carries `data-copy` only, not `data-copy-target`.** Any id
+  assigned to the code node before Shiki runs lands on the PRE-Shiki
+  `<code>` element (`mdast-util-to-hast`'s `code` handler applies
+  `data.hProperties` there) — and Shiki's wholesale replacement discards
+  that element, id included, before the page ever renders. `CodeCopy.svelte`
+  (Phase 4.4) instead finds its target at click time by walking up from the
+  button to the nearest `.code-block`, then back down to its `pre code` —
+  which needs no id threaded through Shiki at all.
+
+The decision this ADR records — one delegating island, server-rendered
+`hidden` button, `data-copy` marker, closest-ancestor-not-id targeting —
+is unchanged; only the file name and one attribute in the sketch above
+were.
+
 ## References
 
 DESIGN_SYSTEM.md §13.2. ADR-0004 (MDX by exception), ADR-0017 (Svelte
-islands). IMPLEMENTATION_PLAN.md Phase 4.0 (OD-12), Phase 4.4.
+islands). IMPLEMENTATION_PLAN.md Phase 4.0 (OD-12), Phase 4.3, Phase 4.4.
