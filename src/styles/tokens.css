@@ -54,7 +54,14 @@
     /* Text */
     --c-text: light-dark(oklch(0.26 0.012 75), oklch(0.9 0.008 75));
     --c-text-2: light-dark(oklch(0.4 0.012 75), oklch(0.72 0.012 75));
-    --c-muted: light-dark(oklch(0.58 0.012 75), oklch(0.6 0.012 75));
+    /* CORRECTED 2026-09-14, Phase 4.10: §18.1 documents 4.6:1 (light) /
+       5.2:1 (dark) for this role, but 0.58/0.6 measured 3.65-4.4:1 against
+       the grounds it's actually laid on (--c-surface, --c-sunken, not just
+       --c-bg) — caught by axe-core the moment 4.10's T3 check 8 first ran
+       it against real chrome (footer links, page title). Same hue/chroma;
+       lightness moved to clear 4.5:1 against the worst ground each theme
+       uses. */
+    --c-muted: light-dark(oklch(0.525 0.012 75), oklch(0.64 0.012 75));
     --c-faint: light-dark(oklch(0.72 0.012 75), oklch(0.65 0.012 75));
 
     /* Article running prose. §2.2 deviation 1 + §25.1: in dark, body text sits
@@ -72,7 +79,10 @@
     --c-rule-2: light-dark(oklch(0.82 0.008 75), oklch(0.3 0.008 75));
 
     /* Accent (§1.6 — one accent, budget of three per viewport) */
-    --c-accent: light-dark(oklch(0.55 0.14 40), oklch(0.72 0.12 45));
+    /* CORRECTED 2026-09-14, Phase 4.10: same reasoning as --c-muted above —
+       light measured 4.9:1 against §18.1's documented 5.1:1. Dark already
+       clears its own >=5:1 floor, untouched. */
+    --c-accent: light-dark(oklch(0.54 0.14 40), oklch(0.72 0.12 45));
 
     /* RESOLVED 2026-08-31 (ADR-0015). §2.2's dark table omits --c-accent-hi,
        and §18.1 leaves its dark contrast cell empty, but §16.1 requires a
