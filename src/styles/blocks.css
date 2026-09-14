@@ -1,0 +1,228 @@
+/* =============================================================================
+   blocks.css — Phase 4.6 (figures only; §7 of IMPLEMENTATION_PLAN.md's own
+   intro to Phase 4 names this file, beside code.css, for figures §14 AND
+   tables §15 — table styling is Phase 4.7's, not added here yet).
+
+   DESIGN_SYSTEM.md §14.1 (figure anatomy), §14.2 (caption — same type
+   treatment as code/table captions, code.css's `.code-block__caption`),
+   §14.3 (constrained vs extended media), §2.2 deviation 6 / E15 (dark-mode
+   dimming).
+
+   SCOPE. remark-directives.ts (Phase 4.6) wraps a `:::figure{kind="…"}`
+   directive as:
+     <figure class="figure" data-kind="diagram|screenshot|photo">
+       <div class="figure__media">…image (or <a class="figure__link"> on a
+         tap-to-full-size diagram)…</div>
+       …remaining directive children — a caption paragraph, if authored,
+        stays a bare, unstyled <p> here until Phase 4.8 (OD-13) promotes it
+        into a real numbered caption, same as code/table captions today…
+     </figure>
+
+   Imported after prose.css and code.css (global.css) — same @layer
+   components as both, so source order alone (not specificity) settles any
+   tie, matching code.css's own note about its position relative to
+   prose.css.
+   ============================================================================= */
+
+@layer components {
+  /* ===========================================================================
+     FIGURE (§14.1, component 12)
+     =========================================================================== */
+
+  /* prose.css's generic `.prose pre, .prose table { margin: var(--sp-prose-
+     block) 0; }` rule (§10.3) only matches a bare `pre`/`table` element —
+     `<figure>` isn't either, same gap code.css's own `.code-block` and
+     `.term-block` already restate their own margin to close (see that
+     file's header comment). Restated here for the same reason. */
+  .figure {
+    margin: var(--sp-prose-block) 0;
+  }
+
+  /* The bordered, square-cornered frame (§14.1 anatomy) is on THIS element,
+     not `.figure` itself — the outer `<figure>` also holds the caption
+     (OD-13: captions sit INSIDE a figure directive, unlike code/table),
+     and the caption must stay on the page ground with the 20px text
+     margin while only the media goes full-bleed at <760 (§14.3). Scoping
+     the frame/ground/full-bleed escape to `.figure__media` alone is what
+     keeps those two rules from fighting each other.
+
+     SHRINK-TO-FIT, not full measure width. Real bug, reported directly
+     against the rendered fixture: unlike code/terminal (which always fill
+     their container because a `<pre>` legitimately has no "natural size"
+     of its own), a figure's media DOES have a natural rendered size — and
+     once that's narrower than the 680px measure (any image below ~680px
+     wide, or one shrunk by the height cap below), a frame stretched to
+     full width left the border sitting at the column edge with visible
+     page-ground gaps on both sides of the actual image. `width:
+     fit-content` makes the border hug whatever size the image actually
+     renders at; `margin-inline: auto` re-centres that now-narrower box
+     inside `.figure`, which is still full measure width. The <700
+     container override below removes both so mobile full-bleed still
+     spans edge-to-edge regardless of the image's own size, matching
+     `.code-block`'s exact escape formula. */
+  .figure__media {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    align-items: center;
+    justify-content: center;
+    border: var(--bw) solid var(--c-rule);
+    /* No radius (§14.1: "no rounded browser mock" — square corners like
+       every other frame in the system, §2.9's own "radius requires a
+       fill" rule doesn't apply here since there IS no radius to begin
+       with). No shadow, no device mock — nothing to declare for either;
+       T2's box-shadow ban and the absence of a radius declaration are
+       the whole rule. */
+  }
+
+  /* §14.1: "Screenshots sit on --c-sunken with a 1px --c-rule border, so
+     light UI screenshots do not bleed into the page." Diagrams and photos
+     get the same border (above) but NOT this ground — most diagrams and
+     photos already fill their frame with real pixel content, and a
+     diagram's transparent background is meant to show the page through
+     it, not to be mistaken for bleeding. */
+  .figure[data-kind='screenshot'] .figure__media {
+    background: var(--c-sunken);
+  }
+
+  .figure__media img {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    /* §14.1's role-based heights (homepage lead 170, index lead 200,
+       case-study 200/230, article diagram 250) read — on reflection,
+       prompted by the fixture actually rendering it — as fixed heights
+       for compact THUMBNAIL contexts (homepage lead, index/related cards,
+       a case-study preview), each a component Phases 6/7 build directly
+       in an Astro template, not through this markdown directive. Applying
+       --fig-h-article (250px) here shrank a normally-proportioned,
+       680px-wide diagram to ~615px for no reason connected to its actual
+       content, which is what produced the reported whitespace-in-border
+       bug in the first place (compounded by, not solved by, the
+       shrink-to-fit frame above). §14.1's OTHER height line — "Height cap
+       65vh at every width" — is written as its own, unconditional
+       sentence rather than folded into the role table, and reads as the
+       real ceiling for this directive: large enough that a normal in-
+       article diagram or screenshot renders at its natural size, present
+       only to stop an exceptionally tall image from dominating the
+       screen. */
+    max-height: var(--img-cap);
+  }
+
+  /* E6 (§4.2) — the system's one container query, declared on `.band`
+     (layout.css, ADR-0019). §14.3: full-bleed (−20px each side) below 760,
+     bounded by two hairlines — the exact escape formula `.code-block` and
+     `.term-block` already use (code.css), restated here because it has to
+     match theirs exactly or the mobile full-bleed system disagrees by
+     construction (that file's own comment; the same constraint applies to
+     every full-bleed block, not just code's). Scoped to `.figure__media`
+     alone, not `.figure` — see that rule's own comment above for why. */
+  @container (max-width: 700px) {
+    .figure__media {
+      /* Undo the shrink-to-fit sizing above: `width: auto` on this
+         block-level flex container fills its containing block exactly
+         like `.code-block`'s own width:auto does, and `max-width: none`
+         removes the 100% cap that would otherwise clamp that fill BACK
+         to the un-bled width, cancelling the negative margin below before
+         it could take effect (max-width resolves against the containing
+         block regardless of this element's own margins). With both gone,
+         this is the identical escape formula `.code-block`/`.term-block`
+         use — has to match exactly or the mobile full-bleed system
+         disagrees by construction (code.css's own comment). */
+      width: auto;
+      max-width: none;
+      margin-inline: calc(var(--page-margin) * -1);
+      border-inline-width: 0;
+    }
+  }
+
+  /* Tap-to-full-size wrapper (§14.3, §14.4) — remark-directives.ts only
+     ever emits this on a `kind="diagram"` figure whose source is an
+     absolute (public/) path; see that file's comment for why a
+     collection-relative asset is left unwrapped. No visual chrome of its
+     own (§12 has no modal to hint at) — the image inside already looks
+     identical with or without the anchor; this rule exists only so the
+     link doesn't pick up the general prose `a` underline-on-hover
+     treatment prose.css applies elsewhere, which would put a stray rule
+     under an image. */
+  .figure__link {
+    display: block;
+    line-height: 0; /* collapses the inline anchor's own line box to the
+      image's height exactly — without this, the image (an inline
+      replaced element) leaves its default ~4px descender gap below
+      itself inside the anchor, showing as a sliver of the frame's
+      background under the image that vanishes the moment `.figure__link`
+      isn't present (kind=screenshot/photo, or a relative-path diagram). */
+  }
+
+  /* §14.2 caption gap: "10px to the caption" from the media, authored
+     right after it inside the directive per OD-13. Structural sibling
+     selector rather than a class — the caption has no class of its own
+     until Phase 4.8 (OD-13) promotes it, same as code.css's own
+     `.code-block__caption` is still a forward declaration nothing
+     assigns yet. The "32px from the caption to the following prose" half
+     of §14.2 needs no separate rule: whatever the caption is (the last
+     child here), `.figure`'s own bottom margin (above) already opens
+     that gap to the next prose element. */
+  .figure__media + p {
+    margin-top: var(--sp-10);
+  }
+
+  /* ===========================================================================
+     DARK-MODE DIMMING (§2.2 deviation 6, E15) — the fourth registered
+     exception needing CSS (tokens.css and fonts.css are literal-value
+     exceptions enforced via a per-FILE stylelint override; this is the
+     first to need the actual `exceptions` cascade layer, since the
+     property itself — `filter` — is banned everywhere else in the
+     codebase, not just restricted to one file).
+
+     Finding C (Phase 4.0): T2's `property-disallowed-list` bans `filter`
+     — written against §2.10/§1.12 (shadows and blur), not against
+     brightness. `opacity: 0.92` is not a substitute: it composites the
+     image against the page ground instead of darkening it, which
+     LIGHTENS a dark-on-transparent diagram rather than dimming it.
+     `.stylelintrc` carries a matching override permitting `filter` in
+     THIS file only.
+     =========================================================================== */
+
+  /* Explicit choice (`data-theme="dark"`, set by the inline theme script)
+     and the no-choice-made OS-preference case (`prefers-color-scheme` with
+     no `data-theme="light"` override) — the same two-selector pattern
+     tokens.css documents for `light-dark()`-backed tokens, restated here
+     because `filter` has no `light-dark()`-equivalent function to fall
+     back on. Screenshots are excluded by selector (`:not([data-kind=
+     "screenshot"])`) rather than by only listing "diagram"/"photo" — see
+     the file's own §7.3 comment: those are the ONLY two other kinds that
+     currently exist, but a future kind should be dimmed by default and
+     have to opt OUT, not silently ship undimmed by omission.
+
+     A TOP-LEVEL `@layer exceptions` block, sibling to `@layer components`
+     above rather than nested inside it — global.css's own `@layer tokens,
+     reset, base, layout, components, exceptions;` statement declares
+     `exceptions` as one of the six SIBLING top-level layers, and a nested
+     `@layer exceptions { }` written inside `@layer components { }` would
+     create a distinct `components.exceptions` sub-layer instead, which
+     would sort by `components`'s own priority rather than the real
+     `exceptions` layer's (last, and deliberately so — §5 of the plan's
+     own CSS-architecture section: "putting exceptions in their own layer
+     means git log on one layer tells you every time an exception was
+     touched"). Closing the `components` block above and opening this one
+     fresh is what actually reaches that layer. */
+}
+
+@layer exceptions {
+  :root[data-theme='dark'] .figure:not([data-kind='screenshot']) .figure__media img {
+    filter: brightness(0.92);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light'])
+      .figure:not([data-kind='screenshot'])
+      .figure__media
+      img {
+      filter: brightness(0.92);
+    }
+  }
+}

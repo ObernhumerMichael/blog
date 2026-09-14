@@ -114,3 +114,14 @@ export const CODE_LANGS = [
 ] as const;
 
 export type CodeLang = (typeof CODE_LANGS)[number];
+
+// Phase 4.6 (§7.3 of IMPLEMENTATION_PLAN.md, §2.2 deviation 6 / E15) — the
+// closed vocabulary of `:::figure{kind="…"}` values. Required on every
+// figure directive because nothing in the markup can infer it: dark mode
+// dims `diagram`/`photo` to ~92% brightness and leaves `screenshot`
+// untouched (dimming a UI capture would misrepresent the software), and
+// `screenshot` additionally sits on `--c-sunken` with a `--c-rule` border
+// so a light UI capture doesn't bleed into the page (§14.1).
+export const FIGURE_KINDS = ['diagram', 'screenshot', 'photo'] as const;
+
+export type FigureKind = (typeof FIGURE_KINDS)[number];

@@ -137,6 +137,18 @@
       "//": "Astro files need a DIFFERENT parser to extract <style> blocks out of the frontmatter/template structure. Scoped here, not passed as a global --custom-syntax CLI flag — tested and confirmed that applying postcss-html globally makes stylelint silently find ZERO violations in plain .css files (no error, just an empty, wrong result). Real, serious difference: this override touches only .astro files; .css files keep the default CSS parser.",
       "files": ["**/*.astro"],
       "customSyntax": "postcss-html"
+    },
+    {
+      "//": "Phase 4.6, Finding C — blocks.css is the one file permitted to use `filter`, for E15/§2.2 deviation 6's dark-mode diagram/photo dimming (`brightness()`). property-disallowed-list's ban was written against §2.10/§1.12 (shadows and blur), not against brightness; `opacity` is not a substitute (it composites against the page ground, which lightens rather than dims a transparent diagram). Scoped to this one file the same way tokens.css/fonts.css are scoped above, so `filter`/`backdrop-filter`/shadow properties stay banned everywhere else.",
+      "files": ["src/styles/blocks.css"],
+      "rules": {
+        "property-disallowed-list": [
+          "box-shadow",
+          "-webkit-box-shadow",
+          "text-shadow",
+          "backdrop-filter"
+        ]
+      }
     }
   ]
 }

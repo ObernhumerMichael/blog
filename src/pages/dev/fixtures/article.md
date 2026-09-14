@@ -221,17 +221,27 @@ history.
 
 ## 07 · A diagram of the whole thing
 
-<!-- Phase 3.3: remark-directives.ts fails the build on ":::figure" on
-     purpose — figures are Phase 4's directive, not yet implemented, and
-     the plugin errors loudly rather than silently dropping the block for
-     a phase and a half. Plain img + caption stands in until then; this
-     becomes a real :::figure{kind="diagram"} directive in Phase 4. -->
-
+:::figure{kind="diagram"}
 ![Diagram of the homelab: a laptop pushing an Ansible playbook to three Raspberry Pi nodes, which each run node_exporter and forward metrics to a Prometheus instance on pi-01](/dev/homelab-architecture.svg)
 
 Fig. 1 — Everything reaches a node through the same playbook, including the
 Prometheus server itself, which is `pi-01` with one extra role rather than
 a separate machine.
+:::
+
+### 7.1 · Example images
+
+:::figure{kind="diagram"}
+![Image of a raspbery pi](/dev/pi.jpg)
+:::
+
+:::figure{kind="photo"}
+![Image of a raspbery pi](/dev/pi.jpg)
+:::
+
+:::figure{kind="screenshot"}
+![Image of a raspbery pi](/dev/pi.jpg)
+:::
 
 ## 08 · What's still not reproducible
 
