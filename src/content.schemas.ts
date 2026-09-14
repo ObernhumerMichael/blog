@@ -1,0 +1,77 @@
+// The two collection schemas, split out from content.config.ts so 5.3's
+// invariant tests can import them directly. content.config.ts itself has to
+// import `defineCollection` from the virtual module `astro:content`, which
+// only resolves inside Astro's Vite pipeline — a plain `node:test` run
+// outside that pipeline can't import that file at all. A Zod schema built
+// only from `astro/zod` (a real package export) has no such problem.
+//
+// IMPLEMENTATION_PLAN.md §5.1.
+
+import { z } from 'astro/zod';
+
+// §5.1 point 4: not stated anywhere in DESIGN_SYSTEM.md as a closed set
+// beyond the worked examples — treated as closed anyway, same drift-
+// prevention reasoning as CODE_LANGS/TAGS. Extend the first time a real
+// article needs a section that isn't here yet.
+const SECTIONS = ['Infrastructure', 'Security'] as const;
+
+export const writingSchema = z
+  .object({
+    number: z.number().int().min(1).max(999),
+    title: z.string(),
+    // §21.1: the lead is never two paragraphs.
+    lead: z.string().refine((s) => !s.includes('\n\n'), {
+      message: 'lead must be a single paragraph (no blank line)',
+    }),
+    section: z.enum(SECTIONS),
+    date: z.coerce.date(),
+    updated: z.coerce.date().optional(),
+    tags: z.array(z.string()).min(1).max(3),
+    series: z
+      .object({
+        // Finding D: a stable slug-shaped grouping key, separate from
+        // the display `name` — invariant 3 groups by this, not by name.
+        id: z.string(),
+        name: z.string(),
+        part: z.number().int(),
+        total: z.number().int(),
+      })
+      .refine((s) => s.part <= s.total, {
+        message: 'series.part must be <= series.total',
+      })
+      .optional(),
+    featured: z.boolean().optional(),
+    // OD-03 "drafts exempt": default stays true so a forgotten `draft:`
+    // line fails closed, not silently publishes.
+    draft: z.boolean().default(true),
+  })
+  .refine(
+    (e) => !e.updated || e.updated.getTime() > e.date.getTime() + 24 * 60 * 60 * 1000,
+    { message: 'updated must be more than a day after date', path: ['updated'] },
+  );
+
+export const projectsSchema = z.object({
+  number: z.number().int().min(1).max(99),
+  title: z.string(),
+  // 58ch guidance, not enforced — a Zod max would fight real titles the
+  // design's own "wraps to three lines" rule already accepts.
+  description: z.string(),
+  why: z.string().optional(),
+  stack: z.array(z.string()).min(3).max(6),
+  status: z.enum(['active', 'maintained', 'paused', 'archived']),
+  period: z.object({
+    from: z.coerce.date(),
+    to: z.coerce.date().nullable(),
+  }),
+  caseStudy: z.boolean(),
+  links: z.object({
+    article: z.url().optional(),
+    source: z.url().optional(),
+  }),
+  // Required-when-source-is-missing is a §5.3 invariant, not a schema
+  // shape rule — a named test gives a better message than superRefine.
+  sourceAbsence: z.string().optional(),
+});
+
+export type WritingEntry = z.infer<typeof writingSchema>;
+export type ProjectEntry = z.infer<typeof projectsSchema>;
