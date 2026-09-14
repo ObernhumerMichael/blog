@@ -125,3 +125,16 @@ export type CodeLang = (typeof CODE_LANGS)[number];
 export const FIGURE_KINDS = ['diagram', 'screenshot', 'photo'] as const;
 
 export type FigureKind = (typeof FIGURE_KINDS)[number];
+
+// Phase 5.2 (IMPLEMENTATION_PLAN.md §6) — the closed vocabulary of content
+// tags a `writing`/`projects` entry may declare, checked by 5.3's cross-entry
+// invariant 4. Same shape and reason as CODE_LANGS: one canonical lowercase
+// form per tag, no `#`, so `#linux`/`#Linux` can't drift into two tags.
+//
+// Seeded from the Phase 3.6 fixture's own tags, plus OD-02's `ctf`/`security`
+// (CTF writeups are `writing` entries tagged `#ctf`, not a separate
+// collection — AD-03). Extend this list the first time a real article needs
+// a tag that isn't here yet.
+export const TAGS = ['ansible', 'infrastructure', 'homelab', 'ctf', 'security'] as const;
+
+export type Tag = (typeof TAGS)[number];
