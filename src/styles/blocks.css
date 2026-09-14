@@ -17,9 +17,9 @@
      <figure class="figure" data-kind="diagram|screenshot|photo">
        <div class="figure__media">…image (or <a class="figure__link"> on a
          tap-to-full-size diagram)…</div>
-       …remaining directive children — a caption paragraph, if authored,
-        stays a bare, unstyled <p> here until Phase 4.8 (OD-13) promotes it
-        into a real numbered caption, same as code/table captions today…
+       …remaining directive children — a caption paragraph, promoted by
+        remark-captions.ts (Phase 4.8, OD-13) into `<p class=
+        "code-block__caption">`, same class code/table captions use…
      </figure>
 
    rehype-table-region.ts (Phase 4.7) wraps every GFM `<table>` as:
@@ -29,8 +29,9 @@
          non-first column and a head/tail-split `<code title="…">` on a
          middle-truncated digest…</table>
      </div>
-   …followed, same as a code/figure block, by a bare, unstyled caption `<p>`
-   until Phase 4.8.
+   …followed, same as a code/figure block, by its own `<p class=
+   "code-block__caption">`, promoted the same way by remark-captions.ts
+   before this plugin ever runs (remark stage precedes rehype).
 
    Imported after prose.css and code.css (global.css) — same @layer
    components as both, so source order alone (not specificity) settles any
@@ -172,17 +173,15 @@
   }
 
   /* §14.2 caption gap: "10px to the caption" from the media, authored
-     right after it inside the directive per OD-13. Structural sibling
-     selector rather than a class — the caption has no class of its own
-     until Phase 4.8 (OD-13) promotes it, same as code.css's own
-     `.code-block__caption` is still a forward declaration nothing
-     assigns yet. The "32px from the caption to the following prose" half
-     of §14.2 needs no separate rule: whatever the caption is (the last
-     child here), `.figure`'s own bottom margin (above) already opens
-     that gap to the next prose element. */
-  .figure__media + p {
-    margin-top: var(--sp-10);
-  }
+     right after it inside the directive per OD-13. remark-captions.ts
+     (Phase 4.8) promotes that paragraph to `.code-block__caption` — the
+     one caption class shared by every block kind (code.css's own comment)
+     — whose `margin-top: var(--sp-10)` is what actually opens this gap;
+     no rule is needed here. The "32px from the caption to the following
+     prose" half of §14.2 needs no separate rule either: the caption is
+     `.figure`'s last child, so `.figure`'s own bottom margin (above)
+     collapses with the caption's matching `margin-bottom` and opens that
+     gap to the next prose element regardless of which of the two "wins". */
 
   /* ===========================================================================
      TABLE (§15.1, component 14) + SCROLL REGION (§15.2) — Phase 4.7
@@ -212,7 +211,13 @@
      second wrapper div. */
   .table-region {
     overflow-x: auto;
-    margin: var(--sp-prose-block) 0;
+    /* Block-end 0, not `--sp-prose-block` — Phase 4.8: a caption always
+       follows a table now (remark-captions.ts fails the build otherwise),
+       and code.css's `.code-block__caption` owns the 10px block-to-caption
+       gap via its own margin-top. Leaving this at 32 would collapse
+       against that 10 and win, same bug class code.css's own `.code-block`
+       comment documents for the identical reason. */
+    margin-block: var(--sp-prose-block) 0;
     scrollbar-color: var(--c-faint) var(--c-bg); /* the table sits on the
       PAGE ground, unlike code/terminal's own machine ground — none of
       tokens.css's `color-scheme` TRAP applies here (that hazard is

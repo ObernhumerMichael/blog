@@ -47,9 +47,12 @@
 //      three-island budget is already spent.
 //   3. Wraps the table in the `role="region"` scroll container itself,
 //      labelled from the caption paragraph immediately following it in the
-//      source (OD-13's authored-caption convention, read here as plain
-//      text since the caption isn't promoted into its own structural
-//      element until Phase 4.8 — see the fallback note below).
+//      source — by the time this REHYPE plugin runs, remark-captions.ts
+//      (Phase 4.8, OD-13) has already validated that paragraph at the
+//      remark stage and promoted it to `<p class="code-block__caption">`,
+//      so every table reaching here is guaranteed to have one; this plugin
+//      only has to read it back out for the `aria-label`, not fall back to
+//      a generic one.
 //
 // Sticky-first-column is declared purely in blocks.css against
 // `.table-region:first-child` — nothing here marks the first column
@@ -66,13 +69,6 @@ import { visit, SKIP } from 'unist-util-visit';
 // example verbatim: `sha256:9f2b1c7ae4…d0c81a` keeps 6 trailing characters.
 const DIGEST_MIN_LENGTH = 20;
 const DIGEST_TAIL_LENGTH = 6;
-
-// OD-13's own convention, already in use by the Phase 3/4 fixture ("_Table
-// 1 — …_"): the caption is plain prose text immediately following the
-// block, recognised by this prefix. Emphasis markers are stripped by
-// reading `textContent` below rather than matching against raw markup, so
-// "_Table 1 — …_" and "Table 1 — …" are read identically.
-const CAPTION_RE = /^Table\s+\d+\s+—/;
 
 function textContent(node: any): string {
   if (node.type === 'text') return node.value as string;
@@ -185,14 +181,12 @@ export default function rehypeTableRegion() {
       markProseCells(node);
       truncateDigests(node);
 
-      // OD-13's convention, read as plain text rather than waiting for
-      // Phase 4.8's promotion — that phase turns this same paragraph into
-      // a real, numbered `Table n —` caption component; until then it is
-      // still a bare `<p>` sitting right after the table in the tree,
-      // exactly where 4.8 will find it too. No caption is not an error at
-      // this stage (T1's cross-entry invariants don't require one until
-      // 4.8's validator lands) — it falls back to a generic label rather
-      // than leaving the region unlabelled.
+      // remark-captions.ts (Phase 4.8, OD-13) already validated — at the
+      // remark stage, before this rehype plugin ever runs — that a caption
+      // paragraph follows every table, numbered contiguously, and promoted
+      // it to `<p class="code-block__caption">`. So this table is
+      // guaranteed to have one; this only has to find and read it, not
+      // decide whether it's there.
       // Real gap, found against the actual build output rather than
       // assumed: mdast-util-to-hast leaves a bare `{type:'text', value:
       // '\n'}` between adjacent block elements (the raw newline from the
@@ -209,11 +203,16 @@ export default function rehypeTableRegion() {
       // text, so it gets the same whitespace-collapse a browser applies
       // to visible inline content, rather than shipping raw source line
       // breaks into the attribute.
-      const captionText =
-        sibling?.type === 'element' && sibling.tagName === 'p'
-          ? textContent(sibling).replace(/\s+/g, ' ').trim()
-          : '';
-      const ariaLabel = CAPTION_RE.test(captionText) ? captionText : 'Table';
+      const isCaption =
+        sibling?.type === 'element' &&
+        sibling.tagName === 'p' &&
+        (sibling.properties?.className ?? []).includes('code-block__caption');
+      const ariaLabel = isCaption
+        ? textContent(sibling).replace(/\s+/g, ' ').trim()
+        : 'Table'; // unreachable once remark-captions.ts's validator runs
+      // on every build — kept as a fallback rather than an assertion, same
+      // "don't throw twice for one mistake" reasoning as leaving a second
+      // layer of defence in place elsewhere in this codebase.
 
       // One wrapper: it is both the `overflow-x: auto` scroller and the
       // element carrying the interactive/accessible bits (`tabindex`,

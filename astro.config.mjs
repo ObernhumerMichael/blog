@@ -7,6 +7,7 @@ import remarkHeadingDepth from './src/plugins/remark-heading-depth.ts';
 import remarkDirectives from './src/plugins/remark-directives.ts';
 import remarkSectionNumbers from './src/plugins/remark-section-numbers.ts';
 import remarkCodeMeta from './src/plugins/remark-code-meta.ts';
+import remarkCaptions from './src/plugins/remark-captions.ts';
 import remarkReadingTime from './src/plugins/remark-reading-time.ts';
 import { transformerMetaHighlight } from '@shikijs/transformers';
 import shikiDiffLines from './src/plugins/shiki-diff-lines.ts';
@@ -185,7 +186,16 @@ export default defineConfig({
       //      chrome-bar container, BEFORE remark-rehype/rehypeShiki ever
       //      run — see that file's own header for why it has to be here
       //      and not a rehype plugin.
-      //   6. remark-reading-time    — Phase 3.6: word count + reading time
+      //   6. remark-captions        — Phase 4.8/OD-13: recognises the
+      //      authored "Fig./Listing/Table n — …" caption convention,
+      //      validates per-kind contiguity from 1, and promotes the
+      //      paragraph into `.code-block__caption`. Must run AFTER #5 and
+      //      #3 — it looks for `codeBlockWrapper`/`termBlockWrapper` (#5)
+      //      and `figureWrapper` (#3) nodes, not the raw `code`/directive
+      //      nodes those plugins consume. Tables need no such ordering
+      //      constraint (nothing upstream touches a `table` node) but sit
+      //      here anyway since one pass over the tree does all three kinds.
+      //   7. remark-reading-time    — Phase 3.6: word count + reading time
       //      for §6·09's metadata row, written to file.data.astro.frontmatter
       //      (Astro's documented mechanism for computed frontmatter). Runs
       //      last so it counts the fully-resolved tree.
@@ -195,6 +205,7 @@ export default defineConfig({
         remarkDirectives,
         remarkSectionNumbers,
         remarkCodeMeta,
+        remarkCaptions,
         remarkReadingTime,
       ],
       // rehype-prose-links: adds the external-link "↗" as real markup.

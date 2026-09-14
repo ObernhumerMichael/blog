@@ -95,6 +95,9 @@ having one.
   notify: restart prometheus
 ```
 
+Listing 1 — Installing `node_exporter` and Prometheus, then deploying the
+scrape-config template (lines 14–16) that Listing 3 shows in full.
+
 ## 04 · Provisioning a new node
 
 Bringing up a fresh Pi is meant to be four steps, in this order, because
@@ -132,6 +135,9 @@ PLAY RECAP **********************************************************
 pi-04                      : ok=14   changed=14   unreachable=0    failed=0
 ```
 
+Listing 2 — A full run against a brand-new node: fourteen changed tasks,
+four minutes, one command.
+
 Fourteen tasks, four minutes, one command. That's the twelve-minute rebuild
 this whole setup exists to buy back.
 
@@ -164,6 +170,10 @@ scrape_configs:
 {% endfor %}
 ```
 
+Listing 3 — The scrape-config template Listing 1's deploy task renders; the
+`{% for %}` loop is why adding a fourth node is an inventory change, not a
+config change.
+
 ```ini title="ansible/inventory.ini"
 [monitoring]
 pi-01 ansible_host=10.20.0.11
@@ -173,6 +183,8 @@ pi-01 ansible_host=10.20.0.11
 pi-02 ansible_host=10.20.0.12
 pi-03 ansible_host=10.20.0.13
 ```
+
+Listing 4 — The `[nodes]` group Listing 3's template loop reads from.
 
 :::warning
 The textfile collector silently ignores a `.prom` file with a stale mtime
@@ -225,6 +237,9 @@ line:
 +- import_playbook: playbooks/firewall.yml
 ```
 
+Listing 5 — Reordering two lines in `site.yml` so `firewall` runs after
+`monitoring` is configured, not before.
+
 Applying the firewall rules before Prometheus was configured meant a
 freshly-provisioned node briefly blocked its own scrape port, and the
 first metrics point for any new node was a five-minute gap that looked
@@ -247,14 +262,25 @@ a separate machine.
 
 :::figure{kind="diagram"}
 ![Image of a raspbery pi](/dev/pi.jpg)
+
+Fig. 2 — `kind="diagram"` again, reusing the same source file: still
+wrapped for tap-to-full-size at <760, since that's decided by kind and
+path, not by content.
 :::
 
 :::figure{kind="photo"}
 ![Image of a raspbery pi](/dev/pi.jpg)
+
+Fig. 3 — `kind="photo"`: the 92% dark-mode dimming filter applies here too,
+but there's no tap-to-full-size wrapper — that's diagram-only.
 :::
 
 :::figure{kind="screenshot"}
 ![Image of a raspbery pi](/dev/pi.jpg)
+
+Fig. 4 — `kind="screenshot"`: sits on `--c-sunken` with its own rule
+border, and dark mode leaves it undimmed — a screenshot should read
+exactly as captured.
 :::
 
 ## 08 · What's still not reproducible

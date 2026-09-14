@@ -123,8 +123,16 @@
        so the block-to-prose rhythm has to be re-stated here or it's lost
        entirely once a code block gains its chrome. Found the same way as
        the two bugs above: rendering the wrapped shape and comparing
-       against the un-wrapped one, not assumed to carry over. */
-    margin: var(--sp-prose-block) 0;
+       against the un-wrapped one, not assumed to carry over.
+
+       Block-END is 0, not `--sp-prose-block`, as of Phase 4.8: a caption
+       ALWAYS follows now (remark-captions.ts fails the build otherwise),
+       and that caption's own `margin-top: var(--sp-10)` (below) is meant
+       to be the ONLY gap between block and caption. Leaving this at 32
+       would collapse against the caption's 10 and win (adjacent-sibling
+       margins collapse to the larger of the two), silently reopening the
+       32px gap §14.2 explicitly says should be 10. */
+    margin-block: var(--sp-prose-block) 0;
 
     background: var(
       --c-code-bg
@@ -360,12 +368,28 @@
   }
 
   /* Caption (§14.2, shared with figures §14.1 and tables §15.1 — same
-     type, same "Fig./Listing/Table n —" prefix, same position). 10px
-     below the block; promoted from the following paragraph by 4.8's
-     remark plugin (OD-13), so the tag it lands on isn't fixed by this
-     file — styled by class regardless of whether that turns out to be a
-     real `<figcaption>` or a `<p>`. */
-  .code-block__caption {
+     type, same "Fig./Listing/Table n —" prefix, same position). 10px below
+     the block, 32px to the following prose; promoted from the following
+     paragraph by remark-captions.ts (Phase 4.8, OD-13) — real markup as of
+     this phase, styled by class regardless of whether that lands on a real
+     `<figcaption>` or a `<p>` (it's a `<p>`: mdast-util-to-hast's default
+     paragraph tag, restated explicitly by the plugin's own `hName` rather
+     than assumed).
+
+     Qualified `.prose .code-block__caption` (0-2-0), not the bare class
+     (0-1-0) — real bug, found once the promotion plugin actually ran: the
+     caption IS an ordinary `<p>` inside `.prose`, so prose.css's `.prose p
+     { margin: 0 0 var(--sp-para) 0; }` (0-1-1) was winning the specificity
+     contest on every margin edge — top AND bottom, since `margin` is a
+     shorthand that sets all four sides regardless of which longhands this
+     rule declares — and silently overriding both the 10px-below-the-block
+     rule and the 32px-to-next-prose one below with 0/24. Same shape of bug
+     `.table-region td.table-region__cell--prose` (blocks.css) already
+     documents for a `<td>` losing a specificity fight to a compound
+     selector; two classes beats one class + one type outright, so this
+     doesn't depend on source order the way code.css's file-level comment
+     elsewhere allows itself to. */
+  .prose .code-block__caption {
     font: var(--t-caption);
     color: var(
       --c-muted
@@ -374,6 +398,17 @@
       page theme like any other prose text (§14.2 doesn't ask for anything
       code-specific) */
     margin-top: var(--sp-10);
+    margin-bottom: var(
+      --sp-prose-block
+    ); /* §14.2's other half: "32px to
+      the following prose". For code/terminal/table (caption is a plain
+      SIBLING of the block's wrapper, not nested inside it) this is the
+      ONLY source of that gap — see `.code-block`/`.term-block`/
+      `.table-region`'s own margin-block comment for the half of this fix
+      that lives in each of those rules. For a figure caption (nested
+      inside `.figure`) this collapses harmlessly with `.figure`'s own
+      unchanged `margin: var(--sp-prose-block) 0` — same value, so the
+      collapse (max of the two) produces no visible difference. */
   }
 
   /* ===========================================================================
@@ -587,10 +622,13 @@
      `--code-border` — reused here rather than inventing a second token,
      since §2.3 documents no distinct terminal-border value either. */
   .term-block {
-    margin: var(--sp-prose-block) 0; /* same block-to-prose rhythm rule as
-      `.code-block` above (§10.3) — restated here for the same reason:
-      prose.css's `.prose pre { margin }` only matches a bare `pre`
-      element, and this wrapper is a `figure`. */
+    margin-block: var(--sp-prose-block) 0; /* same block-to-prose rhythm
+      rule as `.code-block` above (§10.3) — restated here for the same
+      reason: prose.css's `.prose pre { margin }` only matches a bare `pre`
+      element, and this wrapper is a `figure`. Block-end 0, not
+      `--sp-prose-block`, for the same Phase 4.8 reason as `.code-block`'s
+      own comment: a caption always follows now, and its own margin-top
+      owns the 10px gap. */
 
     background: var(--c-term-bg);
     border: var(--bw) solid var(--code-border);
