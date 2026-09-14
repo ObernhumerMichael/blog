@@ -12,6 +12,7 @@ import { transformerMetaHighlight } from '@shikijs/transformers';
 import shikiDiffLines from './src/plugins/shiki-diff-lines.ts';
 import rehypeProseLinks from './src/plugins/rehype-prose-links.ts';
 import rehypeToc from './src/plugins/rehype-toc.ts';
+import rehypeTerminal from './src/plugins/rehype-terminal.ts';
 // Phase 4.1 (AD-05) — the site's one Shiki theme, mapped onto §2.3's seven
 // syntax roles via var(--syn-*)/var(--code-*)/var(--diff-*) references into
 // tokens.css. Node 24 (this project's pinned engine) supports import
@@ -199,7 +200,12 @@ export default defineConfig({
       // rehype-toc (Phase 3.7): records which headings are numbered
       // sections, positionally, for ArticleToc.astro to filter
       // Astro.props.headings against — see that file's own header comment.
-      rehypePlugins: [rehypeProseLinks, rehypeToc],
+      // rehype-terminal (Phase 4.5): hand-colours the terminal block's `$ `
+      // prompt and `[+]`-style success markers — has to run here, not as a
+      // remark plugin, because `markdown.syntaxHighlight.excludeLangs`
+      // (below) is what leaves its `<code class="language-terminal">` as
+      // plain, unwrapped text this late in the pipeline for it to split.
+      rehypePlugins: [rehypeProseLinks, rehypeToc, rehypeTerminal],
       // gfm/smartypants default to true already — footnotes (3.5) and
       // curly quotes both depend on that, and the subset fonts were built
       // assuming SmartyPants output (docs/reference/glyph-coverage.md).

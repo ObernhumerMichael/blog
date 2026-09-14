@@ -7,6 +7,14 @@
 // container code.css (Phase 4.2) already has CSS for: `.code-block` >
 // `.code-block__chrome` (filename + language token + copy button) +
 // `.code-block__body` (gutter, conditional, + the code node itself).
+// Phase 4.5 adds the terminal fence's OWN wrapper — `.term-block` >
+// `.term-block__chrome` (host label only) + `.term-block__body` (bare
+// `<pre><code>`, no gutter) — in the same file rather than a second one,
+// because the meta-parsing and SKIP-vs-infinite-recursion machinery below
+// is identical for both; only the shape of the wrapper and which meta key
+// it reads (`host=` vs `title=`) differ, per §23.4's "share nothing else"
+// framing it's still a separate branch producing a separate hName tree,
+// not a shared one with an if inside it.
 //
 // Same hName/hProperties technique as remark-directives.ts's callout
 // wrapper (Phase 3.3): synthetic mdast nodes carrying `data.hName`/
@@ -22,15 +30,20 @@
 // plugin wrapping the mdast `code` node puts the wrapper OUTSIDE the node
 // Shiki later replaces, so the wrapper survives untouched.
 //
-// Terminal fences (`lang === 'terminal'`) are explicitly OUT of scope here
-// — no title requirement, no wrapper. §23.4's terminal component is a
-// separate object with its own chrome (host label, not filename+language),
-// and building that now, ahead of Phase 4.5's styling for it, would ship a
-// wrapper nothing renders correctly yet (4.2's code.css never touches
-// `.term-block` — see that file's own header). `plaintext` gets the FULL
-// code-block treatment like any other language: it's still Shiki-rendered
-// (just with no grammar to tokenize), still needs a title, same as `yaml`
-// or `bash` — only `terminal` is architecturally distinct.
+// Terminal fences (`lang === 'terminal'`) get their own, much smaller
+// wrapper — no title, no language token, no copy control, no gutter, just
+// a `host="…"` meta key read into the uppercase chrome label §13.3 wants
+// (`TERMINAL — PI-02`). The `code` node itself is left completely
+// untouched inside `.term-block__body`: `markdown.syntaxHighlight.
+// excludeLangs` (astro.config.mjs) is what keeps Shiki from touching it,
+// and `rehype-terminal.ts` (Phase 4.5) is what later wraps its `$ `
+// prompt and `[+]`-style success markers — both stages need the plain,
+// unwrapped mdast/hast `code` text to still be there, which is exactly
+// what happens when this plugin does nothing to the node besides re-
+// parenting it. `plaintext` gets the FULL code-block treatment like any
+// other language: it's still Shiki-rendered (just with no grammar to
+// tokenize), still needs a title, same as `yaml` or `bash` — only
+// `terminal` is architecturally distinct.
 //
 // The copy button carries `data-copy` but deliberately NOT a
 // `data-copy-target` id, correcting ADR-0020's sketch of the attribute:
@@ -54,6 +67,13 @@ const VALID = new Set<string>(CODE_LANGS);
 // (astro.config.mjs) inside Shiki itself — parsing it a second time here
 // would just be a second place for the two parses to disagree.
 const TITLE_RE = /\btitle="([^"]*)"/;
+
+// §13.3's terminal chrome bar — `TERMINAL — PI-02`, sourced from the
+// fence's own `host="pi-02"` meta key (Phase 4's own worked example,
+// AD-06's fixture: ```terminal host="pi-04"), not a `title=`. Same
+// single-capture-group shape as TITLE_RE for the same reason: one meta
+// key, one required value, one place to read it from.
+const HOST_RE = /\bhost="([^"]*)"/;
 
 // §13.2: numbers appear only above twelve lines. mdast's `code.value` is
 // already the fenced content with CommonMark's trailing line ending
@@ -105,10 +125,61 @@ export default function remarkCodeMeta() {
         );
       }
 
-      // Terminal is a separate component (§23.4) with its own chrome
-      // (host label, not filename+language) — Phase 4.5's job, not this
-      // one's. Leave the node untouched.
-      if (lang === 'terminal') return;
+      // Terminal is a separate component (§23.4): its own chrome (an
+      // uppercase host label, not a filename+language pair), no gutter,
+      // no copy control. Branches off into its own, much smaller wrapper
+      // rather than falling through the title/gutter logic below, which
+      // is entirely code-block-specific.
+      if (lang === 'terminal') {
+        const hostMatch = typeof node.meta === 'string' ? node.meta.match(HOST_RE) : null;
+        const host = hostMatch?.[1];
+
+        if (!host) {
+          throw new Error(
+            `${path}: a \`\`\`terminal fence has no host="…". §13.3's ` +
+              'chrome bar always shows an uppercase host label ' +
+              '("TERMINAL — PI-02") — add e.g. host="pi-02" to the ' +
+              "fence's meta string.",
+          );
+        }
+
+        const termWrapper = {
+          type: 'termBlockWrapper',
+          data: { hName: 'figure', hProperties: { className: ['term-block'] } },
+          children: [
+            {
+              type: 'termBlockChrome',
+              data: {
+                hName: 'div',
+                hProperties: { className: ['term-block__chrome'] },
+              },
+              children: [
+                {
+                  type: 'termBlockLabel',
+                  data: {
+                    hName: 'span',
+                    hProperties: { className: ['term-block__label'] },
+                  },
+                  children: [{ type: 'text', value: `TERMINAL — ${host.toUpperCase()}` }],
+                },
+              ],
+            },
+            {
+              type: 'termBlockBody',
+              data: { hName: 'div', hProperties: { className: ['term-block__body'] } },
+              children: [node],
+            },
+          ],
+        };
+
+        if (index === undefined) return;
+        parent.children[index] = termWrapper;
+        // Bare SKIP, not `[SKIP, index]` — same infinite-recursion trap
+        // the code-block wrapper below already documents: `node` (still
+        // typed 'code') is nested unchanged inside this new wrapper, so
+        // re-entering at `index` would visit and re-wrap it forever.
+        return SKIP;
+      }
 
       const titleMatch = typeof node.meta === 'string' ? node.meta.match(TITLE_RE) : null;
       const title = titleMatch?.[1];

@@ -23,6 +23,17 @@
    Imported after prose.css (global.css), same @layer components — wins
    ties against prose.css's bare `.prose pre { margin; overflow-x }` rhythm
    rule (§10.3) by source order, without needing extra specificity.
+
+   Section 4 (Phase 4.5) styles the terminal block (§13.3) — `.term-block`,
+   built by remark-code-meta.ts the same way `.code-block` is, and the
+   `.term-block__prompt` / `.term-block__success` spans rehype-terminal.ts
+   adds inside it. §23.4's confusion risk applies here as a real
+   constraint, not just a comment: section 4 shares ONLY the caption class
+   (`.code-block__caption`, reused as-is — one numbered-caption type
+   treatment for every block kind, §14.2) with sections 1–3 above. No
+   other class, custom property value, or rule is shared between the two
+   components — a code-block selector never matches term-block markup and
+   vice versa, which is what keeps them independently editable.
    ============================================================================= */
 
 @layer components {
@@ -544,5 +555,147 @@
 
   .astro-code .line.diff-del::before {
     background: var(--diff-del-fg);
+  }
+
+  /* ===========================================================================
+     4 · TERMINAL BLOCK — real, Phase 4.5 (§13.3, §23.4)
+     =========================================================================== */
+
+  /* One-ground wrapper, no radius/border split into chrome-vs-body the way
+     `.code-block` has: §13.3 gives the terminal a single ground for the
+     whole block (`--c-term-bg`, "one step below code") with no lighter
+     chrome-bar fill on top of it — unlike §13.2's filename bar, which IS a
+     lightened `--code-chrome-bg`. Confirmed against §13.3's own anatomy
+     table: "Chrome — an uppercase mono host label ... above a hairline",
+     no separate ground value listed for it the way `--code-chrome-bg` is
+     listed for code's. E2 covers component 20 too (§23.2's exceptions
+     table), so the border follows the same light/dark rule as code's own
+     `--code-border` — reused here rather than inventing a second token,
+     since §2.3 documents no distinct terminal-border value either. */
+  .term-block {
+    margin: var(--sp-prose-block) 0; /* same block-to-prose rhythm rule as
+      `.code-block` above (§10.3) — restated here for the same reason:
+      prose.css's `.prose pre { margin }` only matches a bare `pre`
+      element, and this wrapper is a `figure`. */
+
+    background: var(--c-term-bg);
+    border: var(--bw) solid var(--code-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  @container (max-width: 700px) {
+    /* §13.5 "Terminal unchanged": same ground, label, prompt, no numbers,
+       no copy — but full-bleed IS one of the two things that changes at
+       every width regardless of component (§7 of this document's own
+       table: "Code, terminal, figures, tables — Full-bleed"). Same escape
+       formula as `.code-block`'s own — has to match it exactly or the
+       block and the rest of the mobile full-bleed system disagree by
+       construction (that file's own comment, restated because it's the
+       same constraint here, not a new one). */
+    .term-block {
+      margin-inline: calc(var(--page-margin) * -1);
+      border-radius: 0;
+      border-inline-width: 0;
+    }
+  }
+
+  /* Chrome: the uppercase host label only — no filename, no language
+     token, no copy control (§13.3's anatomy table lists none of the
+     three). `--term-label` is a SEPARATE token from `--code-chrome-muted`
+     even though both currently resolve to the same number (tokens.css's
+     own comment on `--term-label`: §23.4 forbids the two chrome text
+     colours sharing a value a future edit to one could silently drag the
+     other along with). */
+  .term-block__chrome {
+    /* `display: flex; align-items: center;` — same as `.code-block__chrome`
+       above, and NOT decorative: real bug, found by measuring this bar
+       against the code block's own (50.8px vs 30.5px, same 9/14 padding)
+       rather than assumed equal from matching padding alone. Without flex,
+       this is a plain block wrapping an inline `<span>` — the browser
+       builds an anonymous line box for it and gives that line box a
+       "strut" sized from THIS element's own (inherited, unset here)
+       font/line-height, not the label span's smaller one, which was
+       pulling in the surrounding prose's ~32px line-height and inflating
+       the whole bar around a label that only needs ~14px. Flex removes
+       the strut mechanism entirely — the label becomes a blockified flex
+       item sized by its own content, the same reason the code block's
+       filename (also flex-item, also `line-height: 1`) renders at exactly
+       its own line-height with no inherited inflation. */
+    display: flex;
+    align-items: center;
+    padding: var(--sp-9) var(--sp-14); /* §13.2's own 9/14 chrome padding —
+      §13.3 states no padding value of its own, and reusing the code
+      block's is the "same class of value" precedent §4 of this document's
+      own token-layer section already applies to --sp-9. */
+    border-bottom: var(--bw) solid var(--term-chrome-rule);
+  }
+
+  .term-block__label {
+    /* §13.3 gives a 10.5–11px range with "+0.1em" tracking — the SAME
+       metrics `--t-label` already carries (10.5px floor, 0.12em, §2.5's
+       "mono is never tracked except here"), and the same uppercase-label
+       role `.callout__label`/`#footnote-label` (prose.css) already use
+       this bundle for. Compound tokens are applied by one rule (§4 of
+       the plan's own token-layer section) — decomposing it into
+       font-family/-size/line-height here would just be restating what
+       the bundle already is. */
+    font: var(--t-label);
+    text-transform: uppercase; /* the font shorthand can't carry this,
+      same as every other --t-label use in the codebase. */
+    /* Real bug, found rendering this component and reading its computed
+       style rather than assuming the bundle covers it: `font` ALSO can't
+       carry letter-spacing, and prose.css's two existing --t-label
+       consumers (.callout__label, #footnote-label) never add it back —
+       both render at computed letter-spacing "normal", not the 0.12em
+       --tr-label declares, confirmed directly rather than assumed from
+       their source. That's a pre-existing gap in those two components,
+       out of scope to fix here — but §13.3 explicitly asks for "+0.1em"
+       on THIS label, so it gets its own explicit declaration rather than
+       silently inheriting the same miss. */
+    letter-spacing: var(--tr-label);
+    color: var(--term-label);
+  }
+
+  /* Body: bare `<pre>` — no gutter track exists for a terminal block
+     (§13.3: "Line numbers — None"), so unlike `.code-block__body` this
+     wrapper never gains a `grid-template-columns: auto 1fr` sibling rule.
+     Scroll lives on the `<pre>` itself, same reasoning as section 1's own
+     comment: Astro would normally own that via Shiki's inline style, but
+     `terminal` is in `markdown.syntaxHighlight.excludeLangs`
+     (astro.config.mjs) precisely so it reaches here WITHOUT Shiki ever
+     touching it — this file has to declare `overflow-x` itself for this
+     one component, the one place in the codebase Shiki isn't already
+     doing it. */
+  .term-block__body {
+    padding: var(--sp-16) var(--sp-18); /* §13.2's own code-area padding —
+      13.3 gives no distinct value, same reuse precedent as the chrome
+      padding above. */
+  }
+
+  .term-block__body pre {
+    font: var(--t-term);
+    color: var(--term-fg);
+    margin: 0;
+    overflow-x: auto;
+
+    /* Same "explicit scrollbar-color, never color-scheme" rule as the
+       code block's own (section 1) — tokens.css's TRAP comment applies
+       here too. Thumb uses --term-chrome-rule rather than borrowing
+       --code-control-border: §23.4 says the two components share the
+       caption class and the scroll-region MECHANIC, not a colour value —
+       terminal's own palette stays self-contained. */
+    scrollbar-color: var(--term-chrome-rule) var(--c-term-bg);
+  }
+
+  /* §13.3: "$ in --term-prompt (the dark-theme accent, at both themes)" —
+     a CONSTANT value regardless of page theme, like every other §2.3
+     machine-palette token; not light-dark(). */
+  .term-block__prompt {
+    color: var(--term-prompt);
+  }
+
+  .term-block__success {
+    color: var(--term-success);
   }
 }
