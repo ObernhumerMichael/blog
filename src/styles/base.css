@@ -118,6 +118,29 @@
     border: 0;
   }
 
+  /* Same intent as .visually-hidden above (present for assistive tech,
+     invisible for sighted readers) but NOT `position: absolute` — real bug,
+     found testing Phase 4.4's CodeCopy island: `.visually-hidden` takes its
+     element out of normal flow, which is harmless when it shares a parent
+     with other in-flow content, but CodeCopy.svelte's `aria-live` span is
+     its ONLY rendered output. An `<astro-island>` wrapper whose sole child
+     is positioned out of flow has nothing left to size itself around, so it
+     collapses to a 0×0 box at its own position — and `client:visible`'s
+     IntersectionObserver, watching that same 0×0 box, never reports it as
+     visible. Every copy button stayed `hidden` forever, confirmed directly
+     (Playwright: `[data-copy]` never lost its `hidden` attribute on any
+     page, at any width). Staying in normal flow (no `position`) keeps a
+     real 1×1px box for a parent with no other content to size around,
+     which is the only thing this variant changes. */
+  .visually-hidden-inline {
+    display: inline-block;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   /* §18.2 requires a skip-to-content link as the FIRST focusable element on
      every page. Deliberately not reusing .visually-hidden above: that one is
      permanently hidden, whereas this must become visible on focus.

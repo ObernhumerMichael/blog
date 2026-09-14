@@ -30,6 +30,7 @@ import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/article/ArticleHeader.astro';
 import ArticleToc from '../components/article/ArticleToc.astro';
+import CodeCopy from '../components/article/CodeCopy.svelte';
 
 const { frontmatter, headings } = Astro.props as {
   frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'] & {
@@ -41,6 +42,14 @@ const { frontmatter, headings } = Astro.props as {
 
 <BaseLayout title={frontmatter.title} description={frontmatter.lead}>
   <article>
+    <!-- Phase 4.4, ADR-0020: one delegating copy-control island per
+         article, not one per code block. `client:visible` hydrates based
+         on THIS element's own position, not the code blocks it serves —
+         placed at the top of the article (rather than, say, after the
+         last block) so it's already in view on load and every block's
+         copy button is live immediately, not only once the reader
+         scrolls the island itself into view. -->
+    <CodeCopy client:visible />
     <ArticleHeader frontmatter={frontmatter} />
     <div class="frame">
       <div class="band layout-article">

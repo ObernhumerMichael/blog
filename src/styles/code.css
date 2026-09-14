@@ -215,9 +215,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: var(--target-min);
-    min-height: var(--target-min);
-    padding-inline: var(--sp-8);
+    padding: var(--sp-4) var(--sp-8);
 
     background: none;
     border: var(--bw) solid var(--code-control-border);
@@ -230,22 +228,38 @@
   }
 
   /* Real bug, reported as the whole chrome bar looking "too big": the
-     comment above assumed the `hidden` ATTRIBUTE would keep this button
-     out of layout on its own until 4.4 ships, but the browser's own
+     comment this replaces assumed the `hidden` ATTRIBUTE would keep this
+     button out of layout on its own until 4.4 ships, but the browser's own
      `[hidden] { display: none }` rule lives in the UA stylesheet — and
      author styles win over UA styles regardless of specificity, so this
      rule's own `display: inline-flex` was overriding it unconditionally.
-     The button was rendering at its full `--target-min` 44×44 touch-
-     target size, with NO island yet to un-hide it on purpose, which is
-     what was inflating `.code-block__chrome`'s height (44px button + 9px
-     top/bottom padding) well past what the 11.5px filename line actually
-     needs. Restating `display: none` under `[hidden]` — MORE specific
-     than the bare class above (an attribute selector added to it), so it
-     wins independent of source order too — makes the button invisible
-     and out of flow exactly when Phase 4.4 hasn't hydrated it yet, same
-     as any other element using `hidden` correctly. */
+     Restating `display: none` under `[hidden]` — MORE specific than the
+     bare class above (an attribute selector added to it), so it wins
+     independent of source order too — fixed the pre-hydration case. */
   .code-block__copy[hidden] {
     display: none;
+  }
+
+  /* Same bug's second half, found again once CodeCopy.svelte (4.4) actually
+     un-hid the button for the first time: unconditional `min-width`/
+     `min-height: var(--target-min)` (44px) rendered a 44×44 button inside
+     9px chrome-bar padding — a 63px-tall bar against docs/reference's
+     compact hairline pill, confirmed by screenshotting the live rendered
+     `.code-block__chrome` next to `docs/reference/article/1320-light.png`
+     and `390-dark.png`, both of which show the copy control sized to the
+     text line, not to a 44px touch box, AT EVERY WIDTH — this was never a
+     mobile-only floor in the reference either. `ThemeControl.astro` (the
+     masthead's icon-only theme toggle) hit the identical shape of bug
+     first: `--target-min` applied unconditionally grows an inline control
+     past its icon/text+padding size regardless of input device. Its fix is
+     copied here rather than re-derived — `--target-min` (§18.5) means
+     "44px on touch", not "44px always"; the coarse-pointer media query is
+     what actually scopes it there. */
+  @media (pointer: coarse) {
+    .code-block__copy {
+      min-width: var(--target-min);
+      min-height: var(--target-min);
+    }
   }
 
   .code-block__copy:hover {

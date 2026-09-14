@@ -91,6 +91,28 @@ The decision this ADR records — one delegating island, server-rendered
 is unchanged; only the file name and one attribute in the sketch above
 were.
 
+## Correction (Phase 4.4)
+
+`client:visible` hydrates based on the `<astro-island>` wrapper's own
+bounding box, not on anything inside the article it's watching for. The
+first implementation rendered `CodeCopy.svelte`'s entire output as one
+`.visually-hidden` (base.css) `aria-live` span — and `.visually-hidden` is
+`position: absolute`, which removes an element from normal flow. With
+nothing else in the island's output, the wrapper had no in-flow content
+left to size itself around and collapsed to a 0×0 box, so the
+IntersectionObserver behind `client:visible` never reported it as visible:
+every `[data-copy]` button stayed `hidden` forever, confirmed directly with
+Playwright (`tests/e2e/copy.spec.ts`) before the fix and passing across all
+six width/theme combinations after it.
+
+Fix: a new `.visually-hidden-inline` utility (base.css), identical in
+intent but without `position`, so the span stays in flow and keeps a real
+1×1px box for the island wrapper to size around. `CodeCopy.svelte` uses
+that instead of `.visually-hidden`. Nothing else about this ADR's decision
+changes — the delegating-island shape, `client:visible`, and the
+`data-copy` targeting are all unaffected; only the one element determining
+whether the island can hydrate at all needed to stay in flow.
+
 ## References
 
 DESIGN_SYSTEM.md §13.2. ADR-0004 (MDX by exception), ADR-0017 (Svelte
