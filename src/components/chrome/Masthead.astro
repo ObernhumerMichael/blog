@@ -4,6 +4,16 @@ import { SITE_NAME, SITE_ROLE, NAV_LINKS, SITE_LINKS } from '../../consts';
 import { isCurrentPath } from '../../lib/nav';
 import ThemeControl from './ThemeControl.astro';
 import MobileMenu from './MobileMenu.svelte';
+import ReadingProgress from '../article/ReadingProgress.astro';
+
+export interface Props {
+  /** §948: below 1280, article pages get a 2px reading-progress bar
+   * immediately under the masthead. Off by default — every non-article
+   * page (and the article page's own aside copy, >=1280) has no bar here. */
+  progress?: boolean;
+}
+
+const { progress = false } = Astro.props;
 
 const pathname = Astro.url.pathname;
 const isCurrent = (href: string) => isCurrentPath(pathname, href);
@@ -70,6 +80,14 @@ const menuLinks = await Promise.all(
       </MobileMenu>
     </div>
   </div>
+
+  {
+    progress && (
+      <div class="reading-progress" aria-hidden="true">
+        <ReadingProgress bare />
+      </div>
+    )
+  }
 </header>
 
 <style>
@@ -240,6 +258,15 @@ const menuLinks = await Promise.all(
 
     .meta-link:active {
       color: var(--c-accent-hi);
+    }
+
+    /* §948: the masthead's only other persistent chrome, and only below
+       1280 — >=1280 the same datum lives in the article aside instead
+       (ReadingProgress.astro, mounted there by ProseLayout.astro). */
+    @media (min-width: 1280px) {
+      .reading-progress {
+        display: none;
+      }
     }
   }
 </style>

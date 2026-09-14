@@ -209,7 +209,19 @@
     text-align: left;
   }
 
+  /* §10.9: below 1280 the aside's content has nowhere to go and isn't
+     rendered there (only the progress datum relocates, to the masthead —
+     ReadingProgress.astro's `bare` render, Phase 5.6). Unlike .gutter,
+     whose CHILD swaps forms responsively, .aside itself disappears. */
+  .aside {
+    display: none;
+  }
+
   @media (min-width: 1280px) {
+    .aside {
+      display: block;
+    }
+
     .gutter,
     .aside {
       position: sticky;

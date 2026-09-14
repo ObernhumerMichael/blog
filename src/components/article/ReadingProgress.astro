@@ -1,0 +1,56 @@
+---
+// ReadingProgress.astro — Phase 5.6, §10.8 / §10.9. The static half of
+// AD-11's third island: TocProgress.svelte (this phase) never creates this
+// markup, only ever writes the number and the width onto it.
+//
+// One component, two mounts, not two designs — §10.9's "progress becomes a
+// bar under the header" below 1280 is stacking law 02 ("relocate, never
+// delete"): the same datum, the text dropped because the masthead has no
+// room for it, not a second visual treatment. ProseLayout.astro mounts the
+// full form in the aside (>=1280); Masthead.astro mounts `bare` under
+// itself (<1280) — see that file for why it lives there instead of here.
+//
+// The aside's other three lines (share/reply/github) are Phase 5.7's job;
+// this component owns only the piece this phase is responsible for.
+export interface Props {
+  bare?: boolean;
+}
+
+const { bare = false } = Astro.props;
+---
+
+<div class="progress">
+  {
+    !bare && (
+      <p class="progress-text">
+        read <span data-progress-text>0</span>%
+      </p>
+    )
+  }
+  <div class="progress-track">
+    <div class="progress-fill" data-progress-fill></div>
+  </div>
+</div>
+
+<style>
+  @layer components {
+    /* §373: "the 2px marker set" — accent fill on --c-rule, same family as
+       the active TOC tick and the callout bar. */
+    .progress-text {
+      font: var(--t-aside);
+      color: var(--c-muted);
+      margin: 0 0 var(--sp-8) 0;
+    }
+
+    .progress-track {
+      height: 2px;
+      background: var(--c-rule);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--c-accent);
+    }
+  }
+</style>

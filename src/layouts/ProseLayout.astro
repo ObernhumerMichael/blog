@@ -23,14 +23,19 @@
 // prerequisite: the TOC's own exit criterion ("the article reads correctly
 // at all six matrix combinations") is unjudgeable without a real gutter
 // column for it to sit in at >=1280, and layout-article's CSS was already
-// complete, just waiting for a consumer. Still not Instrumented.astro —
-// no aside content (share/progress are Phase 5), no apparatus band, no
+// complete, just waiting for a consumer.
+//
+// Phase 5.6: the aside exists now too, but only for the progress bar —
+// share/reply/github are Phase 5.7's job, which will add them to this same
+// `.aside` div. Still not Instrumented.astro — no apparatus band, no
 // collection-backed routing.
 import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/article/ArticleHeader.astro';
 import ArticleToc from '../components/article/ArticleToc.astro';
+import ReadingProgress from '../components/article/ReadingProgress.astro';
 import CodeCopy from '../components/article/CodeCopy.svelte';
+import TocProgress from '../components/article/TocProgress.svelte';
 
 const { frontmatter, headings } = Astro.props as {
   frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'] & {
@@ -40,7 +45,7 @@ const { frontmatter, headings } = Astro.props as {
 };
 ---
 
-<BaseLayout title={frontmatter.title} description={frontmatter.lead}>
+<BaseLayout title={frontmatter.title} description={frontmatter.lead} progress>
   <article>
     <!-- Phase 4.4, ADR-0020: one delegating copy-control island per
          article, not one per code block. `client:visible` hydrates based
@@ -50,6 +55,9 @@ const { frontmatter, headings } = Astro.props as {
          copy button is live immediately, not only once the reader
          scrolls the island itself into view. -->
     <CodeCopy client:visible />
+    <!-- Phase 5.6, AD-11: the TOC's scroll-spy and both progress-bar
+         renders, one island, same placement reasoning as CodeCopy above. -->
+    <TocProgress client:visible />
     <ArticleHeader frontmatter={frontmatter} />
     <div class="frame">
       <div class="band layout-article">
@@ -77,6 +85,9 @@ const { frontmatter, headings } = Astro.props as {
              350/836/1208 arithmetic. -->
         <div class="prose">
           <slot />
+        </div>
+        <div class="aside">
+          <ReadingProgress />
         </div>
       </div>
     </div>

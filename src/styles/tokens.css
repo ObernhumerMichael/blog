@@ -435,6 +435,11 @@
        doesn't match any existing --lh-* token, so it's inline here, same
        precedent as --t-quote's 1.6 / --t-callout's 1.62 above. */
     --t-toc: 400 var(--fs-meta-sm)/1.45 var(--font-mono);
+    /* §10.8 — aside: "mono 11.5/1.9 muted" for share/reply/github/progress.
+       Same recipe as --t-footer (11.5/1.9 mono, declared footer-only) —
+       coincidence, not reuse: a shared token across two unrelated
+       components would claim a link between them that doesn't exist. */
+    --t-aside: 400 var(--fs-meta-sm)/1.9 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
