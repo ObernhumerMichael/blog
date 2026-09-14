@@ -126,6 +126,8 @@ See §2 below; this is genuinely a conflict between your two source documents an
 
 Add a slug alias `/writing/<slug>` issuing a 301 to `/w/<num>`, so shared links stay human-readable and SEO doesn't suffer from opaque URLs. Canonical tag always points at `/w/<num>`.
 
+**Corrected in Phase 5 (Finding B):** under AD-01's no-adapter constraint, Astro's static `redirects` config does not issue a real 301 — it emits a meta-refresh page (`noindex`, a canonical link, `content="0;url=…"`). A true 301 is a Caddy-layer feature, tracked as a named Phase 9 item once the deploy pipeline exists to generate and ship the redirect map.
+
 Routes: `/`, `/writing`, `/writing/tag/<tag>`, `/w/<num>`, `/projects`, `/projects/<slug>`, `/about`, `/404`, `/rss.xml`, `/sitemap.xml`.
 
 ## AD-11 · Islands: three, all vanilla, all tiny
@@ -1213,11 +1215,162 @@ This also seeds `dev/gallery.astro` in Phase 7 with five of the twenty component
 - Every scroll region is focusable and arrow-scrollable.
 - Still one island per behaviour, not one per block; bundle stays inside ADR-0017's 10KB gzip budget.
 
-### Phase 5 · Content model and the article page _(1–2 days)_
+### Phase 5 · Content model and the article page _(2–3 days — revised up from 1–2: the fixture and the real collection turn out to disagree on two data shapes, T1 has no obvious way to run without fighting Astro's virtual module system, and AD-10's "301" is not a thing a static build with no adapter can actually issue)_
 
-Collections, schemas, cross-entry invariants, `/w/[num]`, slug redirects, TOC island, progress island, prev/next, related, author block, RSS, sitemap.
+Twelve sub-phases. Like Phases 2–4, this one opens with findings — surfaced by actually building throwaway probe pages against a real collection entry and a real static build, and reading the installed Astro source, not by re-reading the plan's own prose.
 
-**Exit:** T1 passes; three real articles render end-to-end; TOC correctly absent below three `h2`s; series navigation works.
+Two scope corrections to the stub, both narrowing it:
+
+- **The `projects` collection schema lands here; the `projects` pages do not.** The stub's "collections, schemas" is plural and the phase title says "content model," which covers both collections defined in AD-03 — but Phase 6 is titled "Writing index and projects" and owns the projects index and detail pages. Building the schema without a page to render it against is exactly Phase 3.1's situation with `writing`, so the same fix applies: land `content.config.ts`'s `projects` schema and its cross-entry rules now, alongside `writing`'s, and leave the pages themselves — and therefore the `project with no source` and `8 tags` T4 fixtures, which need an index page to render into — to Phase 6.
+- **Two of Phase 4.9's six deferred T4 fixtures move here.** Phase 4.9 punted all six remaining stress-test fixtures to "Phase 6's exit inherits" without checking which actually depend on the projects index. Two don't: the **90-word article** (no TOC, no author block, no related list) and the **9,400-word / 34-section article** (TOC's 150px scroll cap, the split-above-8,000-words rule) are both `writing` entries, provable the moment `/w/[num]` exists. Phase 6 inherits the other two — **8 tags** (needs the tag filter row) and **project with no source** (needs the projects index item).
+
+#### 5.0 · Four findings and one deliberately dropped feature
+
+| #   | Finding                                                                                                          | Effect                                                                                                                                                                            | Status                         |
+| --- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| A   | **`render(entry)` does not merge `remarkPluginFrontmatter` into `entry.data`** — confirmed by probe, not assumed | `wordCount`/`minutesRead`/`numberedHeadingFlags` would silently be `undefined` on the real article page, which the fixture's `layout:` mechanism never exposed as a risk          | Resolved in 5.4                |
+| B   | **A static `redirects` entry is not a 301** — confirmed by reading the installed `astro` source, not the docs    | AD-10 states "issuing a 301"; under AD-01 (no adapter) that is not literally true                                                                                                 | Resolved below, corrects AD-10 |
+| C   | **`@astrojs/sitemap` will list every routable page by default**, `/dev/*` included                               | The gallery and fixtures — fully routable since the Phase 0.1.2 correction — would ship in `sitemap.xml`                                                                          | Resolved in 5.10               |
+| D   | **The `series` schema in the Phase 3.6 fixture has no stable key** — it carries `name`, not `id`                 | Cross-entry invariant 3 ("every `series.id` has entries covering 1…total") has nothing to group by; a typo'd display name would silently start a second series instead of failing | Resolved in 5.1                |
+
+**Finding A, in detail.** A throwaway probe page (`getCollection('writing')` + `render(entry)` against a scratch entry, deleted once answered) returned `{ Content, headings, remarkPluginFrontmatter }` — three separate values, no automatic merge with `entry.data`. This is a different contract from the one `ProseLayout.astro` was built against: a `.md` page using the `layout:` frontmatter key (the Phase 3.1 fixture's own mechanism) gets `remarkPluginFrontmatter` folded into `Astro.props.frontmatter` by Astro itself, which is why `ArticleHeader.astro`'s comment could say `wordCount`/`minutesRead` "show up on this same `frontmatter` prop already flowing in" without anyone having to merge anything. A real collection entry gets no such courtesy. `/w/[num].astro` (5.4) has to build that merged object itself: `{ ...remarkPluginFrontmatter, ...entry.data }`, schema-validated fields last so a coerced `date` or a trimmed `title` wins over the raw pre-Zod copy `remarkPluginFrontmatter` also happens to carry.
+
+One more asymmetry the same probe surfaced, worth fixing while `ArticleHeader.astro` is open anyway: its `Frontmatter.date` is typed `string`, because the fixture bypasses collections and Astro never coerces a `layout:` page's frontmatter. A real `writing` entry's `date` will be a schema-coerced `Date` — `new Date(frontmatter.date)` already handles both identically at runtime (the constructor accepts a `Date` or a string equally), so the only change is the type: `date: Date | string`. Not a rewrite, one word wider.
+
+**Finding B, in detail — corrects AD-10.** `node_modules/astro/dist/core/routing/3xx.js` is the actual template a static build emits for a redirect page: `<meta http-equiv="refresh" content="…;url=…">` plus `<meta name="robots" content="noindex">` and a `<link rel="canonical">`. The 301 path (`node_modules/astro/dist/core/redirects/render.js`, a real `Response` with `status: 301`) only runs under a server adapter — which AD-01 forbids. So AD-10's "issuing a 301" describes an SSR feature this project cannot use by its own architecture.
+
+Confirmed by building, not just by reading the source: a throwaway `Astro.redirect('/w/001')` page, built with this project's real `output: 'static'` config, produced exactly that template — and the delay is **not** always instant. `redirectTemplate`'s own logic is `status === 302 ? 2 : 0`, and `Astro.redirect(target)` with no explicit status defaults to 302 — the first build produced `content="2;url=/w/001"`, a visible two-second pause before the client-side hop. Passing the status explicitly, `Astro.redirect(target, 301)`, changed the output to `content="0;url=/w/001"` on a second build — instant, matching what a reader following a shared link should experience. **The status argument is not optional**, it's the difference between an invisible redirect and a two-second stall.
+
+Two further consequences:
+
+- The `noindex` on the redirect page is the wrong signal for a page whose only job is to point at a canonical URL — it tells crawlers not to index a page that's supposed to hand them onward, not to disappear. Harmless for the reader once the delay is fixed to 0, cosmetic for search engines.
+- A **real** 301 is a Caddy-layer feature, not an Astro one, and Caddy already serves the site (§10). Building that now — before there is a single real article, a single chosen slug, or a mechanism for content-driven redirects to reach Caddy's static config without breaking the "GitHub Actions owns deploy events, Ansible owns server state" boundary §10 already draws — is solving a problem that doesn't exist yet.
+
+**Recommendation: ship the Astro static redirect in this phase, accept the `noindex` cosmetic cost, and open the real fix as a named Phase 9 item** ("upgrade `/writing/<slug>` from a static meta-refresh to a Caddy 301, once the deploy pipeline that would generate and ship the redirect map exists to receive it"). This is deferral with a name and a destination, not a silent gap — the same treatment OD-01 gives search. AD-10 gets a one-line correction; see below.
+
+**The dropped feature.** §6's own schema table already sanctions a fallback: "`parts` (auto-split above 8,000 words, E14 — **or at minimum a build warning** telling you to split it manually)." Full auto-splitting means turning one Markdown file into N generated pages with generated series metadata and cross-linked navigation — real, speculative machinery for a document nobody has written yet, and a naive word-count split would butcher mid-section regardless. Take the plan's own sanctioned fallback: **a build **warning**, not a build feature**, when a `writing` entry exceeds 8,000 words. `series`-based manual splitting (author writes `part-1.md`, `part-2.md`, each with its own `series` block) already works with nothing further built — series navigation is 5.8's job either way. Revisit auto-splitting if a real 9,000-word draft ever shows up unsplit; nothing here forecloses it.
+
+##### Resolved without a finding table row, because each has one clearly correct answer
+
+- **Numbering contiguity must include drafts.** §6's schema table excludes drafts "from prod build and from counts," but says nothing about contiguity. A draft occupies its number the moment it's authored — queuing article 006 as a draft while 005 is still unpublished must not fail the build, and cross-entry invariant 1's own stated purpose ("a gap means a **deleted** permalink") only makes sense if drafts hold their place in the sequence. The invariant in 5.3 checks contiguity across every entry, published or not; only the reader-facing **counts** (`Writing 3`) filter drafts out.
+- **Prev/next is numeric adjacency, not literally `series`-aware.** §10.7's worked example (`← 037 · previous in series`) happens to show a series article, which reads as if prev/next walks the `series` field — but that would leave every non-series article (the majority, by AD-03's own framing) with no prev/next at all, which nothing else in §10 supports, and the series relationship is already fully surfaced by the gutter/metadata series line (component 09, already built in Phase 3.6). Prev/next in 5.8 is adjacent-by-article-number, full stop; the worked example's wording is imprecise, not a second navigation mode to build.
+- **`related`'s result count is an invented number**, same category as OD-11's spacing value: nothing in DESIGN_SYSTEM.md states how many related items to show. Four — a clean two-row fill of the two-column grid §10.7 already specifies, and it matches the homepage's own "four rows of writing" density elsewhere in §21.5. Recorded here rather than silently picked, in case a real archive of related articles makes four feel thin or crowded once it exists.
+
+#### 5.1 · Finish `content.config.ts` — both collections
+
+1. `writing`: `number` (`z.number().int().min(1).max(999)`), `title`, `lead` (refined: no blank line, i.e. no double newline), `section` (`z.enum([...])` — the section list isn't stated anywhere in DESIGN_SYSTEM.md as a closed set beyond the worked examples `Infrastructure`/`Security`; treat it as closed anyway, for the same drift-prevention reason as the tag registry and `CODE_LANGS`, and extend the enum the first time a real article needs a new one), `date` (`z.coerce.date()`), `updated` (`z.coerce.date().optional()`, refined `> date` by more than a day), `tags` (`z.array(z.string()).min(1).max(3)`), `series` (`z.object({ id: z.string(), name: z.string(), part: z.number().int(), total: z.number().int() }).refine(part <= total).optional()` — **`id` is new**, per Finding D; a slug-shaped grouping key, separate from the display `name`), `featured` (`z.boolean().optional()`), `draft` (`z.boolean().default(true)` — default stays `true`, per OD-03's "drafts exempt" framing: a forgotten `draft:` line must fail closed, not silently publish).
+2. `projects`: `number` (1–99), `title`, `description` (58ch guidance, not enforced — a Zod `max` would fight real titles the design's own "wraps to three lines rather than shrinking" rule already accepts), `why` (optional), `stack` (`z.array(z.string()).min(3).max(6)`), `status` (`z.enum(['active', 'maintained', 'paused', 'archived'])`), `period` (`z.object({ from: z.coerce.date(), to: z.coerce.date().nullable() })`), `caseStudy` (bool), `links` (`z.object({ article: z.string().url().optional(), source: z.string().url().optional() })`), `sourceAbsence` (`z.string().optional()`, cross-checked in 5.3 against `links.source`'s absence rather than in the schema itself — Zod's `superRefine` can express "required when a sibling is missing," but the resulting error is a generic Zod issue rather than the specific "state the absence" message §11.1 is actually about; a named invariant test gives a better failure message for the one field in this schema that's a content-quality rule, not a shape rule).
+3. **Fix the fixture, not just the schema.** `src/pages/dev/fixtures/article.md`'s `series:` block gets an `id: declarative-homelab` line alongside its existing `name`. `ArticleHeader.astro`'s `Series` interface and its `frontmatter.date` type get the two widenings from Finding A. Both are one-line changes to files nothing else in this phase touches structurally.
+4. **`section` needs a first real value list**, since the enum has to be non-empty to compile. Seed it from what's already authored: `['Infrastructure', 'Security']` (the fixture's own section, plus OD-02's `Security` for CTF writeups) — extending a two-item enum later is cheap; inventing five speculative sections nobody's written toward is not.
+
+**Exit:** `pnpm check:astro` passes with both schemas real (no more `title` + `draft` stub); the fixture's frontmatter validates against the real `writing` schema if pointed at it, proving the schema didn't just get written to match itself; `series.id` exists on the fixture and on the `Series` interface.
+
+#### 5.2 · The tag registry
+
+`consts.ts` gets a `TAGS` export in the same shape as `CODE_LANGS` and `FIGURE_KINDS` — a `readonly [...] as const` array, one canonical lowercase form per tag, no `#`. Seed it from the fixture's own tags (`ansible`, `infrastructure`, `homelab`) plus the two OD-02 names (`ctf`, `security`) already promised in AD-03's table. This is the smallest possible version of the registry: it exists so 5.3's invariant 4 has something to check against, and it grows by one line the first time a real article needs a tag that isn't there yet — same extension discipline as `CODE_LANGS`'s own closing comment.
+
+**Exit:** `TAGS` exported from `consts.ts`; a tag used in content but absent from `TAGS` is a real, provable failure (proven in 5.3, not here).
+
+#### 5.3 · Cross-entry invariants (T1) — and how to run them without fighting Astro
+
+`tests/invariants/` is an empty `.gitkeep` today, and `check:content` is a literal `echo 'TODO Phase 5' && exit 0`. The obvious approach — write `node:test` files that `import { getCollection } from 'astro:content'` — doesn't work outside Astro's own Vite pipeline; that's a virtual module, not a real file, and `node --test` has no Vite underneath it. The two real options:
+
+| Option                                                                                                                                                                                                                                            | Cost                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Switch `tests/invariants/` to Vitest with `getViteConfig()` (Astro's documented testing pattern)                                                                                                                                                  | A second test runner beside Playwright's own runner, for five checks, when the plan's own repo tree already commits to `node:test` here                                                                        |
+| **Read the Markdown files directly** — `node:fs` glob + `gray-matter` for the frontmatter block, validated against the **same Zod schema** `content.config.ts` exports (import it directly; a Zod schema is a plain object, not a virtual module) | One small dependency (`gray-matter` — parses exactly this, nothing more, the same category of addition as `js-yaml` would be); re-implements zero validation logic, since the schema is imported, not re-typed |
+
+**Recommendation: the second.** It's also the pattern already proven twice in this repo — `scripts/verify-fonts.mjs` and `verify-tokens.mjs` both read source files with plain `node:fs` rather than reach for a framework-aware tool, for the same reason: the check is fundamentally "read some files and assert something," and Astro's own pipeline is more machinery than that needs. `gray-matter` is a genuinely new dependency, not an existing one doing double duty — justified because hand-rolling a YAML frontmatter parser is exactly the kind of "looks like a few lines, is actually a correctness trap" job this plan elsewhere refuses to DIY (fallback font metrics, the Shiki theme, the digest truncation — anywhere real parsing is involved, it reaches for a real parser).
+
+Checks, each a separate `node:test` in `tests/invariants/`, mirroring §6's numbered list:
+
+1. **Numbers unique and contiguous from 1**, per collection, **including drafts** (see 5.0's resolved note).
+2. **At most one `featured: true`**, per collection.
+3. **Every `series.id` groups a contiguous 1…`total` with no duplicate `part`**, and every member's `total` agrees.
+4. **Every tag is in `TAGS`** (5.2).
+5. **Every internal link in prose resolves to a real route** — this one can't be a pure frontmatter check, since the links live in the Markdown body, not the frontmatter block `gray-matter` extracts. Walk the raw body with a regex for `](/...)`-shaped internal links (a real parse is overkill for "does this path exist as a file/route," and the body is already trusted authored content, not user input) and check each target against the actual `src/pages` + collection-derived route list.
+6. **`sourceAbsence` is present whenever `links.source` is absent**, `projects` only (the Zod `superRefine` case from 5.1, moved here for the message quality reasoning already given).
+
+Invariants 6 (no `h4`) and 7 (non-empty alt) from §6's own list are **not** re-implemented here — they're already build failures via `remark-heading-depth.ts` (Phase 3.3) and the figure directive's alt check (Phase 4.6), enforced on every Markdown file regardless of which collection it belongs to. Duplicating them as a second, slower check would be the "second layer of defence" pattern this codebase already uses sparingly and by name (`rehype-table-region.ts`'s own comment) — not the default.
+
+**Exit:** `check:content` in `package.json` runs the real suite, not the stub; each of the six checks is proven by deliberately breaking one entry, watching it fail with a message naming the offending file, then fixing it — the 1.6 discipline, applied to content instead of CSS.
+
+#### 5.4 · `/w/[num].astro` — the article page
+
+1. `getStaticPaths()` over `getCollection('writing', (e) => import.meta.env.PROD ? !e.data.draft : true)`, `params: { num: String(entry.data.number).padStart(3, '0') }` — the **route param is the zero-padded string**, not the raw number, so `/w/1` is a 404 and only `/w/001` resolves, matching AD-10 literally rather than relying on Astro to zero-pad for you.
+2. `const { Content, headings, remarkPluginFrontmatter } = await render(entry)`, then build the single merged `frontmatter` object per Finding A: `{ ...remarkPluginFrontmatter, ...entry.data }`.
+3. Compute prev/next by number (5.0's resolved note) and related (5.8) from the full non-draft entry list, sorted once.
+4. Render through `ProseLayout.astro` (unchanged from Phase 3/4's shape) with `<Content />` in the slot, plus the new apparatus block (5.8) and aside (5.7) ProseLayout doesn't yet render.
+5. **Draft visibility**: a draft renders in `astro dev` and is excluded from `getStaticPaths` in a production build — not rendered-but-noindexed. A draft permalink that resolves in production is a permalink, and permalinks are permanent (AD-10); the only safe state for unpublished content is "the route doesn't exist yet."
+
+**Exit:** the three real articles from Phase 10's own "already half-written" list (or three placeholder equivalents, if Phase 10's content isn't drafted yet) render end-to-end at `/w/001` etc.; a `draft: true` fourth entry 404s in a production build and renders in dev; `wordCount`/`minutesRead`/the TOC's numbered headings all populate correctly, proving Finding A's merge.
+
+#### 5.5 · `/writing/[slug].astro` — the redirect, and the AD-10 correction
+
+1. **Not `astro.config.mjs`'s `redirects` map.** That option is a static, hand-typed table resolved before the content layer exists — `astro:content` isn't reachable from the config file, so a per-entry, collection-derived slug can't populate it without either hardcoding every slug by hand (defeats the point) or reaching for a module the config loader can't see. The correct shape is an ordinary dynamic route: `src/pages/writing/[slug].astro`, `getStaticPaths()` over `getCollection('writing')` returning `{ params: { slug }, props: { num: String(entry.data.number).padStart(3, '0') } }` per entry, and the page body doing exactly one thing — `return Astro.redirect(`/w/${num}`, 301)`. The explicit `301` argument is load-bearing per Finding B; omitting it silently reintroduces the two-second stall.
+2. A `slug` field the schema doesn't currently have — derive it at build time from the title (kebab-case, ASCII-folded) rather than requiring authors to hand-write a second identifier that can drift from the title.
+3. Per Finding B: this ships as Astro's static meta-refresh (now a zero-delay one), not a 301. Add the one-line correction to AD-10 (below) and open the named Phase 9 item.
+4. **AD-10 correction** (apply to §1's text now): after "Add a slug alias `/writing/<slug>` issuing a 301 to `/w/<num>`," append — _"Corrected in Phase 5 (Finding B): under AD-01's no-adapter constraint, Astro's static `redirects` emits a meta-refresh + `noindex` + canonical link, not a real 301. A true 301 is a Phase 9 Caddy-layer item, tracked there."_
+
+**Exit:** `/writing/a-reproducible-homelab` (or whatever the real first slug is) redirects to `/w/001`; the canonical `<link>` on the redirect page points at `/w/001`; the Phase 9 roadmap entry names the real-301 upgrade explicitly (see the roadmap edit below).
+
+#### 5.6 · The TOC + progress island — AD-11's third and last
+
+Per AD-11's own table, this is **one** island doing two jobs, not two islands — `ArticleToc.astro` (Phase 3.7) built the static shape and left `.is-active` for "Phase 5's scroll-spy island," and §10.8's progress bar has had no producer since it was first named. One `TocProgress.svelte`, `client:visible` (mounted once per article, same delegation shape as `CodeCopy.svelte` from 4.4 — consistent budget, not a new pattern), owning:
+
+1. **Active TOC item.** One `IntersectionObserver` over every numbered `h2`/`h3` (rehype-toc.ts's own `numberedHeadingFlags` — already computed, already reaching the client-rendered headings by `id`), toggling `.is-active` on the matching TOC entry. §15's own rule: **no transition, no smooth-scroll hijack** — a class swap, not an animation, which conveniently means this island adds nothing to the motion-token surface Phase 1/2 already built.
+2. **Reading progress.** `scrollY` against `document.documentElement.scrollHeight` on scroll (throttled via `requestAnimationFrame`, not a scroll listener firing unthrottled — the kind of detail that's invisible until a real Lighthouse run in Phase 8 counts main-thread time), writing the percentage into the aside's `read n%` text and the 2px bar's `width` — and, below 1100 per §10.9, the same bar under the masthead instead.
+
+**Exit:** scrolling the fixture article through its sections updates exactly one active TOC entry with no visible transition; `read n%` and the bar track scroll position at all three widths; still three islands total, matching ADR-0017's budget with nothing added.
+
+#### 5.7 · The aside (§10.8)
+
+`ProseLayout.astro`'s own comment already flags this as missing ("no aside content (share/progress are Phase 5)"). Sticky 200px column, mono 11.5/1.9 muted: `share ↗` (native `navigator.share()` where available, falling back to a `mailto:` composed link — no share-sheet polyfill, no new dependency, no island: a plain `<a>` whose `href` is computed at build time per article), `reply by email ↗` (a `mailto:` to the address in `consts.ts`), `edit on github ↗` (the repo path to this exact Markdown file — `github.com/<user>/<repo>/edit/main/src/content/writing/<file>` — blocked on `GITHUB_URL`'s own still-unset placeholder in `consts.ts`, same OD-07-adjacent "placeholder now, one-line fix later" treatment), then the progress bar from 5.6. Below 1100, per §10.9: share moves to the end of the article, progress becomes the under-masthead bar, the rest of the aside's content has nowhere to go and isn't rendered there — it was never relocated content, only the progress datum was (matching stacking law 02's "relocate, never delete," since the other three lines already have replacements: reply is inside the apparatus's author block contact line, and github/share have no mobile equivalent named anywhere in §10.9's own table, so their disappearance at that width is what the table already specifies, not a gap this phase introduces).
+
+**Exit:** the aside renders at ≥1100 with all four lines live; below 1100 only the progress bar survives, relocated under the masthead; `edit on github` resolves to a real, working GitHub edit URL once `GITHUB_URL` is real (and 404s harmlessly on the current placeholder, which is expected and not this phase's problem to fix).
+
+#### 5.8 · Apparatus — author block, prev/next, related
+
+1. **Author block** (§10.6). Static content — one author, one bio, one contact line — sourced from `consts.ts` rather than the `site` data collection (AD-03 assigns `site` to experience rows, Elsewhere links and the Now-panel fallback; a single-author blog's own author block is closer to `SITE_NAME`/`SITE_ROLE`'s existing home than to a collection with one row). Conditional per §10.10's "very short article" case: absent below three `h2`s, matching the TOC's own threshold and stated reasoning ("article apparatus is conditional on there being an article to support").
+2. **Prev/next** (§10.7, component 17 — Pagination). Numeric adjacency by article number (5.0), computed in 5.4 and passed down; absent at either end of the sequence (no "previous" on article 001) rather than wrapping around — nothing in component 17's own spec suggests a carousel.
+3. **Related** (§10.7). `src/lib/related.ts` — tag-overlap count, ties broken by same `section`, then by recency — the one piece of this sub-phase that's genuinely "logic easy to get subtly wrong" (`nav.ts`'s own stated bar for warranting a real file), so it gets a real file and a `node:test`, not an inline `.sort()` in the page. Top four (5.0's resolved note). Absent when fewer than one real match exists — an empty "RELATED" band with nothing under the label would be worse than no band at all, and nothing in §10.10 requires related articles to always be present the way TOC-absence is explicitly sanctioned.
+
+**Exit:** the 90-word fixture (5.9) shows no TOC, no author block, no related list — proving the conditional apparatus actually gates on content, not just on TOC's three-`h2` threshold reused blindly everywhere; a three-article corpus shows correct prev/next at both ends and in the middle; related entries share at least one tag with the current article, every time.
+
+#### 5.9 · The two inherited T4 fixtures
+
+`src/content/writing/`: a **90-word entry** (single paragraph, one `h2` at most — below the TOC's three-`h2` floor) and a **9,400-word / 34-section entry** (real content preferred per Phase 3.1's own anti-lorem-ipsum reasoning; failing that, a real section structure with placeholder prose inside each section, which at least exercises the numbering and TOC-cap logic honestly even if the prose itself is filler this once). Both routable through `/w/[num]` like any other entry.
+
+**Exit:** the 90-word article renders with no TOC, no author block, no related list, no prev/next gap-handling surprises; the 9,400-word article's TOC engages its 150px scroll cap (E4) and the build emits the 8,000-word warning from 5.0's dropped-feature note — proven by the warning actually appearing in build output, then removing ten sections and confirming it stops.
+
+#### 5.10 · RSS and sitemap
+
+1. **RSS.** `@astrojs/rss` (a function, not an integration — not currently a dependency) via `src/pages/rss.xml.ts`. Title/description from `consts.ts`, `site` from `SITE_URL`, items from non-draft `writing` entries sorted newest-first, `link` pointing at `/w/<num>` (the canonical form, never the slug alias). Description is the `lead` field — already capped at 62ch/one-paragraph by the schema, which happens to make it a reasonable feed summary without any extra truncation logic.
+2. **Sitemap.** `@astrojs/sitemap` (an integration — add to `astro.config.mjs`'s `integrations` array). Per Finding C, pass a `filter` excluding any path starting `/dev/`, plus the `/writing/<slug>` redirect routes specifically (their canonical is `/w/<num>`; a redirect page in a sitemap is a mixed signal a crawler doesn't need). **Not** a blanket `path.startsWith('/writing/')` — that would also swallow Phase 6's real `/writing` index and `/writing/tag/<tag>` pages the moment they exist; match the redirect pages by the number-lookup shape (5.4's slug set), not by their path prefix, so the filter doesn't need editing again in Phase 6. Verify by building and grepping the output `sitemap-0.xml` for `/dev/` — zero matches, not assumed from the filter function reading correctly.
+
+**Exit:** `/rss.xml` validates against a real RSS validator and lists exactly the non-draft `writing` entries, newest first; `sitemap.xml` contains zero `/dev/*` entries and zero `/writing/<slug>` redirect entries, confirmed by grep against the built output — with nothing else excluded.
+
+#### 5.11 · Extend the specimen page, and close out T1
+
+Per the precedent every prior phase sets (3.9, 4.11): add the aside (both its ≥1100 and <1100 forms), the author block, prev/next, and a related-items grid to the specimen page, so the apparatus components this phase built have a home outside a full article render.
+
+`check:content` (5.3) is the last of `package.json`'s `echo 'TODO'` stubs this plan is responsible for closing — `check:links` stays Phase 8's, `check:e2e`'s remaining T3 checks stay Phase 8's per the original roadmap.
+
+**Exit:** the specimen page renders the full apparatus set in both themes at all three widths; `pnpm run verify` runs a real `check:content`, not a stub, and it's the only stub `package.json` still names after this phase.
+
+---
+
+**Phase 5 overall exit criteria:**
+
+- Both collection schemas are real Zod, not the Phase 0 `title`+`draft` stub; `series.id` exists (Finding D) and the fixture matches.
+- T1 (`check:content`) runs all six cross-entry invariants against real files via `gray-matter` + the shared Zod schema, no `astro:content` dependency in a plain `node:test` file; each check proven to fail on a deliberate violation.
+- Three real articles (or Phase 10-equivalent placeholders) render end-to-end at `/w/00N`; a draft 404s in production and renders in dev.
+- `/writing/<slug>` redirects to the canonical `/w/<num>`, with AD-10 corrected to describe what a static build actually emits and the real-301 upgrade named as a Phase 9 item.
+- TOC gains a working active state and the reading-progress bar renders and updates, with **zero** new islands beyond the one ADR-0017 budgeted for this behaviour — three islands total, still.
+- Author block, prev/next and related all correctly go absent under §10.10's short-article case; the 90-word and 9,400-word fixtures prove it, not just the schema's own conditionals in isolation.
+- An over-8,000-word article warns at build time rather than failing or silently auto-splitting; series-based manual splitting already works with no further code.
+- `/rss.xml` and `/sitemap.xml` exist, validate, and contain no `/dev/*` page.
+- `check:content` is a real check; it is the last `echo 'TODO'` stub this plan closes.
 
 ### Phase 6 · Writing index and projects _(2 days)_
 
@@ -1241,7 +1394,9 @@ Full T2–T5 wired into `npm run verify` and CI. Manual checklist written. Basel
 
 Per §10 below. Deploy an almost-empty site first so pipeline bugs surface before content exists.
 
-**Exit:** push to `main` → live in under two minutes; rollback tested; TLS A+ ; nightly rebuild for the Now panel works.
+**Carried from Phase 5 (Finding B):** upgrade `/writing/<slug>` from Astro's static meta-refresh to a real Caddy 301 — generate the slug→number map at build time, ship it alongside `dist/` in the same rsync, and have Caddy `import` it. Keeps content-driven redirects flowing through the GitHub Actions/rsync path rather than requiring an Ansible run per new article, preserving §10's own deploy/server-state boundary.
+
+**Exit:** push to `main` → live in under two minutes; rollback tested; TLS A+ ; nightly rebuild for the Now panel works; `/writing/<slug>` issues a real 301, not a meta-refresh.
 
 ### Phase 10 · Launch content
 
