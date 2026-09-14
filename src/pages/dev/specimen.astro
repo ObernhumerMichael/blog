@@ -266,6 +266,17 @@ const glyphs = [
       .motion-demo:hover {
         background: var(--c-accent);
       }
+
+      .figure-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 24px;
+      }
+      .figure-row .figure {
+        margin: 0;
+        flex: 0 1 auto;
+      }
     </style>
   </head>
   <body>
@@ -574,6 +585,206 @@ const glyphs = [
         </p>
         <p>— a quote with attribution, mono, muted, beneath the text</p>
       </blockquote>
+    </div>
+
+    <h2>Code, terminal, figures &amp; tables (§13, §14, §15) — added Phase 4.11</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      Same job as 3.9, one section behind it: the four block kinds render here even where
+      no shipped fixture combines their states. <code>.diff-del</code> and <code
+        >.term-block__success</code
+      > are real classes (<code>code.css</code>, <code>rehype-terminal.ts</code>) that no
+      committed fixture had triggered until this page did — a diff hunk that only ever
+      adds, and a terminal block that never succeeds, are exactly the kind of gap 3.2's
+      callout bug came from.
+    </p>
+    <div class="prose">
+      <figure class="code-block">
+        <div class="code-block__chrome">
+          <span class="code-block__filename"
+            >ansible/roles/base/templates/hostname.j2</span
+          >
+          <div class="code-block__meta">
+            <span class="code-block__lang">jinja</span>
+            <button type="button" hidden class="code-block__copy" data-copy=""
+              >copy</button
+            >
+          </div>
+        </div>
+        <div class="code-block__body">
+          <pre
+            class="astro-code ledger"
+            style="background-color:var(--c-code-bg);color:var(--code-fg); overflow-x: auto;"
+            tabindex="0"
+            data-language="jinja"><code><span class="line"><span style="color:var(--code-fg)">{'{{ inventory_hostname }}'}</span></span></code></pre>
+        </div>
+      </figure>
+      <p class="code-block__caption">
+        Listing 1 — Twelve lines or fewer: no gutter (§13.2).
+      </p>
+
+      <figure class="code-block">
+        <div class="code-block__chrome">
+          <span class="code-block__filename">ansible/roles/monitoring/tasks/main.yml</span
+          >
+          <div class="code-block__meta">
+            <span class="code-block__lang">yaml</span>
+            <button type="button" hidden class="code-block__copy" data-copy=""
+              >copy</button
+            >
+          </div>
+        </div>
+        <div class="code-block__body">
+          <div class="code-block__gutter" aria-hidden="true">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span
+              >6</span
+            ><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span
+              >12</span
+            ><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span
+            ><span>18</span><span>19</span><span>20</span><span>21</span>
+          </div>
+          <pre
+            class="astro-code ledger"
+            style="background-color:var(--c-code-bg);color:var(--code-fg); overflow-x: auto;"
+            tabindex="0"
+            data-language="yaml"><code><span class="line"><span style="color:var(--code-fg)">---</span></span>
+<span class="line"><span style="color:var(--code-fg)">- </span><span style="color:var(--syn-keyword)">name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> Install node_exporter</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">  ansible.builtin.apt</span><span style="color:var(--syn-keyword)">:</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> prometheus-node-exporter</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    state</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> present</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">  notify</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> restart node_exporter</span></span>
+<span class="line" />
+<span class="line"><span style="color:var(--code-fg)">- </span><span style="color:var(--syn-keyword)">name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> Install Prometheus server</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">  ansible.builtin.apt</span><span style="color:var(--syn-keyword)">:</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> prometheus</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    state</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> present</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">  when</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> "'monitoring' in group_names"</span></span>
+<span class="line" />
+<span class="line highlighted"><span style="color:var(--code-fg)">- </span><span style="color:var(--syn-keyword)">name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> Deploy scrape config</span></span>
+<span class="line highlighted"><span style="color:var(--syn-keyword)">  ansible.builtin.template</span><span style="color:var(--syn-keyword)">:</span></span>
+<span class="line highlighted"><span style="color:var(--syn-keyword)">    src</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> prometheus.yml.j2</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    dest</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> /etc/prometheus/prometheus.yml</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    owner</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> prometheus</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">    mode</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> '0640'</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">  when</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> "'monitoring' in group_names"</span></span>
+<span class="line"><span style="color:var(--syn-keyword)">  notify</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> restart prometheus</span></span></code></pre>
+        </div>
+      </figure>
+      <p class="code-block__caption">
+        Listing 2 — Above twelve lines: gutter present, lines 14–16 highlighted (§13.2).
+      </p>
+
+      <figure class="code-block">
+        <div class="code-block__chrome">
+          <span class="code-block__filename"
+            >ansible/roles/firewall/defaults/main.yml</span
+          >
+          <div class="code-block__meta">
+            <span class="code-block__lang">diff</span>
+            <button type="button" hidden class="code-block__copy" data-copy=""
+              >copy</button
+            >
+          </div>
+        </div>
+        <div class="code-block__body">
+          <pre
+            class="astro-code ledger"
+            style="background-color:var(--c-code-bg);color:var(--code-fg); overflow-x: auto;"
+            tabindex="0"
+            data-language="diff"><code><span class="line"><span style="color:var(--code-fg)"> default_zone: public</span></span>
+<span class="line diff-del"><span style="color:var(--diff-del-fg)"><span style="user-select: none;">-</span>allowed_tcp_ports: [22, 80]</span></span>
+<span class="line diff-add"><span style="color:var(--diff-add-fg)"><span style="user-select: none;">+</span>allowed_tcp_ports: [22, 80, 443]</span></span></code></pre>
+        </div>
+      </figure>
+      <p class="code-block__caption">
+        Listing 3 — A diff hunk: <code>.diff-del</code> beside <code>.diff-add</code>, a
+        pairing no shipped fixture renders (they only ever add a line).
+      </p>
+
+      <figure class="term-block">
+        <div class="term-block__chrome">
+          <span class="term-block__label">TERMINAL — PI-04</span>
+        </div>
+        <div class="term-block__body">
+          <pre
+            tabindex="0"><code class="language-terminal"><span class="term-block__prompt">$</span> ansible-playbook site.yml --limit pi-04 --tags firewall
+<span class="term-block__success">[+]</span> firewall : Apply nftables ruleset — changed</code></pre>
+        </div>
+      </figure>
+      <p class="code-block__caption">
+        Listing 4 — The <code>$</code> prompt and the <code>[+]</code> success marker (§13.3)
+        — the only two coloured tokens in a terminal block, and the marker no shipped fixture
+        triggers.
+      </p>
+
+      <div class="figure-row">
+        <figure class="figure" data-kind="diagram">
+          <div class="figure__media">
+            <a href="/dev/homelab-architecture.svg" target="_self" class="figure__link">
+              <img
+                src="/dev/homelab-architecture.svg"
+                alt="Diagram of the homelab: a laptop pushing an Ansible playbook to three Raspberry Pi nodes"
+              />
+            </a>
+          </div>
+          <p class="code-block__caption">
+            Fig. 1 — kind="diagram": dims to ~92% in dark mode.
+          </p>
+        </figure>
+        <figure class="figure" data-kind="photo">
+          <div class="figure__media">
+            <img src="/dev/pi.jpg" alt="Photo of a Raspberry Pi" />
+          </div>
+          <p class="code-block__caption">
+            Fig. 2 — kind="photo": dims the same as a diagram.
+          </p>
+        </figure>
+        <figure class="figure" data-kind="screenshot">
+          <div class="figure__media">
+            <img src="/dev/pi.jpg" alt="Screenshot placeholder" />
+          </div>
+          <p class="code-block__caption">
+            Fig. 3 — kind="screenshot": sits on --c-sunken, left undimmed (E15).
+          </p>
+        </figure>
+      </div>
+
+      <div
+        class="table-region"
+        tabindex="0"
+        role="region"
+        aria-label="Specimen table — one row of the real inventory table, kept for its prose cell, right-aligned numeric column and truncated digest"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>Host</th>
+              <th align="right">CPU %</th>
+              <th align="left">Notes</th>
+              <th>Config digest</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pi-01</code></td>
+              <td align="right">34</td>
+              <td align="left" class="table-region__cell--prose">
+                Runs Prometheus and Grafana; first node provisioned.
+              </td>
+              <td>
+                <code title="sha256:9f2b1c7ae43f8091c2b9d0c81a4e77f3b1a9"
+                  ><span class="table-region__digest-head"
+                    >sha256:9f2b1c7ae43f8091c2b9d0c81a4e77</span
+                  ><span class="table-region__digest-tail">f3b1a9</span></code
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="code-block__caption">
+        Table 1 — A prose cell, a right-aligned numeric column and a middle-truncated
+        digest (§15.1, §15.3/E7).
+      </p>
     </div>
 
     <h2>Glyphs (§2.11)</h2>
