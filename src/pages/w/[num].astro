@@ -1,0 +1,37 @@
+---
+// /w/[num].astro — IMPLEMENTATION_PLAN.md §5.4, AD-10's canonical permalink.
+//
+// The route param is the zero-padded STRING ("001"), not the raw number —
+// matches AD-10 literally, so `/w/1` 404s and only `/w/001` resolves;
+// Astro doesn't zero-pad params for you.
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+
+export const getStaticPaths = (async () => {
+  // Draft visibility (5.4 point 5): a draft renders in `astro dev` and is
+  // excluded from the production build entirely — not rendered-but-
+  // noindexed. The only safe state for unpublished content is "the route
+  // doesn't exist yet" (permalinks are permanent, AD-10).
+  const entries = await getCollection('writing', (e) =>
+    import.meta.env.PROD ? !e.data.draft : true,
+  );
+  return entries.map((entry) => ({
+    params: { num: String(entry.data.number).padStart(3, '0') },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
+
+// Finding A (5.0): render() does NOT merge remarkPluginFrontmatter into
+// entry.data. Build the merged object ourselves — schema-validated fields
+// last, so a coerced `date` or a trimmed `title` wins over the raw
+// pre-Zod copy remarkPluginFrontmatter also happens to carry.
+const frontmatter = { ...remarkPluginFrontmatter, ...entry.data };
+---
+
+<ProseLayout frontmatter={frontmatter} headings={headings}>
+  <Content />
+</ProseLayout>
