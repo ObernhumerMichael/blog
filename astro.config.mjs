@@ -13,6 +13,7 @@ import shikiDiffLines from './src/plugins/shiki-diff-lines.ts';
 import rehypeProseLinks from './src/plugins/rehype-prose-links.ts';
 import rehypeToc from './src/plugins/rehype-toc.ts';
 import rehypeTerminal from './src/plugins/rehype-terminal.ts';
+import rehypeTableRegion from './src/plugins/rehype-table-region.ts';
 // Phase 4.1 (AD-05) — the site's one Shiki theme, mapped onto §2.3's seven
 // syntax roles via var(--syn-*)/var(--code-*)/var(--diff-*) references into
 // tokens.css. Node 24 (this project's pinned engine) supports import
@@ -205,7 +206,15 @@ export default defineConfig({
       // remark plugin, because `markdown.syntaxHighlight.excludeLangs`
       // (below) is what leaves its `<code class="language-terminal">` as
       // plain, unwrapped text this late in the pipeline for it to split.
-      rehypePlugins: [rehypeProseLinks, rehypeToc, rehypeTerminal],
+      // rehype-table-region (Phase 4.7): wraps every GFM `<table>` in its
+      // §15.2 scroll region. Rehype, not remark, and order-independent
+      // against the other two rehype plugins here — nothing about it
+      // depends on Shiki (tables are never highlighted) or on rehype-toc's
+      // heading bookkeeping; see that file's own header for why waiting
+      // for hast (rather than acting on the pre-Shiki mdast tree, the way
+      // remark-code-meta.ts has to) is actually simpler here, not just
+      // permissible.
+      rehypePlugins: [rehypeProseLinks, rehypeToc, rehypeTerminal, rehypeTableRegion],
       // gfm/smartypants default to true already — footnotes (3.5) and
       // curly quotes both depend on that, and the subset fonts were built
       // assuming SmartyPants output (docs/reference/glyph-coverage.md).

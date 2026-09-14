@@ -361,6 +361,14 @@
        same "reused enough to earn a token" bar --t-code itself clears). */
     --t-term: 400 var(--fs-term)/var(--lh-term) var(--font-mono);
     --t-caption: 400 var(--fs-caption)/var(--lh-caption) var(--font-mono);
+    /* Phase 4.7 — §15.1 table cell: "mono 13 (12.5 at mobile)". A distinct
+       bundle rather than reusing --t-code: --fs-table-cell already diverges
+       from --fs-code from 760 up (13px vs 13.5px), so the two tokens would
+       silently drift back together here if this borrowed --t-code's family/
+       line-height instead of declaring its own. No line-height is given in
+       §15.1 — 1.5 reused from --lh-meta rather than invented, the same
+       "short mono run" class of content --t-meta already covers. */
+    --t-table-cell: 400 var(--fs-table-cell)/1.5 var(--font-mono);
     /* Italic is used for quotes ONLY (§2.5 typographic laws). */
     --t-quote: italic 400 var(--fs-quote)/1.6 var(--font-serif);
     /* §6·10 — 1.62 inline for the same reason --t-quote's 1.6 is: a single-use
@@ -571,7 +579,6 @@
       article" stress case states it width-agnostically ("TOC gains its
       150px scroll cap") — applied to both disclosure forms, not just
       mobile, so the two don't contradict each other. */
-    --scroll-fade: 26px; /* spec 24–28; midpoint chosen */
     --instrument-w: 210px; /* project instrument track (spec 190–210) */
 
     /* =====================================================================

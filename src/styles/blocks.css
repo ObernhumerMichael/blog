@@ -1,12 +1,16 @@
 /* =============================================================================
-   blocks.css — Phase 4.6 (figures only; §7 of IMPLEMENTATION_PLAN.md's own
-   intro to Phase 4 names this file, beside code.css, for figures §14 AND
-   tables §15 — table styling is Phase 4.7's, not added here yet).
+   blocks.css — Phase 4.6 (figures) + Phase 4.7 (tables). §7 of
+   IMPLEMENTATION_PLAN.md's own intro to Phase 4 names this file, beside
+   code.css, for exactly these two — both Markdown-generated, both needing
+   global CSS the same way code does.
 
    DESIGN_SYSTEM.md §14.1 (figure anatomy), §14.2 (caption — same type
    treatment as code/table captions, code.css's `.code-block__caption`),
    §14.3 (constrained vs extended media), §2.2 deviation 6 / E15 (dark-mode
-   dimming).
+   dimming), §15.1 (table anatomy), §15.2 (tables at <760 — the scroll
+   region; this file deliberately does NOT implement that section's edge-
+   fade/`scroll →` marker affordances — see the TABLE section's own
+   comment), §15.3/E7 (middle-truncated digests).
 
    SCOPE. remark-directives.ts (Phase 4.6) wraps a `:::figure{kind="…"}`
    directive as:
@@ -17,6 +21,16 @@
         stays a bare, unstyled <p> here until Phase 4.8 (OD-13) promotes it
         into a real numbered caption, same as code/table captions today…
      </figure>
+
+   rehype-table-region.ts (Phase 4.7) wraps every GFM `<table>` as:
+     <div class="table-region" tabindex="0" role="region" aria-label="…">
+       <table>…GFM's own thead/tbody markup, untouched, plus a
+         `table-region__cell--prose` class on an explicitly-left-aligned
+         non-first column and a head/tail-split `<code title="…">` on a
+         middle-truncated digest…</table>
+     </div>
+   …followed, same as a code/figure block, by a bare, unstyled caption `<p>`
+   until Phase 4.8.
 
    Imported after prose.css and code.css (global.css) — same @layer
    components as both, so source order alone (not specificity) settles any
@@ -168,6 +182,248 @@
      that gap to the next prose element. */
   .figure__media + p {
     margin-top: var(--sp-10);
+  }
+
+  /* ===========================================================================
+     TABLE (§15.1, component 14) + SCROLL REGION (§15.2) — Phase 4.7
+     Real markup — rehype-table-region.ts wraps every GFM table exactly as
+     this file's own header describes.
+     =========================================================================== */
+
+  /* prose.css's `.prose pre, .prose table { margin: var(--sp-prose-block) 0; }`
+     (§10.3) still matches the bare `<table>` element itself once it's
+     nested inside this wrapper — a descendant selector doesn't care how
+     deep — so without the override below the block-to-prose rhythm would
+     land one level too deep, doubling up against the wrapper's own margin.
+     Same bug class code.css's own `.code-block__body pre.astro-code
+     { margin: 0 }` already documents for the identical reason.
+
+     One element: both the `overflow-x: auto` scroll container and the
+     `tabindex`/`role`/`aria-label` landmark (§18.2's "focusable and
+     arrow-scrollable" has to be true of the element the browser actually
+     scrolls on arrow-key input). §15.2 also specifies an edge fade and a
+     `scroll →`/`← scroll` marker on this element — deliberately not
+     implemented here. Those affordances need a POSITIONING ancestor that
+     itself never scrolls (an element that both scrolls AND positions a
+     `position: absolute` child against itself carries that child away with
+     its own content, same as any other in-flow descendant would — the two
+     roles don't compose on one element), which is real added structure for
+     a purely decorative pair of hints; left out rather than carried by a
+     second wrapper div. */
+  .table-region {
+    overflow-x: auto;
+    margin: var(--sp-prose-block) 0;
+    scrollbar-color: var(--c-faint) var(--c-bg); /* the table sits on the
+      PAGE ground, unlike code/terminal's own machine ground — none of
+      tokens.css's `color-scheme` TRAP applies here (that hazard is
+      code-block-specific), but an explicit scrollbar-color still matches
+      the established precedent (code.css section 1) rather than leaving
+      it to the UA default the reference frames don't show. */
+  }
+
+  .table-region table {
+    /* §15.2's own "at tablet: … becomes a scroll region early if it has
+       more than five columns" reads, on reflection, as a description of
+       what naturally happens once a table's CONTENT needs more room than
+       the tablet measure gives it, not a rule keyed to a literal column
+       count. `width: max-content` lets the table grow to whatever width
+       its content actually needs — triggering this element's own
+       `overflow-x` at whatever breakpoint that stops fitting, five
+       columns or not — while `min-width: 100%` keeps a table that DOES
+       fit stretched to the full measure rather than shrinking to its
+       content's minimum, matching every other block-level element on the
+       page. */
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    margin: 0; /* flush inside the wrapper — see the wrapper's own comment above */
+  }
+
+  /* Head (§15.1 anatomy: "a --c-rule-2 top rule → an uppercase mono head
+     row ... above a --c-rule hairline"). */
+  .table-region thead th {
+    font: var(--t-label);
+    text-transform: uppercase; /* the `font` shorthand can't carry this,
+      same as every other --t-label consumer already in this codebase
+      (term-block's own label, prose.css's callout label). */
+    letter-spacing: var(--tr-label); /* nor this */
+    padding-block: var(
+      --sp-9
+    ); /* §15.1: "9–10px padding-y" — low end,
+      matching --sp-9's own precedent (code chrome bar) rather than
+      inventing a second close number. */
+    padding-inline-end: var(--sp-16);
+    border-top: var(--bw) solid var(--c-rule-2);
+    border-bottom: var(--bw) solid var(--c-rule);
+  }
+
+  /* GFM's own `align="right"`/`"left"`/`"center"` (mdast-util-to-hast's
+     alignment output — a legacy presentational HTML attribute, not an
+     inline style; confirmed against the real build output, not assumed)
+     is a CSS "presentational hint": lowest priority within the author
+     origin, so an ordinary author rule of ANY specificity beats it
+     outright. A blanket `.table-region thead th { text-align: left }`
+     would therefore have silently overridden every right-aligned numeric
+     column's own `align="right"` — real bug, caught by inspecting the
+     actual built markup rather than assuming an unmarked `<th>`'s only
+     alternative was the UA default. `:not([align])` scopes this rule to
+     exactly the columns GFM left unmarked, the only case where nothing
+     else is competing for the declaration — every explicitly marked
+     column (left, right, or center) is left to its own attribute. */
+  .table-region thead th:not([align]) {
+    text-align: left; /* without this, an unmarked `<th>` falls back to
+      the UA default of CENTER, wrong for every identifying/data column
+      the design gives no explicit alignment marker to. */
+  }
+
+  /* Body rows (§15.1: "body rows separated by --c-rule-in hairlines → no
+     bottom rule on the last row"). */
+  .table-region tbody tr {
+    border-bottom: var(--bw) solid var(--c-rule-in);
+  }
+
+  .table-region tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* §15.1: "Table rows do NOT have a hover state (they are data, not
+     targets). Only interactive rows — index and project rows — take the
+     --c-surface hover." Nothing in this file gives a table row a hover
+     rule in the first place — this comment exists so a future edit
+     doesn't add one by analogy with an index row, which LOOKS identical
+     (§23.4) but is a different component. */
+
+  .table-region td,
+  .table-region th {
+    font: var(--t-table-cell);
+    padding-block: var(--sp-10); /* §15.1: "9–11px vertical" — midpoint */
+    padding-inline-end: var(
+      --sp-16
+    ); /* §15.1: "column gap 16–20px" — low
+      end, matching --sp-16's existing precedent rather than a new number.
+      Trailing-only: the NEXT cell's own leading edge needs no padding of
+      its own, so a shared border between two collapsed cells never gets
+      double-counted into a 32px gap. */
+    vertical-align: baseline;
+  }
+
+  .table-region td {
+    color: var(--c-text);
+  }
+
+  /* §15.1: "a column carrying an explanation rather than data ... sans
+     13.5 --c-text-2". --t-small already IS sans/13.5/no-responsive-step
+     (tokens.css) — the exact bundle this asks for, reused rather than a
+     new token (unlike --t-table-cell above, which needed one because no
+     existing MONO bundle matched --fs-table-cell's own responsive step).
+
+     Qualified as `.table-region td.table-region__cell--prose`, not the
+     bare class — real bug, caught against the actual rendered fixture
+     rather than assumed correct from the rule alone: the bare class
+     (one class, 0-1-0) loses its `font` declaration to `.table-region td,
+     .table-region th` above (one class + one type, 0-1-1), which sets
+     `font` too and — being a compound selector, not just later in the
+     file — wins on SPECIFICITY, not merely source order, so it doesn't
+     matter which rule comes first. Repeating both the wrapper class and
+     `td` here (0-2-1) is what actually outranks it; rehype-table-region.ts
+     already guarantees this class only ever lands on a `<td>`, never a
+     `<th>`, so the qualifier costs nothing in reach. */
+  .table-region td.table-region__cell--prose {
+    font: var(--t-small);
+    color: var(--c-text-2);
+  }
+
+  /* §15.2: "First column sticks ... on the page ground ... a value is
+     never orphaned from its row label." §15.1 also forbids vertical
+     rules, which is exactly why this is a background colour pinning the
+     column to the page ground rather than a border separating it —
+     "separated by ground, not by a border", the same structural move
+     this file's own figure section already makes for a different rule. */
+  .table-region td:first-child,
+  .table-region th:first-child {
+    position: sticky;
+    left: 0;
+    padding-inline-start: var(
+      --sp-16
+    ); /* the region's own edge inset —
+      matches code.css's `.line` 18px precedent in spirit (never let text
+      sit flush against the literal viewport edge, full-bleed or not);
+      reuses --sp-16 rather than introducing a distinct number for the
+      same "block-interior edge gutter" role --sp-18 already plays for
+      code. */
+    background: var(--c-bg);
+  }
+
+  /* §15.3/E7: the middle-truncation split. `.table-region__digest-head`
+     shrinks and ellipsizes; `.table-region__digest-tail` never does —
+     together they read as one truncated string while never discarding a
+     single character of the underlying DOM text (rehype-table-region.ts's
+     own header comment: this is what makes a full-text copy genuinely
+     true, not just a `title` tooltip claim).
+
+     Deliberately NOT flex. The first version of this rule made the outer
+     `<code>` an `inline-flex` container with the head at `flex: 1;
+     min-width: 0` — real bug, caught by actually selecting and copying
+     the rendered chip rather than trusting the rule from its CSS alone: a
+     flex item is blockified internally regardless of its own declared
+     `display` (CSS Flexible Box §2), and Chromium's `Selection.
+     toString()` inserts a line break between adjacent block-level boxes
+     the same way `innerText` does — so a real "select all, copy" pasted
+     the head and tail as TWO LINES, not one continuous string, silently
+     breaking the exact guarantee this split exists to make. Two plain
+     inline elements never blockify and never get that inserted break;
+     the head still ellipsizes on `inline-block` (required for `text-
+     overflow` to apply to an inline element at all — the tail doesn't
+     need it, so it stays plain `inline`), and a fixed `ch` cap on the
+     head alone replaces flex's `min-width: 0` shrink for the same "the
+     column is `width: max-content`, so nothing else would ever clamp it"
+     reason the previous comment here gave. */
+  .table-region__digest-head {
+    display: inline-block;
+    max-width: 10ch; /* roughly the ten head characters §15.3's own worked
+      example shows before the ellipsis ("sha256:9f2b1c7ae4…d0c81a") */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom; /* an inline-block baseline-aligns like
+      ordinary text by default, which drifts once its own ellipsis forces
+      a slightly taller line box than the surrounding mono text —
+      `bottom` keeps it flush with the text baseline instead. */
+  }
+
+  .table-region__digest-tail {
+    white-space: nowrap;
+  }
+
+  /* §15.2 also specifies a trailing-edge fade and a `scroll →`/`← scroll`
+     marker here, built as `.table-region::after`/`::before` pseudo-
+     elements driven by a `scroll()` timeline (Masthead's own ground-reveal
+     precedent) and then deliberately removed — the scroll region itself
+     (this section, above and below) is the part of §15.2 that stays: full-
+     bleed at mobile, sticky first column, focusable and arrow-scrollable.
+     Only the two decorative hint affordances are gone. */
+
+  @container (max-width: 700px) {
+    /* §15.2: "Full-bleed, contained ... bounded by two hairlines." The
+       same full-bleed escape as every other block in this file
+       (`.figure__media` above, code.css's `.code-block`) — but unlike
+       those two, a bare `.table-region` has no border of its own to begin
+       with (§15.1 has never given the table one), so "bounded by two
+       hairlines" means these are ADDED here rather than merely kept while
+       others drop, which is why this rule looks different in shape from
+       the figure/code equivalents even though it's the same underlying
+       escape formula (negative margin-inline by --page-margin). */
+    .table-region {
+      margin-inline: calc(var(--page-margin) * -1);
+      border-top: var(--bw) solid var(--c-rule-2);
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    .table-region thead th {
+      border-top: none; /* the wrapper's own top hairline (above) replaces
+        it once full-bleed — avoids stacking two adjacent --c-rule-2 lines
+        at the same visual edge. */
+    }
   }
 
   /* ===========================================================================

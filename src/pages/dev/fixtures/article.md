@@ -199,6 +199,20 @@ _Table 1 — "Converged run" is `ansible-playbook site.yml` against a node
 already at the desired state; it omits the SSH connection and fact-gathering
 overhead paid on every run regardless of what changes._
 
+The inventory table is the one that actually needs the scroll region — seven
+columns, a couple of numeric ones, a genuinely explanatory column, and a
+config digest nobody should have to read in full:
+
+| Host    | Role                   | IP         | CPU % | Disk free | Notes                                                | Config digest                                 |
+| ------- | ---------------------- | ---------- | ----: | --------: | :--------------------------------------------------- | --------------------------------------------- |
+| `pi-01` | monitoring, firewall   | 10.20.0.11 |    34 |    58.2 G | Runs Prometheus and Grafana; first node provisioned. | `sha256:9f2b1c7ae43f8091c2b9d0c81a4e77f3b1a9` |
+| `pi-02` | firewall, dns          | 10.20.0.12 |    11 |    71.8 G | nftables plus unbound; no local storage of its own.  | `sha256:2c7e91a0d4f6b8213a9c5e0d71b3a4f9026c` |
+| `pi-03` | storage, backup target | 10.20.0.13 |    62 |    12.4 G | Holds the restic repo backing up the other two.      | `sha256:7a4d0b91e2f83c6019a5d7b3e6081cfa459d` |
+
+_Table 2 — CPU and disk figures are a snapshot from `ansible -m setup`, not
+a live metric; the config digest is `sha256sum` over the node's rendered
+`/etc` tree, used to confirm a converged run actually changed nothing._
+
 ### 6.1 · The diff that mattered
 
 The `firewall` role used to run before `monitoring`. Reordering it cost one
