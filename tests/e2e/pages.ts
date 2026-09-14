@@ -1,4 +1,4 @@
-// Shared page list for T3 checks (IMPLEMENTATION_PLAN.md §2.7, 3.8).
+// Shared page list for T3 checks (IMPLEMENTATION_PLAN.md §2.7, 3.8, 4.9).
 //
 // Two pages, for two different reasons: /dev/layout-check is the only page
 // wired to BaseLayout with real chrome (masthead, footer, mobile menu) and
@@ -9,4 +9,21 @@
 // not chrome-specific ones. Neither file hardcodes its own copy of this
 // list (3.8's own instruction: "turn it into a list ... rather than
 // copying the file").
-export const PAGES = ['/dev/layout-check', '/dev/fixtures/article'] as const;
+//
+// 4.9 adds T4's six machine-content fixtures — §25.6's stress cases Phase 4
+// owns (IMPLEMENTATION_PLAN.md §4.9): a 210-character code line, a
+// seven-column table, a 3840×2160 screenshot, an image-free article, four
+// consecutive code blocks, and a caption with no length limit. Same reason
+// as the two pages above: every check in chrome.spec.ts/prose.spec.ts is a
+// general assertion, not specific to /dev/fixtures/article, so these six
+// belong in the one shared matrix rather than a parallel list.
+export const PAGES = [
+  '/dev/layout-check',
+  '/dev/fixtures/article',
+  '/dev/fixtures/code-long-line',
+  '/dev/fixtures/table-wide',
+  '/dev/fixtures/screenshot-4k',
+  '/dev/fixtures/image-free',
+  '/dev/fixtures/four-code-blocks',
+  '/dev/fixtures/long-caption',
+] as const;

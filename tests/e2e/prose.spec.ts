@@ -76,8 +76,19 @@ for (const PAGE of PAGES) {
     // this check is actually about. Direct children of `.prose` are
     // exactly the top-level flowing paragraphs; nested ones belong to a
     // different component with its own type spec.
+    //
+    // `:not(.code-block__caption)` — Phase 4.8's remark-captions.ts
+    // promotes a "Listing/Fig./Table n —" caption paragraph in place,
+    // which leaves it a DIRECT `.prose` child for code/terminal/table
+    // captions (a figure's own caption sits inside `.figure`, one level
+    // deeper, so it was never swept up here). Found running this file
+    // against 4.9's new fixtures: every one of them, and the pre-existing
+    // /dev/fixtures/article, failed with a received value of 11.5px —
+    // §14.2's caption size, not a body-text bug either.
     const sizes = await page.evaluate(() =>
-      Array.from(document.querySelectorAll<HTMLElement>('.prose > p'))
+      Array.from(
+        document.querySelectorAll<HTMLElement>('.prose > p:not(.code-block__caption)'),
+      )
         .filter((el) => el.checkVisibility())
         .map((el) => parseFloat(getComputedStyle(el).fontSize)),
     );
