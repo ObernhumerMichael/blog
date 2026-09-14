@@ -7,6 +7,7 @@ section: 'Infrastructure'
 date: 2026-08-19
 updated: 2026-08-25
 series:
+  id: 'declarative-homelab'
   name: 'declarative homelab'
   part: 2
   total: 4

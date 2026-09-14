@@ -15,6 +15,8 @@
 // frontmatter, which is why they show up on this same `frontmatter` prop
 // already flowing in from ProseLayout.astro.
 interface Series {
+  // Finding D (Phase 5): a stable grouping key, separate from `name`.
+  id: string;
   name: string;
   part: number;
   total: number;
@@ -25,15 +27,12 @@ interface Frontmatter {
   title: string;
   lead: string;
   section: string;
-  // YAML `date:`/`updated:` values arrive as plain strings, NOT coerced to
-  // Date — checked by building and reading the actual TypeError this threw
-  // (`frontmatter.date.toISOString is not a function`) rather than trusting
-  // an earlier debug JSON.stringify, which prints a real Date and an
-  // already-ISO string identically and so proved nothing either way. That
-  // coercion IS real for a content-collection entry's `z.date()` schema
-  // (Phase 5's job), but this fixture bypasses collections entirely (Phase
-  // 3.1's own reasoning) — no schema, no coercion.
-  date: string;
+  // YAML `date:`/`updated:` values arrive as plain strings when the fixture
+  // bypasses collections (Phase 3.1's own reasoning) — no schema, no
+  // coercion. A real `writing` collection entry's `date` IS coerced to
+  // `Date` by Phase 5's schema. `new Date(frontmatter.date)` below already
+  // handles both identically at runtime, so only the type needs widening.
+  date: Date | string;
   updated?: string;
   tags: readonly string[];
   series?: Series;

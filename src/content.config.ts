@@ -12,34 +12,81 @@
 // tagged `#ctf` (OD-02). This keeps the single monotonic article-numbering
 // invariant in DESIGN_SYSTEM.md §19.9 intact.
 //
-// Real Zod schemas land in Phase 5 (IMPLEMENTATION_PLAN.md §6: field table,
-// cross-entry invariants). This stub exists now so the directory structure
-// is real and the build has something valid to check against from Phase 0
-// onward, rather than an empty file nothing imports.
+// Real Zod schemas, per IMPLEMENTATION_PLAN.md §5.1. Cross-entry invariants
+// (unique numbering, tag registry membership, series contiguity, etc.) are
+// §5.3's job, run separately against the raw Markdown files — not here.
 
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
+// §5.1 point 4: not stated anywhere in DESIGN_SYSTEM.md as a closed set
+// beyond the worked examples — treated as closed anyway, same drift-
+// prevention reasoning as CODE_LANGS/TAGS. Extend the first time a real
+// article needs a section that isn't here yet.
+const SECTIONS = ['Infrastructure', 'Security'] as const;
+
 const writing = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
-  schema: z.object({
-    // TODO Phase 5 — full schema per IMPLEMENTATION_PLAN.md §6:
-    // number, title, lead, section, date, updated?, tags, series?,
-    // featured?, draft.
-    title: z.string(),
-    draft: z.boolean().default(true),
-  }),
+  schema: z
+    .object({
+      number: z.number().int().min(1).max(999),
+      title: z.string(),
+      // §21.1: the lead is never two paragraphs.
+      lead: z.string().refine((s) => !s.includes('\n\n'), {
+        message: 'lead must be a single paragraph (no blank line)',
+      }),
+      section: z.enum(SECTIONS),
+      date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+      tags: z.array(z.string()).min(1).max(3),
+      series: z
+        .object({
+          // Finding D: a stable slug-shaped grouping key, separate from
+          // the display `name` — invariant 3 groups by this, not by name.
+          id: z.string(),
+          name: z.string(),
+          part: z.number().int(),
+          total: z.number().int(),
+        })
+        .refine((s) => s.part <= s.total, {
+          message: 'series.part must be <= series.total',
+        })
+        .optional(),
+      featured: z.boolean().optional(),
+      // OD-03 "drafts exempt": default stays true so a forgotten `draft:`
+      // line fails closed, not silently publishes.
+      draft: z.boolean().default(true),
+    })
+    .refine(
+      (e) => !e.updated || e.updated.getTime() > e.date.getTime() + 24 * 60 * 60 * 1000,
+      { message: 'updated must be more than a day after date', path: ['updated'] },
+    ),
 });
 
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
   schema: z.object({
-    // TODO Phase 5 — full schema per IMPLEMENTATION_PLAN.md §6:
-    // number, title, description, why?, stack, status, period,
-    // caseStudy, links, sourceAbsence?.
+    number: z.number().int().min(1).max(99),
     title: z.string(),
-    draft: z.boolean().default(true),
+    // 58ch guidance, not enforced — a Zod max would fight real titles the
+    // design's own "wraps to three lines" rule already accepts.
+    description: z.string(),
+    why: z.string().optional(),
+    stack: z.array(z.string()).min(3).max(6),
+    status: z.enum(['active', 'maintained', 'paused', 'archived']),
+    period: z.object({
+      from: z.coerce.date(),
+      to: z.coerce.date().nullable(),
+    }),
+    caseStudy: z.boolean(),
+    links: z.object({
+      article: z.url().optional(),
+      source: z.url().optional(),
+    }),
+    // Required-when-source-is-missing is a §5.3 invariant, not a schema
+    // shape rule — a named test gives a better message than superRefine.
+    sourceAbsence: z.string().optional(),
   }),
 });
 
