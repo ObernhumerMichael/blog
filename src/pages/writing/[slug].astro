@@ -1,0 +1,31 @@
+---
+// /writing/[slug].astro — IMPLEMENTATION_PLAN.md §5.5, AD-10's slug alias.
+//
+// Not astro.config.mjs's `redirects` map: that table is resolved before the
+// content layer exists, so a per-entry slug can't populate it without
+// hardcoding every one by hand. An ordinary dynamic route can read
+// astro:content instead.
+//
+// Finding B: under AD-01's no-adapter (static-only) constraint, Astro's
+// static redirect isn't a real HTTP 301 — it emits a meta-refresh page
+// (`noindex`, a canonical link, `content="0;url=…"`). The explicit `301`
+// argument below is still load-bearing: it's what makes the refresh delay
+// zero instead of two seconds. A real 301 is a Phase 9 Caddy-layer item.
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import { slugify } from '../../lib/slug.ts';
+
+export const getStaticPaths = (async () => {
+  // Same draft visibility as /w/[num] (§5.4 point 5) — a draft's permalink
+  // doesn't exist yet in production, so neither does its alias.
+  const entries = await getCollection('writing', (e) =>
+    import.meta.env.PROD ? !e.data.draft : true,
+  );
+  return entries.map((entry) => ({
+    params: { slug: slugify(entry.data.title) },
+    props: { num: String(entry.data.number).padStart(3, '0') },
+  }));
+}) satisfies GetStaticPaths;
+
+return Astro.redirect(`/w/${Astro.props.num}`, 301);
+---
