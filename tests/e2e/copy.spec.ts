@@ -83,8 +83,12 @@ test('activating the control copies the block text and announces it', async ({
   expect(clipboardText).toBe(expected);
 
   // §13.2: "politely announced" — a dedicated aria-live region, not just
-  // the (already-verified) visible label change.
-  const live = page.locator('[aria-live="polite"]');
+  // the (already-verified) visible label change. CodeCopy.svelte's live
+  // region is the page's one delegating island (ADR-0020), not scoped
+  // under `block`, so it's found by its `.visually-hidden-inline` class —
+  // ArticleAside.astro's own `[aria-live="polite"]` share-announce span
+  // uses plain `.visually-hidden` instead.
+  const live = page.locator('.visually-hidden-inline[aria-live="polite"]');
   await expect(live).toHaveText('copied');
 
   // 1.2s label swap (§13.2), not permanent.

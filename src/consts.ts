@@ -48,6 +48,17 @@ export const SITE_LINKS = {
   pgp: PGP_URL,
 };
 
+// §10.6's author block — sourced from here rather than the `site` data
+// collection (AD-03 assigns that collection to experience rows, Elsewhere
+// links and the Now-panel fallback; a single-author blog's own author block
+// is closer to SITE_NAME/SITE_ROLE's existing home). AUTHOR_NAME reuses
+// SITE_NAME rather than repeating the string. AUTHOR_BIO is real prose, not
+// a structural placeholder like GITHUB_URL/PGP_URL — but it's still a first
+// draft, worth a real pass before launch.
+export const AUTHOR_NAME = SITE_NAME;
+export const AUTHOR_BIO =
+  'Backend developer working on distributed systems and infrastructure automation. Writes about homelab engineering, security research and the tooling that holds both together. Corrections and disagreements are welcome by email.';
+
 // Phase 4.1 (§13.2) — the closed vocabulary of fence languages a code block
 // may declare, validated by remark-code-meta.ts and failing the build on
 // anything outside it. Same shape and same reason as the tag registry

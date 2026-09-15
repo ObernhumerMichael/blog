@@ -437,6 +437,25 @@
     margin: 0 0 var(--sp-16) 0;
   }
 
+  /* When the article has footnotes, the references block above already
+     supplies the body -> apparatus 96px gap (--sp-apparatus). The apparatus
+     band's own first block (ArticleApparatus.astro's .apparatus-first)
+     ALSO applies --sp-apparatus, unconditionally — it has no way to know
+     whether .prose ends in a real paragraph or a references block that
+     already spent that gap. Stacked, the two produced ~190px of dead space
+     between the references block and the author block (reported directly
+     against the rendered page). Reaching in here to override a sibling
+     component's scoped class is unusual, but this is the one file that can
+     see both sides of the boundary: .prose (this file) and
+     .apparatus-block/.apparatus-first (ArticleApparatus.astro's own scoped
+     styles) are siblings under ProseLayout.astro's .measure-column, and a
+     plain class selector in a GLOBAL stylesheet still matches a
+     scoped component's class — Astro's data-astro-cid scoping only affects
+     selectors written inside that component's own <style> block. */
+  .prose:has(> section[data-footnotes]) + .apparatus-block.apparatus-first {
+    margin-top: var(--sp-40);
+  }
+
   .prose section[data-footnotes] ol {
     /* Overrides the generic .prose ol rule above (higher specificity via
        the extra ancestor) — this list's own margin is 0 because the

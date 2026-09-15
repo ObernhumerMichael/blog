@@ -1,0 +1,410 @@
+---
+// ArticleApparatus.astro — IMPLEMENTATION_PLAN.md §5.8, DESIGN_SYSTEM.md
+// §10.1 region 4 ("Apparatus — references, author block, prev/next,
+// related") minus references, which already renders inside .prose itself
+// (mdast always appends the footnotes section there — see prose.css's own
+// comment on `section[data-footnotes]`, Phase 3.4). One file for all three
+// remaining blocks, same granularity as ArticleHeader.astro bundling
+// breadcrumb/h1/lead/metadata — they're one design-doc region, hairline-
+// separated from each other, not three independently reusable components.
+import {
+  AUTHOR_NAME,
+  AUTHOR_BIO,
+  CONTACT_EMAIL,
+  GITHUB_URL,
+  RSS_PATH,
+} from '../../consts';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface ApparatusEntry {
+  number: number;
+  title: string;
+  date: Date;
+  minutesRead: number;
+}
+
+export interface Props {
+  headings: Heading[];
+  numberedHeadingFlags: boolean[];
+  prev: ApparatusEntry | null;
+  next: ApparatusEntry | null;
+  related: ApparatusEntry[];
+}
+
+const { headings, numberedHeadingFlags, prev, next, related } = Astro.props;
+
+// §10.10 / §21.3: "fewer than three h2s: no TOC, no author block, no
+// related list" — same build-time threshold ArticleToc.astro already
+// computes for the TOC (5.8 point 1: "matching the TOC's own threshold").
+// Prev/next and related below have their own independent absence rules
+// (position in the sequence; zero real matches) and are NOT gated on this.
+const numbered = headings.filter((_, i) => numberedHeadingFlags[i]);
+const h2Count = numbered.filter((h) => h.depth === 2).length;
+const showAuthorBlock = h2Count >= 3;
+const showPagination = prev !== null || next !== null;
+const showRelated = related.length > 0;
+
+// The first block actually rendered gets the body → apparatus 96px gap
+// (--sp-apparatus, §10.3/§5.3); every later block gets the smaller
+// between-block gap (--sp-40 — its own tokens.css comment already names
+// "article footer apparatus" as one of its jobs). DESIGN_SYSTEM.md has no
+// stated number for this second relationship (only "hairline-separated
+// blocks inside the measure"); computed here rather than left to a CSS
+// selector trick, same reasoning ArticleToc.astro gives for showToc/isLong.
+const order = [
+  showAuthorBlock && 'author',
+  showPagination && 'pagination',
+  showRelated && 'related',
+].filter((x): x is string => x !== false);
+const first = order[0];
+
+// No real portrait image exists yet — same "placeholder now, one-line fix
+// later" treatment as GITHUB_URL/PGP_URL in consts.ts. .author-portrait
+// below is sized by --portrait-author so the grid, gap and text column are
+// already correct the day a real <img> replaces that empty div.
+
+function href(number: number) {
+  return `/w/${String(number).padStart(3, '0')}`;
+}
+
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+---
+
+{
+  showAuthorBlock && (
+    <div
+      class:list={[
+        'author',
+        'apparatus-block',
+        { 'apparatus-first': first === 'author' },
+      ]}
+    >
+      <div class="author-portrait" aria-hidden="true" />
+      <div class="author-text">
+        <p class="author-name">{AUTHOR_NAME}</p>
+        <p class="author-bio">{AUTHOR_BIO}</p>
+        <p class="author-contact">
+          <a href={`mailto:${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL} <span aria-hidden="true">↗</span>
+          </a>
+          <a href={GITHUB_URL}>
+            github <span aria-hidden="true">↗</span>
+          </a>
+          <a href={RSS_PATH}>
+            rss <span aria-hidden="true">↗</span>
+          </a>
+        </p>
+      </div>
+    </div>
+  )
+}
+
+{
+  showPagination && (
+    <nav
+      class:list={[
+        'pagination',
+        'apparatus-block',
+        { 'apparatus-first': first === 'pagination' },
+      ]}
+      aria-label="Article navigation"
+    >
+      <div class="pagination-side">
+        {prev && (
+          <a class="pagination-link" href={href(prev.number)}>
+            <span class="pagination-kicker">
+              <span aria-hidden="true">←</span> {String(prev.number).padStart(3, '0')} ·
+              previous
+            </span>
+            <span class="pagination-title">{prev.title}</span>
+          </a>
+        )}
+      </div>
+      <div class="pagination-side pagination-side--next">
+        {next && (
+          <a class="pagination-link" href={href(next.number)}>
+            <span class="pagination-kicker">
+              {String(next.number).padStart(3, '0')} · next{' '}
+              <span aria-hidden="true">→</span>
+            </span>
+            <span class="pagination-title">{next.title}</span>
+          </a>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+{
+  showRelated && (
+    <div
+      class:list={[
+        'related',
+        'apparatus-block',
+        { 'apparatus-first': first === 'related' },
+      ]}
+    >
+      <p class="related-label">RELATED</p>
+      <div class="related-grid">
+        {related.map((item) => (
+          <a class="related-item" href={href(item.number)}>
+            <span class="related-title">{item.title}</span>
+            <span class="related-meta">
+              {String(item.number).padStart(3, '0')} · {isoDate(item.date)} ·{' '}
+              {item.minutesRead} min
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+<style>
+  @layer components {
+    /* §10.3/§5.3: body -> first apparatus block is 96px; §10's own
+       "hairline-separated blocks" gets the smaller, undocumented value
+       recorded in the frontmatter comment above — 40, tokens.css's own
+       comment on --sp-40 already naming this exact job. */
+    .apparatus-block {
+      margin-top: var(--sp-40);
+    }
+
+    .apparatus-block.apparatus-first {
+      margin-top: var(--sp-apparatus);
+    }
+
+    /* ===========================================================================
+       AUTHOR BLOCK (§10.6)
+       =========================================================================== */
+
+    .author {
+      display: grid;
+      grid-template-columns: var(--portrait-author) 1fr;
+      column-gap: var(--sp-20);
+      border-top: var(--bw) solid var(--c-rule);
+      /* §10.6 says "a hairline above and below", but a trailing rule with
+         nothing under it but empty space (author as the last, or only,
+         apparatus block) read as a stray line to nothing — reported
+         directly against the rendered page. Top only: when pagination or
+         related follows, that block's own opening hairline marks the
+         boundary; when nothing follows, no rule is needed at all. */
+      padding-top: var(--sp-20);
+    }
+
+    .author-portrait {
+      width: var(--portrait-author);
+      height: var(--portrait-author);
+      background: var(--c-sunken);
+      border: var(--bw) solid var(--c-rule);
+    }
+
+    .author-name {
+      font: var(--t-author-name);
+      color: var(--c-text);
+      margin: 0;
+    }
+
+    .author-bio {
+      font: var(--t-author-bio);
+      color: var(--c-text-2);
+      max-width: var(--measure-bio);
+      margin: var(--sp-8) 0 0 0;
+    }
+
+    .author-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-16);
+      font: var(--t-author-contact);
+      color: var(--c-muted);
+      margin: var(--sp-12) 0 0 0;
+    }
+
+    .author-contact a {
+      color: var(--c-muted);
+      text-decoration: none;
+
+      transition-property: color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .author-contact a:hover {
+      color: var(--c-accent);
+    }
+
+    .author-contact a:active {
+      color: var(--c-accent-hi);
+    }
+
+    @media (max-width: 759px) {
+      /* §10.9: "author block stacks with the portrait above". */
+      .author {
+        grid-template-columns: 1fr;
+        row-gap: var(--sp-20);
+      }
+    }
+
+    /* ===========================================================================
+       PAGINATION (component 17, §10.7/§17)
+       =========================================================================== */
+
+    .pagination {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--sp-32);
+      border-top: var(--bw) solid var(--c-rule);
+      padding-top: var(--sp-20);
+    }
+
+    /* An end-of-sequence article has no next (or a start-of-sequence one
+       no prev) — that side's <div> renders with no children at all (see
+       the template above), not just visually empty. :empty catches
+       exactly that case and drops it from the grid, rather than a
+       content-blind rule like :has(.pagination-link) that would need
+       restating everywhere the empty box's border/padding/gap could leak
+       through (reported directly against the rendered page, mobile: the
+       empty side still took its row-gap AND its mobile hairline). */
+    .pagination-side:empty {
+      display: none;
+    }
+
+    .pagination-side--next {
+      grid-column: 2;
+      text-align: right;
+    }
+
+    .pagination-link {
+      display: block;
+      text-decoration: none;
+    }
+
+    .pagination-kicker {
+      display: block;
+      font: var(--t-prevnext-kicker);
+      color: var(--c-muted);
+    }
+
+    .pagination-title {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: var(--fs-prevnext-title);
+      line-height: 1.35;
+      color: var(--c-text);
+      margin-top: var(--sp-8);
+
+      transition-property: color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .pagination-link:hover .pagination-title {
+      color: var(--c-accent);
+    }
+
+    .pagination-link:active .pagination-title {
+      color: var(--c-accent-hi);
+    }
+
+    /* §10.7: "Responsive: stacks with previous above next, both full width,
+       48px targets, a hairline between them." */
+    @media (max-width: 759px) {
+      .pagination {
+        grid-template-columns: 1fr;
+        row-gap: var(--sp-20);
+      }
+
+      .pagination-side--next {
+        grid-column: auto;
+        text-align: left;
+      }
+
+      /* The "hairline between them" is for the stacked prev/next pair —
+         only meaningful when prev is actually there to stack under. With
+         no prev (the first article), next is the pagination block's only
+         content and its own top border already came from .pagination
+         above; adding this one too produced the same stray "hairline to
+         empty space" the author block was fixed for. */
+      .pagination-side:not(:empty) + .pagination-side--next {
+        border-top: var(--bw) solid var(--c-rule);
+        padding-top: var(--sp-20);
+      }
+
+      .pagination-link {
+        min-height: 48px;
+      }
+    }
+
+    /* ===========================================================================
+       RELATED (§10.7)
+       =========================================================================== */
+
+    /* Same recipe as prose.css's #footnote-label — border-top + 16px below
+       it, on the label itself rather than the wrapper (which only carries
+       the apparatus-block/apparatus-first margin above). */
+    .related-label {
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      border-top: var(--bw) solid var(--c-rule);
+      padding-top: var(--sp-16);
+      margin: 0 0 var(--sp-16) 0;
+    }
+
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--sp-26);
+      row-gap: var(--sp-16);
+    }
+
+    .related-item {
+      display: block;
+      text-decoration: none;
+    }
+
+    .related-title {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: var(--fs-related-title);
+      line-height: 1.35;
+      color: var(--c-text);
+
+      transition-property: color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .related-item:hover .related-title {
+      color: var(--c-accent);
+    }
+
+    .related-item:active .related-title {
+      color: var(--c-accent-hi);
+    }
+
+    .related-meta {
+      display: block;
+      font: var(--t-related-meta);
+      color: var(--c-muted);
+      margin-top: var(--sp-8);
+    }
+
+    /* §10.9: "related stacks". */
+    @media (max-width: 759px) {
+      .related-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+</style>

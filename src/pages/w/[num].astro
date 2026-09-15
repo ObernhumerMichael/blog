@@ -4,9 +4,11 @@
 // The route param is the zero-padded STRING ("001"), not the raw number —
 // matches AD-10 literally, so `/w/1` 404s and only `/w/001` resolves;
 // Astro doesn't zero-pad params for you.
-import { getCollection, render } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import ProseLayout from '../../layouts/ProseLayout.astro';
+import { findRelated } from '../../lib/related';
+import type { ApparatusEntry } from '../../components/article/ArticleApparatus.astro';
 
 export const getStaticPaths = (async () => {
   // Draft visibility (5.4 point 5): a draft renders in `astro dev` and is
@@ -30,8 +32,57 @@ const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 // last, so a coerced `date` or a trimmed `title` wins over the raw
 // pre-Zod copy remarkPluginFrontmatter also happens to carry.
 const frontmatter = { ...remarkPluginFrontmatter, ...entry.data };
+
+// 5.4 point 3 / 5.8: prev/next and related are computed from "the full
+// non-draft entry list, sorted once" — never from `import.meta.env.PROD`'s
+// build-time filter above, so a draft previewed in `astro dev` (point 5)
+// still gets correct apparatus data computed as if it weren't there.
+const published = await getCollection('writing', (e) => !e.data.draft);
+const sorted = [...published].sort((a, b) => a.data.number - b.data.number);
+
+// Numeric adjacency (5.0's resolved note), not `series` — works whether or
+// not `entry` itself is a member of `sorted` (a draft's own number is
+// excluded from `published`, but comparisons by number still place its
+// neighbours correctly around it).
+const prevEntry =
+  [...sorted].reverse().find((e) => e.data.number < entry.data.number) ?? null;
+const nextEntry = sorted.find((e) => e.data.number > entry.data.number) ?? null;
+
+const relatedEntries = findRelated(
+  entry.data,
+  sorted.map((e) => e.data),
+).map((data) => sorted.find((e) => e.data.number === data.number)!);
+
+// Each target needs its own render() for `minutesRead` — Finding A again:
+// it's computed by the remark pipeline, not stored in `entry.data`. Only
+// the handful of entries actually shown (prev, next, up to four related)
+// are rendered here, not the whole collection.
+async function withMinutesRead(
+  target: CollectionEntry<'writing'> | null,
+): Promise<ApparatusEntry | null> {
+  if (!target) return null;
+  const { remarkPluginFrontmatter: rpf } = await render(target);
+  return {
+    number: target.data.number,
+    title: target.data.title,
+    date: target.data.date,
+    minutesRead: rpf.minutesRead as number,
+  };
+}
+
+const prev = await withMinutesRead(prevEntry);
+const next = await withMinutesRead(nextEntry);
+const related = (await Promise.all(relatedEntries.map(withMinutesRead))).filter(
+  (r): r is ApparatusEntry => r !== null,
+);
 ---
 
-<ProseLayout frontmatter={frontmatter} headings={headings}>
+<ProseLayout
+  frontmatter={frontmatter}
+  headings={headings}
+  prev={prev}
+  next={next}
+  related={related}
+>
   <Content />
 </ProseLayout>

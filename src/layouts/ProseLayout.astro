@@ -26,22 +26,37 @@
 // complete, just waiting for a consumer.
 //
 // Phase 5.7: the aside is complete now — ArticleAside.astro adds the
-// share/reply lines above ReadingProgress's hairline. Still not
-// Instrumented.astro — no apparatus band (5.8), no collection-backed
-// routing.
+// share/reply lines above ReadingProgress's hairline.
+//
+// Phase 5.8: the apparatus band (author block, prev/next, related) is
+// complete too, via ArticleApparatus.astro — the last named gap in the
+// header comment above. Still not Instrumented.astro: no collection-backed
+// routing lives here, that's /w/[num].astro's job (5.4).
 import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/article/ArticleHeader.astro';
 import ArticleToc from '../components/article/ArticleToc.astro';
 import ArticleAside from '../components/article/ArticleAside.astro';
+import ArticleApparatus, {
+  type ApparatusEntry,
+} from '../components/article/ArticleApparatus.astro';
 import CodeCopy from '../components/article/CodeCopy.svelte';
 import TocProgress from '../components/article/TocProgress.svelte';
 
-const { frontmatter, headings } = Astro.props as {
+const {
+  frontmatter,
+  headings,
+  prev = null,
+  next = null,
+  related = [],
+} = Astro.props as {
   frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'] & {
     numberedHeadingFlags?: boolean[];
   };
   headings: ComponentProps<typeof ArticleToc>['headings'];
+  prev?: ApparatusEntry | null;
+  next?: ApparatusEntry | null;
+  related?: ApparatusEntry[];
 };
 ---
 
@@ -83,8 +98,26 @@ const { frontmatter, headings } = Astro.props as {
              The container now lives on .band (layout.css), whose content
              box actually tracks the page width — see that file for the
              350/836/1208 arithmetic. -->
-        <div class="prose">
-          <slot />
+        <!-- .measure-column, not .prose, is the grid's actual 3rd auto-placed
+             child now — the apparatus band has to share .prose's column
+             (§10's "hairline-separated blocks inside the measure") without
+             becoming a 4th grid item, which would push .aside into a second
+             row instead of its own column (CSS Grid auto-placement wraps
+             once a row's tracks run out). .prose keeps its own max-width
+             (Phase 3.7's own comment above), so this wrapper only needs one
+             below, for the case below 1280 where .prose's cap doesn't stack
+             the two at the same width otherwise. -->
+        <div class="measure-column">
+          <div class="prose">
+            <slot />
+          </div>
+          <ArticleApparatus
+            headings={headings}
+            numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
+            prev={prev}
+            next={next}
+            related={related}
+          />
         </div>
         <div class="aside">
           <ArticleAside title={frontmatter.title} />
@@ -93,3 +126,11 @@ const { frontmatter, headings } = Astro.props as {
     </div>
   </article>
 </BaseLayout>
+
+<style>
+  @layer components {
+    .measure-column {
+      max-width: var(--measure);
+    }
+  }
+</style>
