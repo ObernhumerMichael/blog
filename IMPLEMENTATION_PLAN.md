@@ -1372,11 +1372,166 @@ Per the precedent every prior phase sets (3.9, 4.11): add the aside (both its �
 - `/rss.xml` and `/sitemap.xml` exist, validate, and contain no `/dev/*` page.
 - `check:content` is a real check; it is the last `echo 'TODO'` stub this plan closes.
 
-### Phase 6 · Writing index and projects _(2 days)_
+### Phase 6 · Writing index and projects _(3–4 days — revised up from 2: six findings surfaced by reading the real schema, the real component tree and the real reference screenshots before writing a line of this phase, three of them blocking, plus a component — Tag — that the first five phases never needed and so never built)_
 
-Writing index (featured entry, year groups, counted-tag filter row, archive row), tag pages, projects index, project detail with status band.
+Twelve sub-phases. Like Phases 3–5, this one opens with findings rather than code — obtained by reading `content.schemas.ts`, `src/components/list/` and `docs/reference/` as they actually are on disk, not as §0.3 and Phase 5 assumed they'd be.
 
-**Exit:** T3 passes on both index page types at all widths; the five-track → three-track → stacked row transitions match §20.3; project status leads on mobile (E3).
+One scope correction to the stub: **real project content lands here, not Phase 10.** Phase 5's own precedent (3.1's fixture-before-schema, 5.4's "three real articles … or placeholder equivalents") applies again — a projects index and a project detail page cannot be proven against an empty collection, and `src/content/projects/` currently holds nothing but a `.gitkeep`.
+
+#### 6.0 · Six findings, checked against the repository as it stands
+
+| #   | Finding                                                                                                     | Effect                                                                                                            | Status                    |
+| --- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| A   | **`writingSchema.tags` caps at 3**, but §21.2 itself states "eight has been tested and survives at 390"       | The T4 "8 tags" fixture 5.0 deferred to this phase cannot be authored as a real entry — Zod rejects it on parse    | Resolved in 6.1            |
+| B   | **Component 08 (Tag) has never been built** — `ArticleHeader.astro` inlines `<dd>#{tag}</dd>` directly, `src/components/list/` and `src/components/ui/` hold only `.gitkeep`s | Phase 6 is the first phase that needs a real, interactive, reusable Tag — filter rows and tag pages are the first place tags are navigational at all | Resolved in 6.3            |
+| C   | **No reference screenshots exist for the Writing index at all** — `docs/reference/` has `404/ about/ article/ home/ projects/ ui/`, no `writing/`                            | This phase builds one full page type from DESIGN_SYSTEM.md prose alone, with nothing to check pixels against       | Flagged, not blocking — see below |
+| D   | **The projects reference screenshots are two page types under one name, and incomplete.** `docs/reference/projects/1320-light.png` and `.../390-light.png` turn out — confirmed by opening them — to be the **project detail** page, not the index; the actual index shots live one level deeper at `docs/reference/projects/index/{390,900}-light.png`. There is no 1320 (desktop) or dark-theme shot of the index, and no dark-theme shot of the detail page either | §0.3's 42-image matrix silently shipped four of the projects-page combinations short | Flagged, not blocking — see below |
+| E   | **The project detail reference shows a `demo ↗` link in the status band's LINKS row and a `browse 28 →` primary link on a non-case-study project** — `projectsSchema.links` only has `article` and `source`; component 07's own spec hardcodes the primary link's text as `case study →` | Schema and component spec both undershoot what the reference actually shows | OD-14, resolved in 6.1     |
+| F   | **`projectsSchema` has no `draft` field** (unlike `writing`), and the OD-04 publication boundary for the one confidential case study — the industrial testing platform — is still not countersigned (checked: no `docs/*boundary*` file exists on disk, and Phase 0.5's own exit note still lists it as the one item carried past Phase 0) | This phase has nothing to render the projects index against, and the one project most worth stress-testing (`sourceAbsence`, no `links.source`) is also the one legally blocked from having real prose yet | OD-15, resolved in 6.1/6.2 |
+
+**Finding C and D, what "flagged, not blocking" means.** Every prior phase from 1 onward had a reference image to check a token, a spacing value or an alignment against before shipping it (3.2's callout bug, 3.3's `h3` spacing question). This phase's single highest-value page — the Writing index — has none. Recommendation: **request the missing captures before 6.5**, the same six-combination matrix §0.3 used elsewhere (390/900/1320 × light/dark) for the Writing index, plus the two missing projects-index combinations (1320, and a dark-theme shot of both index and detail) — cheap to ask for now, expensive to discover missing once 6.5 is mid-build and there's nothing to compare against. If they aren't available, this phase proceeds from DESIGN_SYSTEM.md §19.2/§9.5/component 05 prose alone and says so in the exit criteria, rather than silently treating prose-only as equivalent to a checked page.
+
+**Finding A, in detail — corrects the schema, not the design system.** §21.2's own sentence is unambiguous: eight tags is a tested, sanctioned ceiling; three is stated as "the design intent," a content guideline, not a hard limit. `content.schemas.ts` currently enforces the guideline as if it were the ceiling (`z.array(z.string()).min(1).max(3)`), which is backwards — the same category of mismatch as 3.2's `--fs-callout` bug, a value that slipped in because nothing was checking it against the section that actually specifies it. Fix: raise the Zod constraint to `.max(8)`, matching the tested ceiling, and add a comment recording that 3 is the recommended editorial target (the same non-enforced-guidance pattern `projectsSchema.description`'s 58ch already uses, per 5.1 point 2) — not something a schema constraint should be doing.
+
+**Finding B, in detail.** This is a correct absence, not a gap to backfill: component 08's own purpose line reads "Navigational on an index, descriptive on an article," and every existing tag render (`ArticleHeader.astro`'s metadata row) is the descriptive case — plain, non-interactive, correctly inline. **Do not retrofit `ArticleHeader.astro` to consume the new component in this phase** — it renders correctly today, and swapping it for `<Tag interactive={false}>` would be a churn-only change with no visible effect, the same reasoning 2.4's `NAV_LINKS` shape avoided a speculative abstraction for a count that didn't exist yet. The new component's variants — plain, counted, and the "all"/current-filter treatment — are built fresh for the filter row and tag pages, the first genuinely navigational tag surfaces in the codebase.
+
+##### OD-14 · The status band's `demo` link, and the project item's primary-link label **(blocking 6.1, 6.7, 6.9)**
+
+The industrial-platform reference shows `LINKS` as `source ↗ · demo ↗` in the status band, and the CTF-writeups project uses `browse 28 →` — not `case study →` — as its primary link, pointing at `/writing/tag/ctf`, a route this phase already builds (6.6), not a project detail page at all. Two schema-shaped questions follow:
+
+1. **Add `links.demo`** (`z.url().optional()`) to `projectsSchema` — a fourth link kind the reference needs and the schema doesn't have. Not `article`/`source` reused for it: a live demo and a written case study are different things a project can have independently (the homelab project in the mockup has neither `links.demo` nor a source link problem — it's `source` + `article`; the reference simply didn't show every combination in one frame).
+2. **The primary link's label is content, not a template string.** Component 07's "primary link (`case study →`)" phrasing describes the common case, not the only one. Add an optional `links.primaryLabel` (`z.string().optional()`, e.g. `'browse 28'`) — when absent, derive `case study →` from `caseStudy && links.article`; when present, it overrides both text and, implicitly, that the link may point somewhere other than a project detail page (`links.article` doubles as "the primary link's href" regardless of label, so `browse 28 →` still just needs `links.article: '/writing/tag/ctf'`, no new href field).
+
+**Recommendation: both, exactly as above.** Neither is speculative — both are things the reference screenshot already shows and the schema needs to represent them at all. Record as ADR-0022 once implemented.
+
+##### OD-15 · Real project content without waiting on the publication boundary **(blocking 6.2, and therefore 6.8/6.10's exit)**
+
+Four non-schema facts converge on one resolution:
+
+- `src/content/projects/` is empty; this phase cannot prove the index or detail page against nothing.
+- One of the two inherited T4 fixtures (5.0) is specifically "project with no source" — and the industrial-platform project (`client work · no source`, per the reference) is exactly that case by construction. No separate throwaway fixture is needed if the real project can be authored now.
+- The industrial platform's real prose is legally blocked: OD-04's publication boundary hasn't been sent for signature yet (Phase 0.5's own carried-forward item), and writing real case-study content ahead of that boundary being acknowledged is precisely what Phase 0's OD-04 section warned against doing.
+- `projectsSchema` has no `draft` field, so today there is no way to author a structurally-complete-but-not-yet-public project entry the way `writing`'s `draft: true` already lets an article exist without shipping.
+
+**Recommendation: add `draft: z.boolean().default(false)` to `projectsSchema`**, mirroring `writing`'s field for field — **default `false`**, not `true` as `writing` has it, because OD-03's "drafts exempt, fail closed" reasoning was about a forgotten flag silently *publishing* prose that wasn't ready; a project entry's default risk runs the other way (a forgotten flag would silently *withhold* a project that's actually fine to ship), and every project after the industrial one is non-confidential from the moment it's written. Then:
+
+1. Author the **three non-confidential projects** from the reference mockup now, as real launch-quality content, not placeholders: the homelab platform (`active`, `ansible · debian · wireguard · postgres`, `source` + `article`), the CTF-writeups aggregate (`active`, primary link `browse 28 →` per OD-14, `source` only), the evolutionary-SVG experiment (`archived`, `source` + `article`).
+2. Author the **industrial testing platform as `draft: true`**, with the real facts that are already safe to state (`maintained`, `2025`, `client work · no source`, the stack line, `sourceAbsence`) and placeholder-but-honest section prose standing in for the Technical-decisions table and Results section until the boundary is signed. This satisfies the "project with no source" T4 fixture structurally — `check:e2e` runs against `astro dev` (draft entries render there, same as `writing`'s), so the stress test is provable now — while nothing confidential ships, since a draft project is excluded from the production build exactly as a draft article already is.
+3. Phase 10 flips `draft: false` and replaces the placeholder sections once the boundary is countersigned. Nothing here forecloses that; it's the same deferred-with-a-name treatment Finding B/5.10 gave the real-301 upgrade.
+
+**Exit:** decided, `draft` field added, recorded as ADR-0023 once implemented.
+
+#### 6.1 · Schema corrections and the tag registry
+
+1. `content.schemas.ts`: `writingSchema.tags` → `.min(1).max(8)` (Finding A), comment recording 3 as the editorial target, not the enforced one. `projectsSchema`: add `links.demo` and `links.primaryLabel` (OD-14), add `draft: z.boolean().default(false)` (OD-15).
+2. `consts.ts`: extend `TAGS` from six entries to at least eight, so the 6.10 fixture has eight registry-valid tags to use. Draw the new ones from real thematic territory already established by the existing six real articles (e.g. a `linux` or `networking` tag reflecting the homelab/Ansible content already published) rather than inventing categories nothing will ever use again — same reasoning 5.9 gave `notes`.
+3. `tests/invariants/`: no new check needed — invariant 4 ("every tag is in `TAGS`") already covers a wider registry for free; invariant 1 (number contiguity) already covers the new project field additions since they don't touch numbering.
+
+**Exit:** `pnpm check:content` passes; a scratch article with 8 valid tags parses; a scratch project with `links.demo` and `draft: true` parses; `pnpm check:astro` has no type errors from the two new optional fields.
+
+#### 6.2 · Real project content
+
+Per OD-15: three real, non-draft project entries (`001-self-hosted-homelab.md`, `002-ctf-writeups.md`, `003-evolutionary-svg.md` — projects number 1–99 independently of `writing`'s sequence, AD-03) and one `draft: true` entry for the industrial platform (`004-industrial-testing-platform.md`), all four transcribed from the reference mockup's actual copy rather than lorem ipsum, per 3.1's own anti-lorem-ipsum reasoning (a stack line, a `**Why.**` sentence and a status word all read as fake or real immediately — there's no filler version of any of them worth writing).
+
+**Exit:** `pnpm check:content` validates all four against `projectsSchema`; three are visible in a production build, one only in `astro dev`.
+
+#### 6.3 · Tag (component 08)
+
+The first real build of this component — a small one. `src/components/ui/Tag.astro`: a lowercase hash-prefixed mono span or anchor, no chip, no background, no border, no radius (§6·08's own anatomy line is the whole visual spec). Three variants as props, not three components (§22.6 — prefer a variant over a new component):
+
+1. **Plain** (`#ansible`) — accent mono 12, hover underline, always a link (`/writing/tag/ansible`).
+2. **Counted** (`#infrastructure 11`) — plain plus a muted count appended, same link.
+3. **Current** (the "all" pseudo-tag, or whichever real tag the page is filtered to) — `--c-text` plus a permanent accent underline instead of the accent colour, **not a link to itself** (a current-page self-link is a no-op affordance §7.2's own "current page" treatment already avoids the same way for nav links).
+
+**Exit:** all three variants render correctly on the specimen page (6.11) in both themes; tabbing to a plain or counted tag shows the token focus ring; the current variant is not tabbable to itself (it has no `href`, so this is free — an `<a>` with no `href` isn't a link at all, confirmed by reading how the browser treats it, not assumed).
+
+#### 6.4 · Blog post item — row, compact row, featured entry (component 05, §9.5)
+
+`src/components/list/WritingRow.astro` and `src/components/list/FeaturedEntry.astro`. Both take the same normalised `{number, title, lead, dek?, date, minutesRead, tags, section}` shape rather than `CollectionEntry<'writing'>` directly — §11 of this plan's own "designed-in leeway" table already commits to collection-agnostic row components for exactly this reason (a future fourth content type shouldn't need a rewrite), and it costs nothing extra here since `/w/[num].astro` already builds an equivalent merged object for other reasons (Finding A, Phase 5).
+
+1. **`WritingRow`, full variant** (index row, five tracks: `52 / 104 / minmax(0,1fr) / 130 / 80`). This is a component-internal grid, not a page-level column structure — worth stating plainly, the same way Phase 4's code-block two-track grid and the TOC's spine needed saying, because §22.9 ("exactly three column structures, do not invent a fourth") governs page-level layout classes, not a single list item's own grid.
+2. **`WritingRow`, compact variant** — four tracks (number, date, title+dek, reading time), the tag track dropped. Built now, consumed by Phase 7's homepage "Latest writing" band — another instance of the reuse-across-phases pattern `findRelated`/`ArticleApparatus` already set.
+3. **`FeaturedEntry`** — not a row: a `minmax(0,680px) / 1fr` band per §9.5, metadata row + 27–28px serif title with its permanent accent underline + lead paragraph + optional series line, paired with a hairline-framed 170–200px lead figure. No ground, no border around the whole, no radius — it stays a band, not a card, per §9.1/§9.5's own insistence.
+4. **Responsive**, both row variants: five tracks → three (tag and reading time join line 2) → stacked (title first at 16.5, one wrapped mono line, dek dropped per E9 — the only datum in the system permitted to disappear rather than relocate).
+
+**Exit:** all three components render correctly at 390/900/1320 in both themes on the specimen page; a row's entire bounding box is the hit target at ≥48px tall; hover shifts the row ground to `--c-surface` and underlines the title, no lift/scale/shadow.
+
+#### 6.5 · The writing index page
+
+`src/pages/writing/index.astro`. Four bands per §19.2:
+
+1. **Header** — gutter `Writing / N articles` (N = published count, via `getCollection('writing', e => !e.data.draft)`), `h1` `--t-title`, lead ≤62ch, then the filter row: `<Tag current>all N</Tag>` followed by one counted `<Tag counted>` per registry tag with at least one published article, via `countTags()` (new, `src/lib/archive.ts` — see below), ending with `rss ↗`.
+2. **Featured** — the one `featured: true` entry (invariant 2 already guarantees at most one exists) via `FeaturedEntry` + 200px lead figure. **Absent if no entry is marked featured** — nothing in §19.2 mandates one exist, and inventing a fake feature would violate the content brief's no-invented-metrics rule the same way a fabricated homepage stat would.
+3. **Year groups** — one band per year, gutter carrying the year in serif 22 with the count beneath in `--c-faint`, body a `--c-rule-2`-opened list of `WritingRow` (full variant). `src/lib/archive.ts`'s `groupByYear()` — sort descending by year, entries within a year newest-first — gets a real file and a `node:test`, the same "logic easy to get subtly wrong" bar `related.ts`/`nav.ts` already set, not an inline `.sort()`/`.reduce()` in the page.
+4. **Archive row** — `archive by year → 2024 (9) 2023 (6) rss ↗`. **Resolved without a finding table row, because it has one clearly correct answer**: since §19.2 already renders every year's articles in bands on this one page ("an archive, not pagination" — no second page exists to link to), each year in this row is an **in-page anchor** (`#2024`, `#2023`) to that year's own band, not a route. `groupByYear()`'s output already gives both the year and its count for free.
+
+**Exit:** T3's three brought-forward checks (2.7) plus the width/theme matrix pass; the five-track → three-track → stacked transition matches §20.3; an anchor click from the archive row lands on the correct year band.
+
+#### 6.6 · Tag pages
+
+`src/pages/writing/tag/[tag].astro` — a real route named in AD-10's own route list but, checked directly, **given no page-composition entry anywhere in §19** (§19.1–19.8 names exactly seven page types; a tag page isn't an eighth, it's a filtered view of one of the seven). Resolved by derivation, the same treatment OD-01 gives search UI and §19.9 gives "every list is the same list": a tag page **is** the Writing index with the filter state changed, not a new composition.
+
+1. `getStaticPaths()` over `TAGS`, filtering published `writing` entries to ones containing that tag.
+2. Same header band, with the matching `<Tag>` rendered `current` instead of `all` in the filter row, and `h1`/lead swapped to name the filter (`#security` / `9 articles tagged #security`) — a small amount of invented copy, same weight-class as OD-11's spacing value, recorded here rather than left silent.
+3. **No Featured band** — the sitewide `featured: true` pick has no guaranteed relationship to the current tag, and showing an unrelated "featured" entry at the top of a filtered list would contradict the filter itself. Year groups start immediately after the header.
+4. Year groups and archive row: identical logic to 6.5, scoped to the filtered set — `groupByYear()` takes the entry list as a parameter, so this is a second call, not new code.
+
+**Exit:** `/writing/tag/ctf` renders only CTF-tagged entries, correctly grouped by year; the filter row shows `#ctf` as current, not `all`; a tag with zero published entries 404s rather than rendering an empty page (no dead route for a tag nothing uses yet).
+
+#### 6.7 · Project item (component 07)
+
+`src/components/list/ProjectItem.astro`. Full index variant: three tracks `44 / minmax(0,1fr) / 210` — again a component-internal grid, not a fourth page-level structure, same 6.4 point 1 reasoning. Content order inside the substance track exactly as §11.1 states — number → title → description → optional `**Why.**` → stack line — and the instruments track per component 07's anatomy: status → period → primary link (OD-14's derived label) → source-or-`demo`-or-absence.
+
+**The one sanctioned law-01 inversion (E3).** At mobile the instrument track folds under the description as a wrapped mono block with **status first** — checked against `docs/reference/projects/index/390-light.png`, which shows exactly this order (`● active 2024 — ongoing`, then title, description, stack, links). Implement it as source order in the markup (status genuinely first in the DOM at every width, description second), not a CSS reorder trick — the row's tab order should match what's visually first at the width where it matters, and a `flex-direction`/`order` reshuffle would make the two diverge for keyboard users.
+
+**Exit:** renders correctly at 390/900/1320 in both themes; the status-first mobile order is real DOM order, confirmed by tabbing through it at 390 and seeing status focused before the title link.
+
+#### 6.8 · Projects index page
+
+`src/pages/projects/index.astro`, replacing the `.gitkeep`. Per §11.1/§19.4: header band (gutter `Projects / N · M active`, `h1` `--t-title`, lead ≤62ch) → an `INDEX`-labelled band of `ProjectItem`s (26px padding-y, `--c-rule-2` opening the list, `--c-rule` between items) → footer. `N`/`M` computed from the same published-project count `NAV_LINKS`' mobile-menu count already needs (6.2's `draft: true` industrial entry excluded from both, in production).
+
+**Exit:** matches `docs/reference/projects/index/{390,900}-light.png` at those two widths (Finding C/D's gap — no 1320 or dark shot to check against, noted rather than silently assumed correct); T3's matrix passes at 1320 and in dark mode regardless.
+
+#### 6.9 · Project detail page
+
+`src/pages/projects/[slug].astro` — **"uses the article grid exactly," per §11.2, which is a real architectural constraint, not just a description.** Checked directly: `ProseLayout.astro` hardcodes `<ArticleHeader frontmatter={frontmatter} />` inline (not a slot), so a project detail page cannot reuse it unmodified — the status band's data shape (status/period/stack/links, no tags, no word count) doesn't fit `ArticleHeader`'s `Frontmatter` interface at all.
+
+**Resolution: give `ProseLayout.astro` a `header` slot, defaulting to `<ArticleHeader frontmatter={frontmatter} />` when nothing is passed.** A one-slot change, not a speculative plugin system — there is exactly one concrete second header (`ProjectHeader.astro`, built this sub-phase) that needs to swap in, and a default keeps every existing call site (`/w/[num].astro`) working with zero changes.
+
+1. `src/components/article/ProjectHeader.astro` — same header-band markup shape as `ArticleHeader` (gutter, breadcrumb, `h1`, lead) but `h1` at 40 not 42 (§11.2 point 1), and the metadata row replaced by the **status band**: hairline above, four-column `LABEL`-over-value grid (Status · Period · Stack · Links), collapsing four → two → a stacked two-line mono block at the same two breakpoints `ArticleHeader`'s own metadata row already collapses at. Gutter carries `Project 01` + the status word in `--c-ok` (or the appropriate status colour — §11.2 point 3).
+2. Breadcrumb: `projects / <slug>` — the slug reused from the same `slugify(title)` helper (`src/lib/slug.ts`) `writing`'s own `/writing/[slug]` redirect already uses (5.5 point 2), applied to `projects` for the first time; no new code.
+3. `src/pages/projects/[slug].astro`: `getStaticPaths()` over `getCollection('projects', e => import.meta.env.PROD ? !e.data.draft : true)`, canonical section sequence per §11.2's table (Problem & motivation → Architecture → Implementation → Technical decisions → Results & lessons), reusing every article-body component built in Phases 3–4 unchanged (code blocks, figures, the decision table via the standard Table component). Aside's third line: `next project`, numeric adjacency by project number (same reasoning as 5.0's article prev/next resolution — a one-line `.find()`, no new lib file needed for something this small).
+4. `related.ts`/`ArticleApparatus`'s prev/next-pair layout is **not** reused here — §11.2 names a single `next project` line in the aside, not a two-column prev/next grid; building the pair component into project detail would be adding a component to a page that doesn't call for it (§22.8).
+
+**Exit:** `/projects/self-hosted-homelab` renders end-to-end through the shared grid with a real status band; `/w/[num]` still renders unchanged with zero prop changes (the slot default proven, not assumed); the status band collapses 4 → 2 → stacked exactly where `ArticleHeader`'s metadata row already does.
+
+#### 6.10 · The two inherited T4 fixtures
+
+Per 5.0's deferral and this phase's own Finding A/OD-15 resolutions, both now unblocked:
+
+1. **8 tags** — `007-<real-short-homelab-note>.md` in `src/content/writing/`, tagged with eight of the now-extended `TAGS` registry (6.1). Real short content, not filler, per 3.1's standing reasoning. Proves two things at once: the metadata row wraps correctly at 390 without breaking the type floor or the page width, and the filter row (6.5) renders eight counted tags without its wrapping flex row (component 08's own "tested at 390 with eight tags" claim) visibly degrading.
+2. **Project with no source** — already satisfied by 6.2's `004-industrial-testing-platform.md` (`draft: true`, `sourceAbsence` set, no `links.source`). No additional fixture needed — the real content **is** the stress test, per OD-15's own reasoning.
+
+**Exit:** the 8-tag article renders correctly at 390 in both themes; the filter row on `/writing` shows all eight of its tags as distinct counted entries with no visual break; the industrial project's `client work · no source` renders correctly on both the projects index (in `astro dev`) and its own detail page.
+
+#### 6.11 · Extend the specimen page
+
+Per the precedent every prior phase sets (3.9, 4.11, 5.11): add `Tag` (all three variants, both themes), `WritingRow` (full, compact, featured), and `ProjectItem` (all states, including the mobile status-first order forced via a class so it's screenshot-deterministic per T5's own gallery-state convention) to `src/pages/dev/specimen.astro`.
+
+**Exit:** the specimen page renders the full set introduced this phase, in both themes, at all three widths.
+
+---
+
+**Phase 6 overall exit criteria:**
+
+- `writingSchema.tags` allows up to 8 (matching §21.2's tested ceiling), `TAGS` registry has at least 8 entries; `projectsSchema` has `links.demo`, `links.primaryLabel` and `draft`, all recorded in an ADR (OD-14 → ADR-0022, OD-15 → ADR-0023).
+- Four real project entries exist; three ship in production, one (industrial platform) is `draft: true` pending the still-uncountersigned OD-04 publication boundary.
+- `Tag`, `WritingRow` (+ compact + featured), and `ProjectItem` all exist as real, reusable components for the first time — `src/components/list/` and `src/components/ui/` hold more than `.gitkeep`s.
+- `/writing` renders featured entry (when one exists), year groups, a counted-tag filter row and an in-page archive-by-year anchor row; T3 passes at all three widths in both themes, matching §20.3's five → three → stacked transition.
+- `/writing/tag/<tag>` renders as a derived filtered view of the same page, with no Featured band and the current tag marked instead of `all`.
+- `/projects` and `/projects/<slug>` both render; project detail reuses the article grid via `ProseLayout`'s new `header` slot with zero changes to `/w/[num].astro`'s own rendering; the mobile status-first inversion (E3) is real DOM order, not a CSS reorder.
+- Both T4 fixtures inherited from Phase 5 (8 tags, project with no source) are provable, the second one without any fixture-only content — the real launch content **is** the test.
+- The Writing-index and projects-index reference-screenshot gaps (Finding C/D) are either closed by a fresh capture request or explicitly noted as unclosed in this phase's own record — not silently treated as covered.
 
 ### Phase 7 · Home, about, 404 _(1 day)_
 
