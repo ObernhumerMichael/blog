@@ -4,8 +4,15 @@
 // hunting through real pages. Lives at src/pages/dev/ (no underscore — see
 // ADR-0014); excluded from what ships via the deploy-time `rm -rf dist/dev`
 // step, not via Astro's routing.
+import { getCollection } from 'astro:content';
 import '../../styles/global.css';
 import themeInitSource from '../../lib/theme-init.js?raw';
+import ArticleAside from '../../components/article/ArticleAside.astro';
+import ArticleApparatus, {
+  type ApparatusEntry,
+} from '../../components/article/ArticleApparatus.astro';
+import ReadingProgress from '../../components/article/ReadingProgress.astro';
+import { findRelated } from '../../lib/related';
 
 // Token lists below were extracted directly from tokens.css via grep, not
 // typed from memory — see the Phase 1.7 write-up. Grouped to match
@@ -89,6 +96,41 @@ const glyphs = [
   { char: '+', name: 'disclosure closed / diff added' },
   { char: '−', name: 'disclosure open / diff removed' },
 ];
+
+// Apparatus & aside (Phase 5.11) — real writing entries, not invented data
+// (same anti-lorem-ipsum reasoning as the fixture articles, Phase 5.9).
+// Article 003 sits mid-sequence with published neighbours on both sides
+// and shares tags with two others, so it's the one entry that exercises
+// prev, next AND a non-empty related grid at once.
+const published = (await getCollection('writing', (e) => !e.data.draft))
+  .map((e) => e.data)
+  .sort((a, b) => a.number - b.number);
+const current = published.find((e) => e.number === 3)!;
+
+// minutesRead needs the remark pipeline's output (render(), Finding A,
+// §5.0) — irrelevant to a layout check, so a fixed placeholder stands in
+// rather than rendering every entry just to compute a real one.
+const toApparatusEntry = (e: typeof current): ApparatusEntry => ({
+  number: e.number,
+  title: e.title,
+  date: e.date,
+  minutesRead: 5,
+});
+
+const prevData = published.filter((e) => e.number < current.number).at(-1) ?? null;
+const nextData = published.find((e) => e.number > current.number) ?? null;
+const apparatusPrev = prevData && toApparatusEntry(prevData);
+const apparatusNext = nextData && toApparatusEntry(nextData);
+const apparatusRelated = findRelated(current, published).map(toApparatusEntry);
+
+// Three numbered h2s — ArticleApparatus's own showAuthorBlock threshold
+// (§10.10) — so the author block actually renders instead of gating shut.
+const apparatusHeadings = [
+  { depth: 2, slug: 'one', text: 'One' },
+  { depth: 2, slug: 'two', text: 'Two' },
+  { depth: 2, slug: 'three', text: 'Three' },
+];
+const apparatusFlags = [true, true, true];
 ---
 
 <html lang="en">
@@ -276,6 +318,28 @@ const glyphs = [
       .figure-row .figure {
         margin: 0;
         flex: 0 1 auto;
+      }
+
+      .aside-demo-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 32px;
+      }
+      .aside-demo {
+        width: var(--aside-w, 220px);
+      }
+      .aside-demo--bare {
+        width: 100%;
+        max-width: 400px;
+      }
+      .aside-demo-label {
+        font: var(--t-meta);
+        color: var(--c-muted);
+        margin: 0 0 12px;
+      }
+      .measure-demo {
+        max-width: var(--measure);
       }
     </style>
   </head>
@@ -785,6 +849,38 @@ const glyphs = [
         Table 1 — A prose cell, a right-aligned numeric column and a middle-truncated
         digest (§15.1, §15.3/E7).
       </p>
+    </div>
+
+    <h2>Aside &amp; apparatus (§10.6–§10.9) — added Phase 5.11</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      Same job as 3.9/4.11: the components 5.6–5.8 built get a home outside a full article
+      render. The aside renders both its forms — the &gt;=1280 column
+      (share/reply/progress-with-text) and the &lt;1280 relocated bar (<code
+        >ReadingProgress bare</code
+      >, what <code>Masthead.astro</code> mounts under itself) — side by side rather than one
+      disappearing into the other at a real viewport width. Author block, prev/next and the
+      related grid below are real
+      <code>writing</code> entries (article 003 and its neighbours), not invented data.
+    </p>
+    <div class="aside-demo-row">
+      <div class="aside-demo">
+        <p class="aside-demo-label">&gt;=1280 — the aside column</p>
+        <ArticleAside title={current.title} />
+      </div>
+      <div class="aside-demo aside-demo--bare">
+        <p class="aside-demo-label">&lt;1280 — relocated under the masthead</p>
+        <ReadingProgress bare />
+      </div>
+    </div>
+
+    <div class="measure-demo">
+      <ArticleApparatus
+        headings={apparatusHeadings}
+        numberedHeadingFlags={apparatusFlags}
+        prev={apparatusPrev}
+        next={apparatusNext}
+        related={apparatusRelated}
+      />
     </div>
 
     <h2>Glyphs (§2.11)</h2>
