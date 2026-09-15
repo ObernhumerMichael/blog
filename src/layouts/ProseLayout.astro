@@ -73,8 +73,14 @@ const {
     <!-- Phase 5.6, AD-11: the TOC's scroll-spy and both progress-bar
          renders, one island, same placement reasoning as CodeCopy above. -->
     <TocProgress client:visible />
-    <ArticleHeader frontmatter={frontmatter} />
+    <!-- One shared .frame for both bands (not one per component) — layout.css's
+         `.band:last-child` rule (no bottom hairline on the last band before
+         the footer) checks each band's position among ITS OWN siblings, so a
+         band wrapped in a lone `.frame` of its own is always "last" and always
+         loses its hairline, whether or not it actually is the page's last
+         band. See ArticleHeader.astro's own top-of-file comment. -->
     <div class="frame">
+      <ArticleHeader frontmatter={frontmatter} />
       <div class="band layout-article">
         <div class="gutter">
           <ArticleToc

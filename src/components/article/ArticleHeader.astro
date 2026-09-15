@@ -4,10 +4,24 @@
 // .band, unmodified — the asymmetric padding is .band--header, added this
 // phase).
 //
-// Not §10.1's full layout A (TOC gutter / 680 measure / aside) — this band
-// has no aside, and its content side runs to --header-w (760), wider than
-// the measure. That's layout B's shape (148 / minmax(0,1fr)), so this uses
-// .layout-band, not .layout-article.
+// CORRECTION (fixing a desktop misalignment against
+// docs/reference/article/1320-light-full.png, where the title/lead/body
+// text all share one left edge with the article body's prose column):
+// this band uses .layout-article, not .layout-band. The original reasoning
+// ("no aside, so this is layout B's 148/minmax(0,1fr) shape") produced a
+// gutter track fixed at 148px, while the body's .layout-article gutter is
+// minmax(148,1fr) and grows to soak up surplus width (220px at 1320,
+// per layout.css) — two different gutter widths meant the header and body
+// content never lined up above 1280. Reusing .layout-article's grid keeps
+// both bands on the same track boundaries; .header-content spans the
+// measure + aside tracks (see the scoped style below) so it can still run
+// to --header-w (760), wider than the 680 measure.
+//
+// This also fixed a second bug: the header used to sit in its own `.frame`
+// wrapper, making it `.band:last-child` (layout.css's "last band before
+// the footer has no bottom rule") even though it isn't the last band on
+// the page — that swallowed the hairline below the metadata row. Sharing
+// ProseLayout.astro's single `.frame` fixes it.
 //
 // wordCount/minutesRead are NOT authored frontmatter — remark-reading-time.ts
 // (this phase) computes them from the real Markdown tree and writes them to
@@ -69,9 +83,8 @@ const wordCountText = frontmatter.wordCount.toLocaleString('en-US');
 const isLongTitle = frontmatter.title.length > 90;
 ---
 
-<div class="frame">
-  <header class="band band--header layout-band">
-    <!-- §10.2 gutter: number (accent) / section / series. Real content only
+<header class="band band--header layout-article">
+  <!-- §10.2 gutter: number (accent) / section / series. Real content only
          >=1280 (ADR-0016's corrected --bp-gutter, not the 1100 DESIGN_SYSTEM.md's
          own §4.1 states before that correction) — hidden below it via the
          scoped .gutter override below, per §3.6: "the column is what goes;
@@ -153,8 +166,7 @@ const isLongTitle = frontmatter.title.length > 90;
         }
       </dl>
     </div>
-  </header>
-</div>
+</header>
 
 <style>
   @layer components {
@@ -197,6 +209,17 @@ const isLongTitle = frontmatter.title.length > 90;
         --header-w
       ); /* §10.2: header content may run to 760,
         wider than the 680 measure — E11. */
+    }
+
+    @media (min-width: 1280px) {
+      /* .layout-article's 3-track grid (gutter/measure/aside) auto-places
+         .header-content in the measure track, which is a fixed 680 —
+         narrower than --header-w (760). Spanning into the aside track
+         gives it the room to actually reach 760 while its left edge stays
+         on the same track boundary as the body's prose column. */
+      .header-content {
+        grid-column: 2 / span 2;
+      }
     }
 
     /* ===========================================================================
