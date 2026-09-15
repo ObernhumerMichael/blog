@@ -251,6 +251,14 @@ const entries = numbered.map((h) => {
        frame is on .toc--narrow instead). */
     @media (min-width: 760px) and (max-width: 1279px) {
       .toc--wide {
+        max-width: var(
+          --measure
+        ); /* below 1280, .layout-article collapses to one column and
+          .gutter has no width of its own (§5.4 leaves the gutter's content
+          responsive behaviour to the component) — without this the box
+          fills the whole band track instead of matching the prose column
+          beneath it, confirmed wrong against
+          docs/reference/article/900-light.png. */
         border: var(--bw) solid var(--c-rule);
         border-radius: var(--radius);
         padding: var(--sp-16);
