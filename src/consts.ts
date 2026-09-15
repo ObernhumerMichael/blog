@@ -150,6 +150,12 @@ export type FigureKind = (typeof FIGURE_KINDS)[number];
 // (CTF writeups are `writing` entries tagged `#ctf`, not a separate
 // collection — AD-03). Extend this list the first time a real article needs
 // a tag that isn't here yet.
-export const TAGS = ['ansible', 'infrastructure', 'homelab', 'ctf', 'security'] as const;
+//
+// `notes` added in 5.9 for the 90-word T4 fixture: every other registry tag
+// is already used by a published article, so any of them would give that
+// fixture a real related-articles match — the one thing its exit criterion
+// says it must not have. A short one-off note is also a real, reusable
+// category going forward, not a tag invented only to dodge the check.
+export const TAGS = ['ansible', 'infrastructure', 'homelab', 'ctf', 'security', 'notes'] as const;
 
 export type Tag = (typeof TAGS)[number];

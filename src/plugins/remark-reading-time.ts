@@ -26,11 +26,27 @@ import { toString } from 'mdast-util-to-string';
 // recipes use) — a documented default, not an invented one.
 const WORDS_PER_MINUTE = 200;
 
+// §6's schema table / IMPLEMENTATION_PLAN.md §5.0 "the dropped feature":
+// full auto-splitting above 8,000 words is real, speculative machinery for
+// a document nobody has written yet. The sanctioned fallback is a build
+// warning, not a build feature — `series`-based manual splitting already
+// works with nothing further built (5.8 owns prev/next and series display).
+const WORD_COUNT_SPLIT_WARNING = 8000;
+
 export default function remarkReadingTime() {
   return (tree: any, file: any) => {
     const text = toString(tree);
     const wordCount = (text.match(/\S+/g) ?? []).length;
     const minutesRead = Math.max(1, Math.round(wordCount / WORDS_PER_MINUTE));
+
+    if (wordCount > WORD_COUNT_SPLIT_WARNING) {
+      const path = file.path ?? 'unknown file';
+      console.warn(
+        `[remark-reading-time] ${path}: ${wordCount} words exceeds the ` +
+          `${WORD_COUNT_SPLIT_WARNING}-word guideline (E14) — consider a ` +
+          `manual \`series\` split instead of one long article.`,
+      );
+    }
 
     const data = (file.data ??= {});
     const astroData = (data.astro ??= {});
