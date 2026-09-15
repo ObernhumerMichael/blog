@@ -21,6 +21,25 @@ import rehypeTableRegion from './src/plugins/rehype-table-region.ts';
 // attributes for static JSON imports natively; no bundler-specific syntax
 // needed.
 import shikiLedgerTheme from './src/plugins/shiki-ledger-theme.json' with { type: 'json' };
+import sitemap from '@astrojs/sitemap';
+import { loadCollection, WRITING_DIR } from './src/lib/load-content.ts';
+import { writingSchema } from './src/content.schemas.ts';
+import { slugify } from './src/lib/slug.ts';
+
+// Phase 5.10, Finding C — @astrojs/sitemap lists every routable page by
+// default, and /dev/* is fully routable (Phase 0.1.2 correction) plus the
+// /writing/<slug> redirect aliases are real pages too (their canonical is
+// /w/<num>; a redirect page in a sitemap is a mixed signal a crawler
+// doesn't need). Computed once, at config load, straight off the Markdown
+// files the same way §5.3's invariant tests do (Finding B: astro:content
+// isn't reachable this early) — a Set of exact /writing/<slug> paths, not a
+// path-prefix match, so this filter doesn't need editing again once Phase
+// 6 adds the real /writing index and /writing/tag/<tag> pages.
+const redirectSlugPaths = new Set(
+  loadCollection(WRITING_DIR, writingSchema).map(
+    (entry) => `/writing/${slugify(entry.data.title)}`,
+  ),
+);
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,7 +59,7 @@ export default defineConfig({
   // tags, structured data) must import SITE_URL from src/consts.ts, which
   // reads this same value, so switching domains later is a one-line change
   // here, not a grep across the codebase.
-  site: 'https://example.invalid',
+  site: 'https://obernhumer.com',
 
   // AD-04: MDX is added only when a concrete article
   // needs it, not by default — enabling it globally is exactly the "arbitrary
@@ -58,7 +77,20 @@ export default defineConfig({
   // for four small islands (theme toggle interaction, TOC scroll-spy,
   // reading progress, copy control). See ADR-0017 for the full component
   // list and the reasoning for not using client:load by default.
-  integrations: [svelte()],
+  integrations: [
+    svelte(),
+    // 5.10 point 2. filter receives each built page's full URL string;
+    // matched against the exact redirect-slug set above, plus a /dev/
+    // prefix check for the gallery/fixtures (never a blanket
+    // /writing/-prefix exclusion — that would also swallow the real
+    // /writing index and tag pages Phase 6 adds).
+    sitemap({
+      filter: (page) => {
+        const path = new URL(page).pathname;
+        return !path.startsWith('/dev/') && !redirectSlugPaths.has(path);
+      },
+    }),
+  ],
   markdown: {
     // Phase 4.1 (Finding B) — Astro's DEFAULT is the `github-dark` preset,
     // which writes literal hex into every code block's inline `style`

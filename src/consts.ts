@@ -13,6 +13,12 @@ export const SITE_NAME = 'Michael Obernhumer';
 // §7.1 — role text under the wordmark in the masthead.
 export const SITE_ROLE = 'backend · infrastructure';
 
+// 5.10 — the RSS feed's <description>. Reuses the masthead role line rather
+// than inventing separate site-summary copy nothing else in the design
+// calls for.
+export const SITE_DESCRIPTION =
+  'Writing on backend development and infrastructure automation.';
+
 // §7.1 — exactly three destinations. Do not add a fourth without revisiting
 // OD-02 (CTF-as-tag) and IMPLEMENTATION_PLAN.md AD-03 first.
 //
@@ -156,6 +162,13 @@ export type FigureKind = (typeof FIGURE_KINDS)[number];
 // fixture a real related-articles match — the one thing its exit criterion
 // says it must not have. A short one-off note is also a real, reusable
 // category going forward, not a tag invented only to dodge the check.
-export const TAGS = ['ansible', 'infrastructure', 'homelab', 'ctf', 'security', 'notes'] as const;
+export const TAGS = [
+  'ansible',
+  'infrastructure',
+  'homelab',
+  'ctf',
+  'security',
+  'notes',
+] as const;
 
 export type Tag = (typeof TAGS)[number];
