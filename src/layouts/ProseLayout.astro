@@ -88,6 +88,33 @@ const {
             numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
           />
         </div>
+        <!-- §3.6: "Section label" and "Article number + series" both
+             relocate here below 1280, once the header's own gutter
+             (ArticleHeader.astro) goes display:none — checked against
+             docs/reference/article/900-light.png (section + series name)
+             and .../390.png (section + series count, "compressed to two
+             tokens" per §3.6's own mobile column). Two nodes, not one
+             text-switched by CSS, same reasoning as ArticleToc's own
+             wide/narrow split: the two breakpoints show different data
+             (name vs count), not just different formatting of the same
+             string. Sits outside .gutter (unlike ArticleToc) so it stays
+             excluded from grid auto-placement at >=1280 via display:none
+             on itself rather than depending on .gutter's own override. -->
+        {
+          frontmatter.section && (
+            <Fragment>
+              <p class="running-head running-head--tablet">
+                {frontmatter.section}
+                {frontmatter.series && ` · ${frontmatter.series.name}`}
+              </p>
+              <p class="running-head running-head--mobile">
+                {frontmatter.section}
+                {frontmatter.series &&
+                  ` · ${frontmatter.series.part}/${frontmatter.series.total}`}
+              </p>
+            </Fragment>
+          )
+        }
         <!-- Not .layout-measure here — .prose sets its own max-width
              (--measure, prose.css) and never needed the class for sizing.
              CORRECTION (Phase 4.0, ADR-0019): this comment previously
@@ -137,6 +164,46 @@ const {
   @layer components {
     .measure-column {
       max-width: var(--measure);
+    }
+
+    /* §3.6 running head — see the markup comment above for what relocates
+       here and why. Uppercase mono running head, rule under it (checked
+       pixel-for-pixel against the two reference crops), same hairline
+       token as everything else in the system. */
+    .running-head {
+      display: none;
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      padding-bottom: var(--sp-12);
+      border-bottom: var(--bw) solid var(--c-rule);
+      /* .layout-article's row-gap (--sp-para-h2) is calibrated for
+         TOC -> paragraph, the gap this element now sits inside of —
+         without this it applies AGAIN below the rule, on top of this
+         element's own padding, stacking to ~2x the reference screenshots'
+         hairline-to-paragraph gap. Cancel it and use the same 16px the
+         metadata row's own hairline uses (ArticleHeader.astro: "16px above
+         the row from its hairline") instead — one hairline-to-content
+         convention, not two different gaps for the same relationship. */
+      margin-bottom: calc(-1 * var(--sp-para-h2) + var(--sp-16));
+    }
+
+    @media (min-width: 760px) {
+      .running-head {
+        max-width: var(--measure);
+      }
+    }
+
+    @media (min-width: 760px) and (max-width: 1279px) {
+      .running-head--tablet {
+        display: block;
+      }
+    }
+
+    @media (max-width: 759px) {
+      .running-head--mobile {
+        display: block;
+      }
     }
   }
 </style>

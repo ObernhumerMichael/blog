@@ -117,6 +117,13 @@ const isLongTitle = frontmatter.title.length > 90;
              explicit user direction overriding that default. -->
           <li class="breadcrumb-current" aria-current="page">{num}</li>
         </ol>
+        {
+          frontmatter.series && (
+            <span class="breadcrumb-series">
+              series {frontmatter.series.part}/{frontmatter.series.total}
+            </span>
+          )
+        }
       </nav>
 
       <h1 class:list={['title', { 'title--long': isLongTitle }]}>
@@ -173,9 +180,10 @@ const isLongTitle = frontmatter.title.length > 90;
     /* §5.4/§3.6: gutter content is real only >=1280 — layout.css's own
        .gutter deliberately leaves this to the component ("a component-level
        concern, not a layout one"). Below that width its jobs relocate:
-       number -> breadcrumb + metadata row, section -> breadcrumb, series ->
-       nowhere yet (not one of this phase's five named concerns; see the
-       plan). */
+       number -> breadcrumb + metadata row, section -> breadcrumb (+ the
+       body's own running head, ProseLayout.astro), series -> the
+       breadcrumb row's right side at 760-1279 (.breadcrumb-series below)
+       and the running head at <760. */
     .gutter {
       display: none;
     }
@@ -226,12 +234,38 @@ const isLongTitle = frontmatter.title.length > 90;
        BREADCRUMB (component 16, §6·16)
        =========================================================================== */
 
+    /* §3.6: "Article number + series ... Right side of the running-head
+       row" — checked against docs/reference/article/900-light.png, that
+       row IS this breadcrumb nav (the number's own home at every width),
+       not a separate element. >=1280 the gutter already carries series;
+       <760 it drops from here entirely (see docs/reference/article/390.png
+       — series relocates to the running-head line above the first section,
+       ProseLayout.astro's job, instead). */
+    .breadcrumb {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
     .breadcrumb ol {
       display: flex;
       flex-wrap: wrap;
       list-style: none;
       margin: 0 0 var(--sp-breadcrumb-gap) 0;
       padding-left: 0;
+    }
+
+    .breadcrumb-series {
+      display: none;
+      font: var(--t-breadcrumb);
+      color: var(--c-accent);
+      white-space: nowrap;
+    }
+
+    @media (min-width: 760px) and (max-width: 1279px) {
+      .breadcrumb-series {
+        display: block;
+      }
     }
 
     .breadcrumb li {

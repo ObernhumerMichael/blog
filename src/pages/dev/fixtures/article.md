@@ -15,6 +15,9 @@ tags: ['ansible', 'infrastructure', 'homelab']
 draft: true
 ---
 
+The homelab started the way they all do: one Raspberry Pi, one `docker compose up`, and a note in a text file.
+Three years later it was eleven services and forty decisions that existed only in my memory.
+
 ## 01 · The problem with the old way
 
 Before any of this existed, provisioning a new Raspberry Pi meant SSHing in
