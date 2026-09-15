@@ -1,0 +1,165 @@
+---
+// ArticleAside.astro — IMPLEMENTATION_PLAN.md §5.7, DESIGN_SYSTEM.md §10.8.
+//
+// The two static links (share/reply) ProseLayout.astro's own comment
+// flagged as missing, plus the §10.6 hairline above the progress bar
+// (ReadingProgress.astro, Phase 5.6). Rendered only >=1280 — layout.css's
+// `.aside { display: none }` below that width already handles the
+// disappearance; per 5.7's own resolution these lines have no mobile
+// equivalent (unlike progress, which relocates under the masthead via
+// Masthead.astro's separate `bare` mount), so there is nothing here for a
+// media query to relocate.
+//
+// `share` is a plain build-time `<a href="mailto:…">` per article — the
+// mailto is not a polyfill, it's the true last-resort fallback for a
+// browser with neither Web Share nor the Clipboard API (or JS disabled
+// entirely) — enhanced by the delegated <script> below the same way
+// ThemeControl.astro enhances a plain button: progressive behaviour on a
+// real link, not an island. It doesn't count against AD-11's three-island
+// budget (TocProgress/CodeCopy/none) for the same reason ThemeControl's
+// own script doesn't.
+//
+// Preference order on click: native `navigator.share()` (the OS share
+// sheet) first; else copy the link to the clipboard, with the
+// copied/failed label-swap + aria-live announcement CodeCopy.svelte (4.4)
+// already established for exactly this UX — reused as plain script here
+// rather than a second island, since this is one static link, not one
+// button per code block; else (neither API exists) the mailto fires.
+import { SITE_URL, CONTACT_EMAIL } from '../../consts';
+import ReadingProgress from './ReadingProgress.astro';
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+// Same canonical-URL construction as BaseLayout.astro — SITE_URL, not
+// Astro.site (astro.config.mjs's own field is still OD-07's placeholder).
+const shareUrl = new URL(Astro.url.pathname, SITE_URL).href;
+const mailBody = encodeURIComponent(shareUrl);
+const shareHref = `mailto:?subject=${encodeURIComponent(title)}&body=${mailBody}`;
+---
+
+<div class="aside-links">
+  <a
+    class="aside-link"
+    href={shareHref}
+    data-share
+    data-share-title={title}
+    data-share-url={shareUrl}
+    ><span data-share-label>share</span> <span aria-hidden="true">↗</span></a
+  >
+  <a class="aside-link" href={`mailto:${CONTACT_EMAIL}`}>
+    reply by email <span aria-hidden="true">↗</span>
+  </a>
+</div>
+
+<!-- .visually-hidden, NOT .visually-hidden-inline: that variant is only for
+     an island's own empty root (CodeCopy.svelte/TocProgress.svelte), kept
+     in normal flow on purpose so client:visible has a nonzero box to
+     hydrate. This component isn't hydrated, and an in-flow inline-block
+     with no font-size of its own gets wrapped in an anonymous block box
+     sized by the INHERITED line-height, not its 1px height — sitting right
+     here it silently added extra space on only one side of the hairline
+     above. -->
+<span class="visually-hidden" aria-live="polite" data-share-announce></span>
+<ReadingProgress />
+
+<style>
+  @layer components {
+    .aside-links {
+      display: flex;
+      flex-direction: column;
+      /* --sp-8, not --sp-16: the mono block's own 1.9 line-height (--t-aside)
+         already carries most of the vertical rhythm between two lines this
+         short — 16px on top of that read as a gap, not a list. Matches
+         ReadingProgress.astro's own internal spacing, immediately below. */
+      gap: var(--sp-8);
+      font: var(--t-aside);
+      color: var(--c-muted);
+      /* §10.8: "then above a hairline read 38%" — the hairline belongs
+         between this block and the progress readout. */
+      border-bottom: var(--bw) solid var(--c-rule);
+      padding-bottom: var(--sp-14);
+      margin-bottom: var(--sp-14);
+    }
+
+    .aside-link {
+      color: var(--c-muted);
+      text-decoration: none;
+
+      transition-property: color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .aside-link:hover {
+      color: var(--c-accent);
+    }
+
+    .aside-link:active {
+      color: var(--c-accent-hi);
+    }
+  }
+</style>
+
+<script>
+  // Progressive enhancement over the real mailto: href above, same
+  // delegated-on-document shape as ThemeControl.astro (this markup only
+  // exists once per article, but delegation keeps the pattern identical
+  // rather than inventing a second wiring style for a single element).
+  //
+  // §13.2's own number, not a token — CodeCopy.svelte's same one-off UI
+  // timing, reused verbatim so the two copy affordances on an article page
+  // feel identical rather than coincidentally similar.
+  const RESET_MS = 1200;
+  let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function setShareState(link: HTMLAnchorElement, state: 'copied' | 'failed') {
+    clearTimeout(resetTimer);
+    const label = link.querySelector('[data-share-label]');
+    const announce = document.querySelector('[data-share-announce]');
+    if (label) label.textContent = state;
+    if (announce) announce.textContent = state;
+
+    resetTimer = setTimeout(() => {
+      if (label) label.textContent = 'share';
+      if (announce) announce.textContent = '';
+    }, RESET_MS);
+  }
+
+  document.addEventListener('click', async (e) => {
+    if (!(e.target instanceof Element)) return;
+    const link = e.target.closest<HTMLAnchorElement>('[data-share]');
+    if (!link) return;
+
+    if (navigator.share) {
+      e.preventDefault();
+      try {
+        await navigator.share({
+          title: link.dataset.shareTitle,
+          url: link.dataset.shareUrl,
+        });
+      } catch {
+        // AbortError on a cancelled share sheet is normal user behaviour,
+        // not a failure — CodeCopy.svelte's `failed` state is for a
+        // rejected clipboard write, which this branch never attempts.
+      }
+      return;
+    }
+
+    if (navigator.clipboard?.writeText) {
+      e.preventDefault();
+      try {
+        await navigator.clipboard.writeText(link.dataset.shareUrl ?? '');
+        setShareState(link, 'copied');
+      } catch {
+        setShareState(link, 'failed');
+      }
+      return;
+    }
+
+    // Neither API exists: the real mailto: href above fires unmodified.
+  });
+</script>

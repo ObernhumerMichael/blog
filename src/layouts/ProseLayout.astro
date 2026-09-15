@@ -25,15 +25,15 @@
 // column for it to sit in at >=1280, and layout-article's CSS was already
 // complete, just waiting for a consumer.
 //
-// Phase 5.6: the aside exists now too, but only for the progress bar —
-// share/reply/github are Phase 5.7's job, which will add them to this same
-// `.aside` div. Still not Instrumented.astro — no apparatus band, no
-// collection-backed routing.
+// Phase 5.7: the aside is complete now — ArticleAside.astro adds the
+// share/reply lines above ReadingProgress's hairline. Still not
+// Instrumented.astro — no apparatus band (5.8), no collection-backed
+// routing.
 import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/article/ArticleHeader.astro';
 import ArticleToc from '../components/article/ArticleToc.astro';
-import ReadingProgress from '../components/article/ReadingProgress.astro';
+import ArticleAside from '../components/article/ArticleAside.astro';
 import CodeCopy from '../components/article/CodeCopy.svelte';
 import TocProgress from '../components/article/TocProgress.svelte';
 
@@ -87,7 +87,7 @@ const { frontmatter, headings } = Astro.props as {
           <slot />
         </div>
         <div class="aside">
-          <ReadingProgress />
+          <ArticleAside title={frontmatter.title} />
         </div>
       </div>
     </div>

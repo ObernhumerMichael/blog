@@ -36,8 +36,12 @@ export const NAV_LINKS = [
 // that isn't a placeholder — it's a stable route this site will always use,
 // even though Phase 5 hasn't built the feed generator yet.
 export const RSS_PATH = '/rss.xml';
-export const GITHUB_URL = 'https://github.com/TODO-set-real-username';
+export const GITHUB_URL = 'https://github.com/ObernhumerMichael';
 export const PGP_URL = '/TODO-set-real-pgp-key.asc';
+
+// §10.8's aside `reply by email ↗` line and the site's `mailto:` share
+// fallback (5.7). Same placeholder treatment as GITHUB_URL/PGP_URL above.
+export const CONTACT_EMAIL = 'mail@obernhumer.com';
 export const SITE_LINKS = {
   rss: RSS_PATH,
   github: GITHUB_URL,
