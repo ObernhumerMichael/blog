@@ -1,0 +1,268 @@
+---
+// WritingRow.astro — component 05 (§05, IMPLEMENTATION_PLAN.md 6.4), the
+// index row. Collection-agnostic: takes a normalised shape rather than
+// `CollectionEntry<'writing'>` directly, per §11's designed-in-leeway table
+// (list components don't couple to a specific collection). `/w/[num].astro`
+// and `/writing/index.astro` both already build an equivalent merged object
+// for their own reasons (ArticleHeader's Finding A), so this costs nothing
+// extra at the call site.
+//
+// `dek` is genuinely optional (§3.2 law 02/E9: "the only datum in the
+// system permitted to disappear rather than relocate") — no `writing` entry
+// authors one yet (writingSchema has no `dek` field), so it simply never
+// renders today. `lead` and `section` are part of the shared shape
+// IMPLEMENTATION_PLAN.md 6.4 point 1 specifies for FeaturedEntry.astro (same
+// interface, imported from here) but are not themselves rendered by this
+// component.
+//
+// §05 anatomy's "130px primary tag" track (singular) renders the row's
+// first authored tag only — the tags array's own order is the editorial
+// priority signal, same as ArticleHeader's metadata row using the full
+// array in authored order.
+export interface WritingRowEntry {
+  number: number;
+  title: string;
+  lead: string;
+  dek?: string;
+  date: Date | string;
+  minutesRead: number;
+  tags: readonly string[];
+  section: string;
+  // Not itself rendered by WritingRow — carried on the shared shape for
+  // FeaturedEntry.astro (§9.5's "optional series line"), which imports
+  // this same interface.
+  series?: { id: string; name: string; part: number; total: number };
+}
+
+export interface Props {
+  entry: WritingRowEntry;
+  /** §05 variants: full (5 tracks, blog index) vs compact (4 tracks, no
+   * tag — homepage "latest writing", built in Phase 7). */
+  variant?: 'full' | 'compact';
+}
+
+const { entry, variant = 'full' } = Astro.props;
+
+const num = String(entry.number).padStart(3, '0');
+const isoDate = new Date(entry.date).toISOString().slice(0, 10);
+const primaryTag = entry.tags[0];
+const href = `/w/${num}`;
+---
+
+<a class:list={['row', `row--${variant}`]} href={href}>
+  <span class="row-number">{num}</span>
+  <span class="row-date"><time datetime={isoDate}>{isoDate}</time></span>
+  <span class="row-title-group">
+    <span class="row-title">{entry.title}</span>
+    {entry.dek && <span class="row-dek">— {entry.dek}</span>}
+  </span>
+  {variant === 'full' && primaryTag && <span class="row-tag">#{primaryTag}</span>}
+  <span class="row-time">{entry.minutesRead} min</span>
+  <!-- §05 mobile: "038 · 2026-07-28 · 14 min" as one wrapped mono line,
+       dek dropped — a second, mobile-only render of the same three data
+       points rather than a CSS reflow of the desktop nodes above, since
+       the mobile line joins them with "·" where the desktop tracks are
+       separate grid cells (same two-node precedent ArticleApparatus's
+       related-item meta line already sets). NOT aria-hidden: below 760
+       this is the only rendered copy of the number/date/reading-time data
+       (row-number and row-date are both display:none there too, so
+       nothing else announces it). -->
+  <span class="row-meta-mobile">
+    {num} · {isoDate} · {entry.minutesRead} min
+  </span>
+</a>
+
+<style>
+  @layer components {
+    /* §05: "14–15px padding-y, 20px track gap ... entire row is the hit
+       target, minimum 48px tall." The row IS the link (§05 states no
+       separate title-only target), so the anchor itself is the grid. */
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: baseline;
+      column-gap: var(--sp-20);
+      row-gap: var(--sp-4);
+      padding-block: var(--sp-14);
+      min-height: var(--row-min-h);
+      text-decoration: none;
+      color: inherit;
+      transition-property: background-color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    /* §05: "hover: row ground shifts to --c-surface and the title takes
+       its accent underline — no lift, no scale, no shadow. Focus: the
+       token ring on the whole row." Focus gets ONLY the ring (free from
+       base.css's global :focus-visible rule) — not also the hover tint,
+       which §05 lists as a separate, hover-only state. §17.1 lists "row
+       ground on hover" among the things that DO animate. The row has no
+       inline padding of its own, so the background fills exactly the
+       content column it already sits in (no full-bleed escape — unlike
+       MobileMenu's row, this one lives inside .layout-band's content
+       track, not a full-bleed ancestor of its own). */
+    .row:hover {
+      background-color: var(--c-surface);
+    }
+
+    .row:hover .row-title {
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    /* Mobile-first (base = <760, §05's own stacked tier): the number has
+       no equivalent second surface to relocate to on an index row (unlike
+       the article page's gutter/breadcrumb system, §3.6) — checked against
+       §05's own tablet track list, which does not name the number among
+       "reading time joins the date line, tag joins the title line" — so it
+       stays folded into row-meta-mobile until >=1280, where it becomes a
+       real track again. */
+    .row-number {
+      display: none;
+      font: var(--t-meta);
+      color: var(--c-accent);
+    }
+
+    /* Also folded into row-meta-mobile below 760, same reasoning as
+       row-number above — §05's mobile line carries the date, not a
+       standalone .row-date element. */
+    .row-date {
+      display: none;
+      font: var(--t-meta);
+      color: var(--c-muted);
+    }
+
+    .row-title-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: var(--sp-8);
+      min-width: 0;
+    }
+
+    .row-title {
+      font: var(--t-row-title);
+      letter-spacing: var(--tr-row-title);
+      color: var(--c-text);
+    }
+
+    /* §05 E9: "the only datum in the system permitted to disappear rather
+       than relocate" — hidden at the base (mobile) tier, restored from
+       760 up. */
+    .row-dek {
+      display: none;
+      font: var(--t-small);
+      color: var(--c-text-2);
+    }
+
+    .row-tag {
+      display: none;
+      font: var(--t-meta);
+      color: var(--c-accent);
+    }
+
+    .row-time {
+      display: none;
+      font: var(--t-meta);
+      color: var(--c-muted);
+    }
+
+    /* §05 responsive: "038 · 2026-07-28 · 14 min", one wrapped mono line —
+       the mobile-only substitute for number/date/reading-time (not a CSS
+       reflow of the desktop nodes: §3.2 law 01 "stack, don't reflow"
+       already governs the grid collapse; this is the ONE sanctioned
+       content substitution, E9, same two-node precedent
+       ArticleApparatus's related-item meta line sets). */
+    .row-meta-mobile {
+      font: var(--t-meta);
+      color: var(--c-muted);
+    }
+
+    /* >=760: three tracks — number+date share a line, title+dek keep
+       their own line, tag+time join a trailing line (§05: "reading time
+       joins the date line, tag track drops into the title line's trailing
+       metadata"). Implemented as two rows within one grid via named areas
+       rather than the explicit desktop track list, since the content
+       genuinely wraps to two lines at this width, not three-plus-one
+       tracks. */
+    @media (min-width: 760px) {
+      .row {
+        grid-template-columns: var(--row-date-w) minmax(0, 1fr) auto;
+        grid-template-areas: 'date title time' 'date title tag';
+        column-gap: var(--sp-16);
+      }
+
+      .row-date {
+        display: block;
+        grid-area: date;
+      }
+
+      .row-title-group {
+        grid-area: title;
+      }
+
+      .row-dek {
+        display: inline;
+      }
+
+      .row-tag {
+        display: block;
+        grid-area: tag;
+        justify-self: start;
+      }
+
+      .row-time {
+        display: block;
+        grid-area: time;
+        justify-self: end;
+      }
+
+      .row-meta-mobile {
+        display: none;
+      }
+    }
+
+    /* >=1280: the full five-track row (§05 anatomy). DOM order already
+       matches the explicit track order (number, date, title+dek, tag,
+       time), so auto-placement into the five columns needs no named
+       areas — only the 760px tier's areas need explicitly cancelling. */
+    @media (min-width: 1280px) {
+      .row {
+        grid-template-columns:
+          var(--row-num-w) var(--row-date-w) minmax(0, 1fr) var(--row-tag-w)
+          var(--row-time-w);
+        grid-template-areas: none;
+      }
+
+      .row-number {
+        display: block;
+      }
+
+      .row-date,
+      .row-title-group,
+      .row-tag,
+      .row-time {
+        grid-area: auto;
+      }
+
+      .row-time {
+        justify-self: end;
+      }
+    }
+
+    /* Compact variant (Phase 7's homepage "latest writing"): number, date,
+       title+dek, reading time — same tracks minus the tag column (never
+       rendered in this variant's markup, so auto-placement alone lines the
+       remaining four up correctly). Built now per 6.4 point 2, consumed
+       later. */
+    @media (min-width: 1280px) {
+      .row--compact {
+        grid-template-columns: var(--row-num-w) var(--row-date-w) minmax(0, 1fr) var(
+            --row-time-w
+          );
+      }
+    }
+  }
+</style>

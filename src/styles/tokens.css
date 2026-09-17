@@ -464,6 +464,27 @@
        numerically identical (--fs-meta-sm) but an unrelated component, same
        coincidence-not-reuse reasoning as --t-aside/--t-footer above. */
     --t-related-meta: 400 var(--fs-meta-sm)/1.5 var(--font-mono);
+    /* Phase 6.4 — §2.5 derived-values table: index row title "17–17.5/
+       −0.006em". --fs-row-title already carries the two size tiers
+       (tokens.css, above); no line-height is given for this one row of the
+       table (unlike its featured/project neighbours, both of which state
+       one) — 1.3 is picked to match those neighbours rather than inventing
+       a distinct number, and is NOT checked against a reference screenshot:
+       Finding C (IMPLEMENTATION_PLAN.md 6.0) — no Writing-index capture
+       exists yet. --tr-row-title is separate because, like --tr-label, the
+       `font` shorthand can't carry letter-spacing. */
+    --t-row-title: 600 var(--fs-row-title)/1.3 var(--font-serif);
+    --tr-row-title: -0.006em;
+    /* §2.5 derived table: featured entry title — 28/1.26/−0.012em (blog
+       index) and 27/1.26/−0.012em (homepage). Same line-height and
+       tracking at both sizes, so one shared --tr-featured covers both
+       --t-featured-* bundles. */
+    --t-featured-index: 600 var(--fs-featured-index)/1.26 var(--font-serif);
+    --t-featured-home: 600 var(--fs-featured-home)/1.26 var(--font-serif);
+    --tr-featured: -0.012em;
+    /* §2.5 derived table: projects index item title — 21/1.30/−0.009em. */
+    --t-project-title: 600 var(--fs-project-title)/1.3 var(--font-serif);
+    --tr-project-title: -0.009em;
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
@@ -612,6 +633,27 @@
     --fig-h-index: 200px; /* index lead figure, case-study screenshot */
     --fig-h-arch: 230px; /* case-study architecture diagram */
     --fig-h-article: 250px; /* article diagram */
+
+    /* Phase 6.4 — component 05's five-track index row (§05 anatomy):
+       "52px article number · 104px ISO date · minmax(0,1fr) title+dek ·
+       130px primary tag · 80px reading time". Component-internal grid
+       tracks, not a page-level column structure (§22.9 governs the three
+       LAYOUT classes, not a single row component's own grid — IMPLEMENTATION_PLAN.md
+       6.4 point 1 states this explicitly). */
+    --row-num-w: 52px;
+    --row-date-w: 104px;
+    --row-tag-w: 130px;
+    --row-time-w: 80px;
+
+    /* Phase 6.7 — component 07's project-item tracks (§11.1/component 07
+       anatomy): "44px number · minmax(0,1fr) substance · 210px
+       instruments" at desktop, narrowing to 170px at tablet — the 170
+       value is a real number read off docs/reference/projects/index/
+       900-light.png's own caption ("two tracks kept, right track narrows
+       to 170"), not estimated. */
+    --project-num-w: 44px;
+    --project-instr-w: 210px;
+    --project-instr-w-tablet: 170px;
 
     --toc-cap: 150px; /* TOC scroll cap above 20 sections (E4). §15's own
       responsive table only lists this under <760, but §10.10's "very long

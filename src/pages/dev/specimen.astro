@@ -13,6 +13,8 @@ import ArticleApparatus, {
 } from '../../components/article/ArticleApparatus.astro';
 import ReadingProgress from '../../components/article/ReadingProgress.astro';
 import Tag from '../../components/ui/Tag.astro';
+import WritingRow, { type WritingRowEntry } from '../../components/list/WritingRow.astro';
+import FeaturedEntry from '../../components/list/FeaturedEntry.astro';
 import { findRelated } from '../../lib/related';
 
 // Token lists below were extracted directly from tokens.css via grep, not
@@ -132,6 +134,25 @@ const apparatusHeadings = [
   { depth: 2, slug: 'three', text: 'Three' },
 ];
 const apparatusFlags = [true, true, true];
+
+// Phase 6.4 — WritingRow / FeaturedEntry, real `writing` entries again
+// (same `published` list, same fixed-minutesRead placeholder reasoning as
+// toApparatusEntry above — irrelevant to a layout check).
+const toRowEntry = (e: (typeof published)[number]): WritingRowEntry => ({
+  number: e.number,
+  title: e.title,
+  lead: e.lead,
+  date: e.date,
+  minutesRead: 5,
+  tags: e.tags,
+  section: e.section,
+  series: e.series,
+});
+const rowEntries = published.slice(0, 3).map(toRowEntry);
+// Invariant 2 (tests/invariants/featured.test.ts) guarantees at most one
+// `featured: true` entry exists — article 001 is that entry today.
+const featuredData = published.find((e) => e.featured);
+const featuredEntry = featuredData && toRowEntry(featuredData);
 ---
 
 <html lang="en">
@@ -351,6 +372,18 @@ const apparatusFlags = [true, true, true];
         display: flex;
         flex-wrap: wrap;
         gap: 14px;
+      }
+
+      /* Demo container only — the real hairline-opened list (§05 spacing:
+         "one hairline between rows, --c-rule-2 opening the group") is
+         /writing's own job (6.5), not WritingRow's; this page just needs
+         the same rule pattern to show hover/spacing correctly in
+         isolation. */
+      .row-list {
+        border-top: var(--bw) solid var(--c-rule-2);
+      }
+      .row-list > :global(.row) {
+        border-bottom: var(--bw) solid var(--c-rule);
       }
     </style>
   </head>
@@ -908,6 +941,32 @@ const apparatusFlags = [true, true, true];
       <Tag tag="ctf" variant="current" />
       <Tag tag="homelab" variant="plain" />
     </div>
+
+    <h2>WritingRow (component 05, §05) — added Phase 6.4</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      Real <code>writing</code> entries (articles 1–3), not invented data. Full variant shows
+      all five tracks &gt;=1280 (resize to see the three-track tablet join and the stacked mobile
+      line — <code>{'038 · 2026-07-28 · 14 min'}</code> — take over). The entire row is the
+      link; hover shifts the ground and underlines the title.
+    </p>
+    <div class="row-list">
+      {rowEntries.map((entry) => <WritingRow entry={entry} variant="full" />)}
+    </div>
+    <p class="lede" style="font-size: 13.5px; margin-top: 24px;">
+      Compact variant (four tracks, no tag — Phase 7's homepage "latest writing"):
+    </p>
+    <div class="row-list">
+      {rowEntries.map((entry) => <WritingRow entry={entry} variant="compact" />)}
+    </div>
+
+    <h2>FeaturedEntry (component 05, §9.5) — added Phase 6.4</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      Article 001, the collection's one real <code>featured: true</code> entry. Not a card —
+      no ground, no border, no radius (§9.1). The title is permanently underlined (it's always
+      a link); the figure is the §14.1 placeholder hatch, since no <code>writing</code> entry
+      authors a lead image yet.
+    </p>
+    {featuredEntry && <FeaturedEntry entry={featuredEntry} context="index" />}
 
     <h2>Glyphs (§2.11)</h2>
     <div class="glyph-row">

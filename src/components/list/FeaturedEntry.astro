@@ -1,0 +1,189 @@
+---
+// FeaturedEntry.astro — §9.5, component 05's "Featured entry" variant
+// (IMPLEMENTATION_PLAN.md 6.4 point 3). Not a row: a
+// `minmax(0,680px) / 1fr` band — metadata row, 27–28px serif title with a
+// PERMANENT accent underline (§9.1/§9.5: "distinguished from the rows
+// beneath it by size and a figure, not by a container" — no ground, no
+// border, no radius), lead paragraph, optional series line, paired with a
+// hairline-framed lead figure. Two real call sites are named in the spec
+// (blog index at 200px/28px, homepage at 170px/27px, §2.5's derived-values
+// table and §14.1's sizes-by-role list) — `context` picks between them, the
+// same two-named-variants reasoning WritingRow's compact variant already
+// uses, not a speculative third state.
+import type { WritingRowEntry } from './WritingRow.astro';
+
+export interface Props {
+  entry: WritingRowEntry;
+  context?: 'index' | 'home';
+}
+
+const { entry, context = 'index' } = Astro.props;
+
+const num = String(entry.number).padStart(3, '0');
+const isoDate = new Date(entry.date).toISOString().slice(0, 10);
+const href = `/w/${num}`;
+---
+
+<div class:list={['featured', `featured--${context}`]}>
+  <div class="featured-content">
+    <dl class="metadata">
+      <dt class="visually-hidden">Article number</dt>
+      <dd class="metadata-accent">{num}</dd>
+
+      <dt class="visually-hidden">Published</dt>
+      <dd><time datetime={isoDate}>{isoDate}</time></dd>
+
+      <dt class="visually-hidden">Reading time</dt>
+      <dd>{entry.minutesRead} min</dd>
+
+      <!-- Full tag set, unlike WritingRow's single "primary tag" track
+           (§05 anatomy names that track singular; §9.5 gives the featured
+           entry a "metadata row" with no such restriction, so it follows
+           §09's canonical full taxonomy, same as ArticleHeader's own
+           metadata row). -->
+      {
+        entry.tags.map((tag) => (
+          <Fragment>
+            <dt class="visually-hidden">Tag</dt>
+            <dd class="metadata-accent">#{tag}</dd>
+          </Fragment>
+        ))
+      }
+    </dl>
+
+    <!-- §9.5/line 988: "permanently underlined when it is the featured
+         entry (which is always a link)" — unlike WritingRow's hover-only
+         underline, this one is unconditional. -->
+    <a class="title" href={href}>{entry.title}</a>
+
+    <p class="lead">{entry.lead}</p>
+
+    {
+      entry.series && (
+        <p class="series">
+          series: {entry.series.name} · {entry.series.part} of {entry.series.total}
+        </p>
+      )
+    }
+  </div>
+
+  <!-- §14.1 placeholder convention: no `writing` schema field carries a
+       lead-image source (checked directly — writingSchema has none), so
+       until real article imagery exists this always renders the same
+       135°-hatch placeholder the design system itself uses for media that
+       doesn't exist yet (e.g. the project case-study mockup's
+       "[ architecture diagram ]"), sized per role via the featured--home /
+       featured--index modifier already on the outer element. Not an
+       invented schema field — §9.5 states the figure as a required
+       pairing, so a placeholder is the honest substitute, not an
+       omission. -->
+  <div class="featured-figure">
+    <span class="featured-figure-label">
+      [ lead figure ]<br />{context === 'home' ? '170' : '200'}px
+    </span>
+  </div>
+</div>
+
+<style>
+  @layer components {
+    /* §9.5: "a minmax(0,680px)/1fr split ... paired with a ... lead
+       figure." Component-internal grid, not a page-level column structure
+       (§22.9 governs the three LAYOUT classes only — same reasoning
+       WritingRow's own track grid already states). Single column below
+       760, matching every other multi-track structure's mobile collapse. */
+    .featured {
+      display: grid;
+      grid-template-columns: 1fr;
+      row-gap: var(--sp-24);
+    }
+
+    @media (min-width: 760px) {
+      .featured {
+        grid-template-columns: minmax(0, 680px) 1fr;
+        column-gap: var(--grid-gap);
+        align-items: start;
+      }
+    }
+
+    .metadata {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: var(--sp-meta-gap);
+      row-gap: var(--sp-8);
+      margin: 0 0 var(--sp-16) 0;
+    }
+
+    .metadata dd {
+      font: var(--t-meta);
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .metadata dd.metadata-accent {
+      color: var(--c-accent);
+    }
+
+    .title {
+      display: block;
+      font: var(--t-featured-index);
+      letter-spacing: var(--tr-featured);
+      color: var(--c-text);
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+      margin: 0 0 var(--sp-16) 0;
+      text-wrap: pretty;
+    }
+
+    .featured--home .title {
+      font: var(--t-featured-home);
+      letter-spacing: var(--tr-featured);
+    }
+
+    .title:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .lead {
+      font: var(--t-lead);
+      color: var(--c-text-2);
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    .series {
+      font: var(--t-meta);
+      color: var(--c-faint);
+      margin: var(--sp-8) 0 0 0;
+    }
+
+    /* §14.1 anatomy: hairline-bordered, square-cornered frame, no shadow,
+       no radius — the same visual language as .figure__media
+       (blocks.css), restated locally rather than importing that
+       markdown-directive-specific class (different component, §14.1 vs
+       §9.5, coincidentally the same frame language per §9.3's own
+       "bounded surfaces" table, not a shared dependency between the two). */
+    .featured-figure {
+      height: var(--fig-h-index);
+      border: var(--bw) solid var(--c-rule);
+      background: repeating-linear-gradient(
+        135deg,
+        var(--c-sunken) 0 7px,
+        var(--c-bg) 7px 14px
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .featured-figure-label {
+      font: var(--t-meta);
+      color: var(--c-muted);
+    }
+
+    .featured--home .featured-figure {
+      height: var(--fig-h-home);
+    }
+  }
+</style>
