@@ -78,6 +78,14 @@
     background: var(--c-bg);
     color: var(--c-text);
 
+    /* Sticky footer: a page shorter than the viewport (404 is the clearest
+       case) was leaving Footer.astro sitting right under the content
+       instead of at the bottom of the screen. min-height + flex column
+       lets #main (below) absorb the leftover space instead. */
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+
     /* Sans/--t-ui as the document-level default, per §1.4's hierarchy:
        "sans = the interface around the thing." prose.css (Phase 3) scopes
        serif/--t-body specifically to article content — this is the
@@ -89,6 +97,13 @@
        default anti-aliasing tends to bloat thin serifs at body-text sizes. */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Sticky-footer partner to body's flex column above — #main grows to
+     fill any leftover viewport height so Footer.astro is pushed to the
+     bottom on a short page, and simply flows after a tall one. */
+  #main {
+    flex: 1 0 auto;
   }
 
   /* So a reader following a TOC link or a footnote reference (§10.5, §15)

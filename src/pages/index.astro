@@ -191,7 +191,7 @@ const yearMonth = new Date().toISOString().slice(0, 7);
         <p class="gutter-label">Interests</p>
         <p class="gutter-count">—</p>
       </div>
-      <p class="running-head">
+      <p class="running-head running-head--plain">
         <span>Interests</span>
         <span>—</span>
       </p>
@@ -203,7 +203,7 @@ const yearMonth = new Date().toISOString().slice(0, 7);
         <p class="gutter-label">About &amp; contact</p>
         <p class="gutter-count">—</p>
       </div>
-      <p class="running-head">
+      <p class="running-head running-head--plain">
         <span>About &amp; contact</span>
         <span>—</span>
       </p>
@@ -282,12 +282,27 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       }
     }
 
-    /* Band 1 — Index. E12: the 128px top step, reserved for the homepage
-       and 404 only. Page-local rather than a layout.css modifier (unlike
-       .band--header) since 404 (7.6) is the only other consumer and
-       doesn't exist yet — revisit if that phase wants the same rule. */
+    /* Interests / About & contact: neither band opens a list below the
+       label the way Latest writing/Selected work do, so the running
+       head's own hairline had nothing to introduce — it just sat right on
+       top of a paragraph, two rules (this one and the previous band's own
+       closing hairline) close enough together to read as a mistake rather
+       than structure. Dropped here; the same tight label-to-content gap
+       stays, just without the rule underneath it. */
+    .running-head--plain {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    /* Band 1 — Index. E12's 128px top step read as too much dead air above
+       the fold once rendered for real (worst at mobile, where it was well
+       over a third of the viewport before any real content showed) —
+       --sp-72 ("page-level band separation") gives the cover band a
+       visibly bigger opening gap than an ordinary band without pushing the
+       actual content off-screen. 404 (7.6) still uses --sp-128 for its own
+       band, unaffected by this page-local override. */
     .band--cover {
-      padding-top: var(--sp-128);
+      padding-top: var(--sp-72);
     }
 
     .index-content {
@@ -361,6 +376,25 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       color: var(--c-muted);
     }
 
+    /* Tablet only: the sentence was wrapping to several lines and pushing
+       the three facts into a tall stacked column, reading as far more
+       content than a "Now" panel warrants at this width. Desktop keeps
+       the sentence (room beside it), mobile keeps the stacked column
+       (room below it) — only the tablet middle ground drops the sentence
+       and lets the facts run as one line instead. */
+    @media (min-width: 760px) and (max-width: 1279px) {
+      .now-sentence {
+        display: none;
+      }
+
+      .now-facts {
+        flex-direction: row;
+        flex-wrap: wrap;
+        column-gap: var(--sp-16);
+        row-gap: var(--sp-8);
+      }
+    }
+
     .now-facts .ok {
       color: var(--c-ok);
     }
@@ -372,17 +406,19 @@ const yearMonth = new Date().toISOString().slice(0, 7);
        screenshot (WritingArchive.astro's .year-rows sets the same
        precedent for the writing list; ProjectItem already supplies its own
        --c-rule bottom hairline per item, so only the opening rule is this
-       page's job for both lists). */
-    .writing-rows {
-      border-top: var(--bw) solid var(--c-rule-2);
-    }
-
+       page's job for both lists). >=1280 only, same reason .year-rows
+       itself is gated: below that, the running-head's own bottom hairline
+       already opens the list — a second opening rule right underneath it
+       reads as a doubled line rather than a deliberate one. */
     .writing-rows > :global(.row) {
       border-bottom: var(--bw) solid var(--c-rule);
     }
 
-    .project-rows {
-      border-top: var(--bw) solid var(--c-rule-2);
+    @media (min-width: 1280px) {
+      .writing-rows,
+      .project-rows {
+        border-top: var(--bw) solid var(--c-rule-2);
+      }
     }
 
     .list-links {
