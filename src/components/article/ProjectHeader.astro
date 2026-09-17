@@ -1,0 +1,283 @@
+---
+// ProjectHeader.astro — IMPLEMENTATION_PLAN.md 6.9, DESIGN_SYSTEM.md §11.2.
+// The project-detail page's header band: same gutter/breadcrumb/h1/lead
+// shape as ArticleHeader.astro, but the metadata row is replaced by a
+// status band (Status · Period · Stack · Links) — checked directly against
+// docs/reference/projects/{1320,390}-light.png, not derived from §11.2's
+// prose alone (see the status band's own comment below for one place that
+// prose and the real screenshot disagree).
+//
+// Reuses ProjectItem.astro's own ProjectItemEntry shape (component 07,
+// 6.7) rather than redeclaring an overlapping interface — the projects
+// index and the detail page's status band read the same collection fields.
+import type { ProjectItemEntry } from '../list/ProjectItem.astro';
+import { slugify } from '../../lib/slug.ts';
+
+export interface Props {
+  entry: ProjectItemEntry;
+}
+
+const { entry } = Astro.props;
+
+const num = String(entry.number).padStart(2, '0');
+const slug = slugify(entry.title);
+
+// Same filled/ok rules as ProjectItem.astro (6.7's own correction, checked
+// against docs/reference/projects/1320-light.png: only "active" gets the
+// --c-ok treatment, "maintained" is a filled dot but stays muted).
+const isFilled = entry.status === 'active' || entry.status === 'maintained';
+const isOk = entry.status === 'active';
+
+const periodText = (() => {
+  const fromYear = entry.period.from.getFullYear();
+  if (!entry.period.to) return `${fromYear} — ongoing`;
+  const toYear = entry.period.to.getFullYear();
+  return fromYear === toYear ? String(fromYear) : `${fromYear} — ${toYear}`;
+})();
+---
+
+<header class="band band--header layout-article">
+  <!-- §11.2 point 3: "the gutter carries Project 01 + the status word in
+       --c-ok" — real only >=1280, same threshold and same "column goes,
+       data doesn't" reasoning as ArticleHeader.astro's own gutter (the
+       status band below already carries the same status word at every
+       width). Checked against docs/reference/projects/390-light.png: no
+       "Project 01" text appears anywhere below 1280 — the number has no
+       second home there, unlike an article's own permalink-bearing
+       number, so it isn't relocated. -->
+  <div class="gutter">
+    <p class="gutter-label">Project {num}</p>
+    <p class="gutter-status" class:list={{ ok: isOk }}>{entry.status}</p>
+  </div>
+
+  <div class="header-content">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/projects">projects</a></li>
+        <li class="breadcrumb-current" aria-current="page">{slug}</li>
+      </ol>
+    </nav>
+
+    <h1 class="title">{entry.title}</h1>
+
+    <p class="lead">{entry.description}</p>
+
+    <!-- §11.2 point 2: "a hairline above, then a four-column grid of LABEL
+         ... over value: Status · Period · Stack · Links." Collapses to two
+         columns below 1280 — checked against the 390 crop, which still
+         shows two columns (Status|Period, Stack|Links), not the single
+         stacked line §11.2's own prose separately describes; the real
+         screenshot wins, same precedent as ArticleHeader.astro's own
+         CORRECTION comment. -->
+    <dl class="status-band">
+      <div class="status-cell">
+        <dt class="status-label">Status</dt>
+        <dd class="status-value">
+          <span class="dot" class:list={{ filled: isFilled, ok: isOk }} aria-hidden="true"
+          ></span>
+          <span class:list={{ ok: isOk }}>{entry.status}</span>
+        </dd>
+      </div>
+
+      <div class="status-cell">
+        <dt class="status-label">Period</dt>
+        <dd class="status-value">{periodText}</dd>
+      </div>
+
+      <div class="status-cell">
+        <dt class="status-label">Stack</dt>
+        <dd class="status-value">{entry.stack.join(' · ')}</dd>
+      </div>
+
+      <div class="status-cell">
+        <dt class="status-label">Links</dt>
+        <dd class="status-value">
+          {
+            entry.links.source ? (
+              <a href={entry.links.source}>
+                source <span aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              entry.sourceAbsence && (
+                <span class="source-absence">{entry.sourceAbsence}</span>
+              )
+            )
+          }
+          {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
+          {
+            entry.links.demo && (
+              <a href={entry.links.demo}>
+                demo <span aria-hidden="true">↗</span>
+              </a>
+            )
+          }
+        </dd>
+      </div>
+    </dl>
+  </div>
+</header>
+
+<style>
+  @layer components {
+    /* Identical shape to ArticleHeader.astro's own .gutter — real content
+       only >=1280 (ADR-0016's corrected --bp-gutter). */
+    .gutter {
+      display: none;
+    }
+
+    @media (min-width: 1280px) {
+      .gutter {
+        display: block;
+      }
+    }
+
+    .gutter-label,
+    .gutter-status {
+      font: var(--t-gutter);
+      color: var(--c-text);
+      margin: 0;
+    }
+
+    .gutter-status.ok {
+      color: var(--c-ok);
+    }
+
+    .header-content {
+      max-width: var(--header-w);
+    }
+
+    @media (min-width: 1280px) {
+      .header-content {
+        grid-column: 2 / span 2;
+      }
+    }
+
+    /* Same breadcrumb shape/specificity gotcha as ArticleHeader.astro:
+       Astro's scoped-styles mechanism appends this component's own
+       data-astro-cid to every compound in a selector, so a same-depth
+       override of `.breadcrumb li` has to repeat that ancestor context
+       to out-specify it. */
+    .breadcrumb ol {
+      display: flex;
+      flex-wrap: wrap;
+      list-style: none;
+      margin: 0 0 var(--sp-breadcrumb-gap) 0;
+      padding-left: 0;
+    }
+
+    .breadcrumb li {
+      font: var(--t-breadcrumb);
+      color: var(--c-muted);
+    }
+
+    .breadcrumb a {
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+    .breadcrumb a:hover,
+    .breadcrumb a:active {
+      color: var(--c-accent-hi);
+    }
+
+    .breadcrumb li + li::before {
+      content: '/';
+      margin-inline: var(--sp-8);
+      color: var(--c-rule-2);
+    }
+
+    .breadcrumb li.breadcrumb-current {
+      color: var(--c-text);
+    }
+
+    .title {
+      font: var(--t-project-detail-title);
+      color: var(--c-text);
+      margin: 0 0 var(--sp-20) 0;
+      text-wrap: pretty;
+    }
+
+    .lead {
+      font: var(--t-lead);
+      color: var(--c-text-2);
+      max-width: var(--measure-lead);
+      margin: 0 0 var(--sp-28) 0;
+      text-wrap: pretty;
+    }
+
+    .status-band {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--sp-meta-gap);
+      row-gap: var(--sp-20);
+      border-top: var(--bw) solid var(--c-rule);
+      padding-top: var(--sp-16);
+      margin: 0;
+    }
+
+    @media (min-width: 1280px) {
+      .status-band {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .status-cell {
+      min-width: 0;
+    }
+
+    .status-label {
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-faint);
+      margin: 0 0 var(--sp-8) 0;
+    }
+
+    .status-value {
+      font: var(--t-project-status);
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .status-value .ok {
+      color: var(--c-ok);
+    }
+
+    /* Same 6px drawn dot as ProjectItem.astro's own (ADR-0007a). */
+    .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      border: var(--bw) solid var(--c-muted);
+      margin-right: 6px;
+    }
+
+    .dot.filled {
+      background: var(--c-muted);
+    }
+
+    .dot.ok {
+      border-color: var(--c-ok);
+      background: var(--c-ok);
+    }
+
+    /* Reference screenshot shows "source" with an accent underline and
+       "demo" plain (docs/reference/projects/1320-light.png) — but no real
+       content ever authors both together (checked: none of the four
+       entries in src/content/projects/ do), so that distinction is never
+       exercised. Styled consistently instead, matching ProjectItem.astro's
+       own muted `.source` link treatment rather than inventing a
+       source-specific accent rule from one ambiguous mockup pixel. */
+    .status-value a {
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+
+    .status-value a:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .source-absence {
+      color: var(--c-faint);
+    }
+  }
+</style>

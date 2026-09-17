@@ -30,9 +30,15 @@ import ReadingProgress from './ReadingProgress.astro';
 
 export interface Props {
   title: string;
+  // Phase 6.9, §11.2 point 3: the project-detail page's own third aside
+  // line — "next project" + the next project's title in serif 600 14. No
+  // article ever passes this (ArticleApparatus's own pagination pair
+  // already covers writing's prev/next, §22.8), so it's optional and
+  // absent by default.
+  nextProject?: { title: string; href: string } | null;
 }
 
-const { title } = Astro.props;
+const { title, nextProject = null } = Astro.props;
 
 // Same canonical-URL construction as BaseLayout.astro — SITE_URL, not
 // Astro.site (astro.config.mjs's own field is still OD-07's placeholder).
@@ -54,6 +60,17 @@ const shareHref = `mailto:?subject=${encodeURIComponent(title)}&body=${mailBody}
     reply by email <span aria-hidden="true">↗</span>
   </a>
 </div>
+
+{
+  nextProject && (
+    <div class="aside-next">
+      <p class="aside-next-label">next project</p>
+      <a class="aside-next-link" href={nextProject.href}>
+        {nextProject.title} <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  )
+}
 
 <!-- .visually-hidden, NOT .visually-hidden-inline: that variant is only for
      an island's own empty root (CodeCopy.svelte/TocProgress.svelte), kept
@@ -99,6 +116,42 @@ const shareHref = `mailto:?subject=${encodeURIComponent(title)}&body=${mailBody}
     }
 
     .aside-link:active {
+      color: var(--c-accent-hi);
+    }
+
+    /* §11.2 point 3: "next project" line — mono label + serif 600 14
+       title, same shape as ArticleApparatus.astro's own pagination-title
+       (discrete properties, not a `font` shorthand — that file's own
+       precedent for this "next-item serif title" family). */
+    .aside-next {
+      margin-bottom: var(--sp-14);
+      font: var(--t-aside);
+    }
+
+    .aside-next-label {
+      color: var(--c-muted);
+      margin: 0 0 var(--sp-8) 0;
+    }
+
+    .aside-next-link {
+      display: block;
+      font-family: var(--font-serif);
+      font-weight: 600;
+      font-size: var(--fs-project-next-title);
+      line-height: 1.35;
+      color: var(--c-text);
+      text-decoration: none;
+
+      transition-property: color;
+      transition-duration: var(--dur);
+      transition-timing-function: var(--ease);
+    }
+
+    .aside-next-link:hover {
+      color: var(--c-accent);
+    }
+
+    .aside-next-link:active {
       color: var(--c-accent-hi);
     }
   }

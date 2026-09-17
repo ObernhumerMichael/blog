@@ -1,0 +1,59 @@
+---
+// /projects/[slug].astro — IMPLEMENTATION_PLAN.md 6.9, DESIGN_SYSTEM.md
+// §11.2: "uses the article grid exactly." ProseLayout's `header` slot
+// (this phase) swaps ArticleHeader for ProjectHeader; `apparatus={false}`
+// drops the author/pagination/related band ArticleApparatus would
+// otherwise auto-show once 3+ numbered h2s exist (every canonical section
+// sequence here has 5–6) — §11.2 names a single `next project` aside line
+// instead (ArticleAside's own nextProject prop), not that two-column grid.
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import ProjectHeader from '../../components/article/ProjectHeader.astro';
+import { slugify } from '../../lib/slug.ts';
+
+export const getStaticPaths = (async () => {
+  // Same draft visibility as /w/[num] (5.4 point 5) — a draft renders in
+  // `astro dev` and is excluded from the production build entirely.
+  const entries = await getCollection('projects', (e) =>
+    import.meta.env.PROD ? !e.data.draft : true,
+  );
+  return entries.map((entry) => ({
+    params: { slug: slugify(entry.data.title) },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
+
+// ProseLayout only needs title/lead (BaseLayout's <title>/meta description)
+// plus the numbered-heading flags ArticleToc needs — projectsSchema has no
+// `lead` field, so `description` doubles as it, same field the index item
+// (ProjectItem.astro) already reads for its own copy.
+const frontmatter = {
+  ...remarkPluginFrontmatter,
+  title: entry.data.title,
+  lead: entry.data.description,
+};
+
+// Numeric adjacency (6.9 point 3, same reasoning as 5.0's article prev/next
+// resolution) — a single `next project` line, not the two-column pair
+// ArticleApparatus/related.ts build for articles.
+const published = await getCollection('projects', (e) => !e.data.draft);
+const sorted = [...published].sort((a, b) => a.data.number - b.data.number);
+const nextEntry = sorted.find((e) => e.data.number > entry.data.number) ?? null;
+const nextProject = nextEntry
+  ? { title: nextEntry.data.title, href: `/projects/${slugify(nextEntry.data.title)}` }
+  : null;
+---
+
+<ProseLayout
+  frontmatter={frontmatter}
+  headings={headings}
+  apparatus={false}
+  nextProject={nextProject}
+>
+  <ProjectHeader slot="header" entry={entry.data} />
+  <Content />
+</ProseLayout>

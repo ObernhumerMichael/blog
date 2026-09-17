@@ -32,6 +32,28 @@
 // complete too, via ArticleApparatus.astro — the last named gap in the
 // header comment above. Still not Instrumented.astro: no collection-backed
 // routing lives here, that's /w/[num].astro's job (5.4).
+//
+// Phase 6.9, §11.2: a `header` slot, defaulting to ArticleHeader when the
+// caller passes nothing — /projects/[slug].astro is the one concrete
+// second header (ProjectHeader.astro), whose status-band data shape
+// (status/period/stack/links) doesn't fit ArticleHeader's own Frontmatter
+// interface at all. `frontmatter` is typed as a union rather than widened
+// to `any`/a loose record so the DEFAULT `<ArticleHeader>` fallback below
+// still gets full type-checking; `isWritingFrontmatter` narrows it back at
+// the one place that needs the full shape, and every existing caller
+// (/w/[num].astro) is unaffected — it already passes the full shape, so it
+// still matches that branch.
+//
+// The pagination pair (prev/next) is a WRITING-only apparatus block — a
+// project page gets a single `next project` aside line instead (§11.2
+// point 3, ArticleAside.astro), not the two-column grid (§22.8: no
+// component for a page that doesn't call for it). ArticleApparatus itself
+// still auto-shows its author block once >=3 numbered h2s exist though
+// (ArticleApparatus.astro's own showAuthorBlock threshold), which every
+// project's 5–6 canonical sections would trip — the `apparatus` prop below
+// exists only to suppress that for pages that don't want ANY apparatus
+// block, checked directly against docs/reference/projects/1320-light.png
+// (no author block between "Results & lessons" and the footer).
 import type { ComponentProps } from 'astro/types';
 import BaseLayout from './BaseLayout.astro';
 import ArticleHeader from '../components/article/ArticleHeader.astro';
@@ -43,20 +65,45 @@ import ArticleApparatus, {
 import CodeCopy from '../components/article/CodeCopy.svelte';
 import TocProgress from '../components/article/TocProgress.svelte';
 
+type WritingFrontmatter = ComponentProps<typeof ArticleHeader>['frontmatter'] & {
+  numberedHeadingFlags?: boolean[];
+};
+
+// Any OTHER page supplying its own `header` slot content still needs
+// title/lead — BaseLayout's <title>/meta description below read them
+// regardless of which header renders. `section`/`series` are declared
+// (rather than omitted) so the running-head block further down can read
+// them across the union without a type guard of its own.
+type MinimalFrontmatter = {
+  title: string;
+  lead: string;
+  section?: undefined;
+  series?: undefined;
+  numberedHeadingFlags?: boolean[];
+};
+
+function isWritingFrontmatter(
+  fm: WritingFrontmatter | MinimalFrontmatter,
+): fm is WritingFrontmatter {
+  return 'tags' in fm;
+}
+
 const {
   frontmatter,
   headings,
   prev = null,
   next = null,
   related = [],
+  apparatus = true,
+  nextProject = null,
 } = Astro.props as {
-  frontmatter: ComponentProps<typeof ArticleHeader>['frontmatter'] & {
-    numberedHeadingFlags?: boolean[];
-  };
+  frontmatter: WritingFrontmatter | MinimalFrontmatter;
   headings: ComponentProps<typeof ArticleToc>['headings'];
   prev?: ApparatusEntry | null;
   next?: ApparatusEntry | null;
   related?: ApparatusEntry[];
+  apparatus?: boolean;
+  nextProject?: ComponentProps<typeof ArticleAside>['nextProject'];
 };
 ---
 
@@ -80,7 +127,9 @@ const {
          loses its hairline, whether or not it actually is the page's last
          band. See ArticleHeader.astro's own top-of-file comment. -->
     <div class="frame">
-      <ArticleHeader frontmatter={frontmatter} />
+      <slot name="header">
+        {isWritingFrontmatter(frontmatter) && <ArticleHeader frontmatter={frontmatter} />}
+      </slot>
       <div class="band layout-article">
         <div class="gutter">
           <ArticleToc
@@ -144,16 +193,20 @@ const {
           <div class="prose">
             <slot />
           </div>
-          <ArticleApparatus
-            headings={headings}
-            numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
-            prev={prev}
-            next={next}
-            related={related}
-          />
+          {
+            apparatus && (
+              <ArticleApparatus
+                headings={headings}
+                numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
+                prev={prev}
+                next={next}
+                related={related}
+              />
+            )
+          }
         </div>
         <div class="aside">
-          <ArticleAside title={frontmatter.title} />
+          <ArticleAside title={frontmatter.title} nextProject={nextProject} />
         </div>
       </div>
     </div>

@@ -227,6 +227,12 @@
        h1 component when the title exceeds 90 characters, at <760 only. */
     --fs-display-long: 1.625rem; /* 26px */
 
+    /* Phase 6.9 — §11.2 point 1: project-detail h1 is "40 rather than 42"
+       (project titles run longer, on average, than article ones). Identical
+       to --fs-display at every width except the desktop tier below, the
+       only one the spec states a delta for. */
+    --fs-project-detail-title: var(--fs-display);
+
     /* Title — index, about, 404 */
     --fs-title: 1.625rem; /* 26px */
     --lh-title: 1.26;
@@ -503,6 +509,21 @@
        already exactly 11.5, constant at every width — reused for the size
        only, same reasoning as --t-project-desc above. */
     --t-project-instr: 400 var(--fs-meta-sm)/1.95 var(--font-mono);
+    /* Phase 6.9 — §11.2 point 1: project-detail h1, "40 rather than 42".
+       Same weight/family/line-height as --t-display, only the size token
+       differs (desktop tier, above). */
+    --t-project-detail-title: 400 var(--fs-project-detail-title)/var(--lh-display)
+      var(--font-serif);
+    /* §11.2 point 2: status band value row, "LABEL ... over value (mono
+       11.5 / 1.8 muted)". --fs-meta-sm is already exactly 11.5, constant at
+       every width — reused for the size only, same coincidence-not-reuse
+       precedent as --t-project-desc/--t-project-instr above. */
+    --t-project-status: 400 var(--fs-meta-sm)/1.8 var(--font-mono);
+    /* §11.2 point 3: aside's "next project" line, "serif 600 14". Not a
+       `font` shorthand token — same discrete-properties precedent
+       --fs-prevnext-title/--fs-related-title set (ArticleApparatus.astro),
+       so only the size lives here. */
+    --fs-project-next-title: 0.875rem; /* 14px */
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)
@@ -800,6 +821,7 @@
       /* Type (§3.4) */
       --fs-display: 2.625rem; /* 42px */
       --lh-display: 1.2;
+      --fs-project-detail-title: 2.5rem; /* 40px — §11.2 point 1 */
       --fs-title: 2.125rem; /* 34px */
       --fs-h2: 1.5625rem; /* 25px */
       --fs-h3: 1.21875rem; /* 19.5px */
