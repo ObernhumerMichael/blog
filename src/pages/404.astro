@@ -1,0 +1,185 @@
+---
+// /404 — §19.7, IMPLEMENTATION_PLAN.md 7.6. Astro's static output serves
+// this file automatically for unmatched routes (AD-01 unaffected — a
+// build-time-generated static file, not a server-rendered error handler).
+// Masthead + gutter + h1 + one paragraph + a hairline-opened mono route
+// list. E12's 128px band padding, top AND bottom — the only other
+// consumer besides the homepage's own top-only use of the same step.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Content brief's standing no-invented-metrics rule (already enforced by
+// /projects's own count and the writing index's own count) — these two
+// numbers are live getCollection counts, not the hand-typed figures
+// §19.7's own worked example reads like.
+const writingTotal = (await getCollection('writing', (e) => !e.data.draft)).length;
+const projectsTotal = (await getCollection('projects', (e) => !e.data.draft)).length;
+
+const routes = [
+  { href: '/', label: '/', description: 'front page' },
+  {
+    href: '/writing',
+    label: '/writing',
+    description: `${writingTotal} articles, newest first`,
+  },
+  { href: '/projects', label: '/projects', description: `${projectsTotal} projects` },
+  { href: '/about', label: '/about', description: 'who is writing this' },
+];
+---
+
+<BaseLayout title="Not found">
+  <div class="frame">
+    <section class="band layout-band band--404">
+      <div class="gutter">
+        <p class="gutter-code">404</p>
+        <p class="gutter-sub">not found</p>
+      </div>
+      <p class="running-head">
+        <span class="running-head-code">404</span>
+        <span>not found</span>
+      </p>
+      <div class="content">
+        <h1 class="title">This page does not exist</h1>
+        <p class="lead">
+          Either it never did, or it moved when the archive got reorganised. Article
+          permalinks are stable at <code>/w/&lt;number&gt;</code>, so if you have the
+          article number you can go straight there.
+        </p>
+        <ul class="route-list">
+          {
+            routes.map((route) => (
+              <li>
+                <a href={route.href}>{route.label}</a> — {route.description}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  @layer components {
+    /* Same layout.css's-.gutter-only-sets-text-align precedent every other
+       page uses — hiding the CONTENT below 1280 is this page's own job. */
+    .gutter {
+      display: none;
+    }
+
+    @media (min-width: 1280px) {
+      .gutter {
+        display: block;
+      }
+    }
+
+    /* §19.7: "the number in accent" — the one gutter on the site whose
+       first line isn't --c-text, so it doesn't reuse .gutter-label/
+       .gutter-count (both defined elsewhere against that assumption). */
+    .gutter-code {
+      font: var(--t-gutter);
+      color: var(--c-accent);
+      margin: 0;
+    }
+
+    .gutter-sub {
+      font: var(--t-gutter);
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    /* Same running-head substitute every Phase 7 page uses below 1280 —
+       this page's gutter carries the "404 / not found" pair nowhere else
+       on the page repeats. */
+    .running-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--sp-16);
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin: 0 0 calc(-1 * var(--grid-gap) + var(--sp-16)) 0;
+      padding-bottom: var(--sp-12);
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    .running-head-code {
+      color: var(--c-accent);
+    }
+
+    @media (min-width: 1280px) {
+      .running-head {
+        display: none;
+      }
+    }
+
+    /* E12: the 128px band padding step, top and bottom — page-local per
+       index.astro's own .band--cover comment ("revisit if [404] wants the
+       same rule"): two consumers total, each with a different top/bottom
+       shape, isn't worth a shared layout.css modifier over. */
+    .band--404 {
+      padding-block: var(--sp-128);
+    }
+
+    .content {
+      max-width: var(--header-w);
+    }
+
+    .title {
+      font: var(--t-title);
+      color: var(--c-text);
+      margin: 0 0 var(--sp-16) 0;
+    }
+
+    .lead {
+      font: var(--t-body);
+      color: var(--c-text-2);
+      margin: 0 0 var(--sp-32) 0;
+      text-wrap: pretty;
+    }
+
+    /* Same inline-code chip as prose.css's `.prose :not(pre) > code`
+       (§13.4) — this paragraph isn't real markdown prose, so that global
+       rule doesn't reach it; restated locally rather than wrapping a
+       whole `.prose` ancestor around one paragraph just to borrow it. */
+    .lead code {
+      font-family: var(--font-mono);
+      font-size: max(0.86em, var(--fs-label));
+      line-height: 1;
+      background: var(--c-sunken);
+      border: var(--bw) solid var(--c-rule);
+      border-radius: var(--radius-sm);
+      padding: 1px 5px;
+    }
+
+    /* §19.7: "a hairline-opened list of routes in mono 12/2.1 — each route
+       in --c-text with an accent underline, followed by an em-dashed
+       description." */
+    .route-list {
+      list-style: none;
+      margin: 0;
+      padding: var(--sp-24) 0 0 0;
+      border-top: var(--bw) solid var(--c-rule-2);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-8);
+      font: var(--t-route-list);
+    }
+
+    .route-list a {
+      color: var(--c-text);
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    .route-list a:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .route-list li {
+      color: var(--c-muted);
+    }
+  }
+</style>

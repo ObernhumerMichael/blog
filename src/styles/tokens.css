@@ -447,6 +447,11 @@
        coincidence, not reuse: a shared token across two unrelated
        components would claim a link between them that doesn't exist. */
     --t-aside: 400 var(--fs-meta-sm)/1.9 var(--font-mono);
+    /* 7.6, §19.7 — the 404 route list: "mono 12/2.1". --fs-meta already
+       lands on 12px at >=760 (its own responsive step, unlike -sm/-xs);
+       2.1 doesn't match any existing --lh-* token, same inline precedent
+       as --t-toc/--t-aside just above. */
+    --t-route-list: 400 var(--fs-meta)/2.1 var(--font-mono);
     /* §10.6 author block name: "sans 600 14.5". No responsive step is named
        (unlike the masthead wordmark's own 13.5/14/14.5 tiers), so this gets
        its own flat size instead of borrowing --fs-wordmark and inheriting
