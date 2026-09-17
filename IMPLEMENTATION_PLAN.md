@@ -1533,11 +1533,112 @@ Per the precedent every prior phase sets (3.9, 4.11, 5.11): add `Tag` (all three
 - Both T4 fixtures inherited from Phase 5 (8 tags, project with no source) are provable, the second one without any fixture-only content — the real launch content **is** the test.
 - The Writing-index and projects-index reference-screenshot gaps (Finding C/D) are either closed by a fresh capture request or explicitly noted as unclosed in this phase's own record — not silently treated as covered.
 
-### Phase 7 · Home, about, 404 _(1 day)_
+### Phase 7 · Home, about, 404 _(2–3 days — revised up from 1: the stub's "mostly composition" is correct, but the data three of the six new bands compose from doesn't exist anywhere yet — this is the first phase to need a `data` collection at all, and two findings are blocking before either the homepage or the about page can render its real numbers)_
 
-Mostly composition — if any of these needs a new component, that's a signal to revisit Phases 2–6 rather than to add one (§22.8).
+Nine sub-phases. §22 rule 8 and §23.3 already settle the component question the stub raises itself: none of this phase's six new page bands (Now panel, Interests line, Experience rows, Elsewhere grid, route list) is a candidate component, because each names exactly one page. The open work is everything upstream of composition — the `site` data collection AD-03's own table promises and Phase 0 never built, the homepage's project-selection rule, and the Now panel's live-fetch mechanism.
 
-**Exit:** all seven page types exist; the gallery page renders all twenty components in all states; screenshot baselines committed.
+#### 7.0 · Four findings, checked against the repository as it stands
+
+| #   | Finding                                                                                                                          | Effect                                                                                                                        | Status         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| A   | **The `site` data collection named in AD-03's own collections table has never been built.** `content.config.ts` defines exactly `writing` and `projects`; `src/content/site/` holds only a `.gitkeep`, exactly as Phase 0 left it | Every real fact this phase's homepage and about page need — experience rows, Elsewhere links, the interests line, the Now-panel fallback — has nowhere to live | Resolved in 7.1 |
+| B   | **Phase 0's own file-tree stub named a reusable `ExperienceRow` component that §22/§23.3 forbid.** Checked directly: §22 rule 8 ("a component that would appear on exactly one page does not belong in the system") and §23.3's own list name "the 150px period track, the four-column Elsewhere grid" for About and "the Now panel, the 24px opening statement, the interests line" for the homepage as **compositions, not components** — the same status §23.3 gives the blog index's filter row and the project detail status band, both already built as page-local markup, not extracted components | The Phase 0 stub is stale on this point, the same way it was on `Base`/`Banded`/`Instrumented.astro` (only `BaseLayout`/`ProseLayout` exist, confirmed by `ls src/layouts/`) — no `ExperienceRow.astro`, no `Elsewhere.astro`, no `NowPanel.astro` get built | Resolved by not building it — see 7.4/7.5 |
+| C   | **`projectsSchema` has no selection rule for the homepage's "Selected work / 3 of 6."** `writing` has `featured` (capped at one by invariant 2); `projects` has nothing equivalent, and nothing in §19.1 or component 07 states how three of N projects get chosen | Blocks 7.4 — the homepage cannot render a Selected-work band without deciding this | OD-16, resolved in 7.1 |
+| D   | **AD-12/ADR-0012's Now-panel fetch target is a URL that doesn't exist anywhere in the codebase.** `consts.ts` already has the `SITE_URL`/`GITHUB_URL`/`PGP_URL` placeholder pattern (OD-07) for exactly this category of "real value needed before launch, must not block a build" fact, but no constant for "a small JSON endpoint on the homelab VPS" has been added, and no committed fallback file exists either | Blocks 7.2 — the build-time fetch has nothing to fetch from yet | OD-17, resolved in 7.2 |
+
+**Finding B, why it matters beyond "one file doesn't get written."** Every prior phase from 3 onward closed with a specimen-page extension (3.9, 4.11, 5.11, 6.11) because every prior phase added at least one of the twenty numbered components in §6. This phase adds none — Tag (component 08, Phase 6) was the last. That's not an oversight to fix; it's what §22 rule 8 and AD-04's "inventory closes at twenty" (referenced by Phase 6 Finding B) predict for a phase whose new surfaces are explicitly named as page-local in §23.3. 7.7 is an audit of the existing specimen page, not an extension of it — the first phase where that's true.
+
+##### OD-16 · Selecting "3 of 6" for the homepage's Selected-work band **(blocking 7.1, 7.4)**
+
+Three ways to pick three projects out of N, none stated in the design system: most-recent by `period.from`, a hand-picked flag, or reverse project-number order. Most-recent-by-date would rank the archived evolutionary-SVG project (`period.from: 2024-02-01`) ahead of the CTF aggregate (`2023-03-01`, `active`, still ongoing) purely because of when each was _started_ — the wrong axis for "work worth showcasing," and no article in this system ever needed the equivalent editorial judgment softened into a date sort, because `writing.featured` already solves the identical problem with an explicit flag rather than a derived heuristic.
+
+**Recommendation: add `featured: z.boolean().optional()` to `projectsSchema`, mirroring `writing`'s field exactly**, plus a new invariant — `tests/invariants/featured.test.ts` extends to assert **at most three** featured projects (not "at most one": the writing invariant's cap matches its own single-slot UI, this one matches the homepage's three-slot band). With the three real non-draft projects (6.2) all worth showing and none yet in excess of three, mark all three `featured: true` now — the cap is exercised the day a fourth non-draft project ships, not invented ahead of need. Record as ADR-0024 once implemented.
+
+##### OD-17 · The Now panel's fetch target and fallback **(blocking 7.2, and therefore 7.4's exit)**
+
+ADR-0012 is unambiguous about the _shape_ of the mechanism (build-time fetch, 2s timeout, committed fallback, no runtime fetch ever) but the actual endpoint doesn't exist — this is a personal VPS/homelab detail nothing in this repository can supply today, and Phase 9 (deploy) is where real server-side infrastructure actually gets stood up, not Phase 7. Building a page that hard-fails without a real endpoint would block this phase on infrastructure that has no reason to exist yet, the same shape of problem Phase 5's Finding B solved by shipping the meta-refresh now and carrying the real 301 forward to Phase 9.
+
+**Recommendation:** add `NOW_PANEL_URL` to `consts.ts` alongside `GITHUB_URL`/`PGP_URL` — a placeholder pointing nowhere real yet (a clearly-fake path, not a guessed real one), documented the same way OD-07's other placeholders are. `src/lib/now.ts` (already named in Phase 0's own lib stub) always attempts the fetch, and on any failure — including "placeholder host doesn't resolve," which is indistinguishable from a real timeout — falls back to `src/content/site/now-fallback.json`, the committed file holding §19.1's own worked numbers (`homelab uptime 214 d`, `11 services ok`, `last deploy 2026-08-19`; they're already real facts, not placeholders, because the homelab project (6.2) is the real thing these numbers describe). Phase 9 swaps the placeholder for the real endpoint once that infrastructure exists — a one-constant change, same shape as OD-07/AD-12's own reasoning for keeping `SITE_URL` in exactly one place. Record as ADR-0025 once implemented.
+
+#### 7.1 · The `site` data collection and the projects `featured` field
+
+1. `content.config.ts`: a new `site` collection, `type: 'data'`, loader over `src/content/site/*.json` (JSON, not the stub's YAML — one fewer parser dependency, and every other collection in this codebase already round-trips through Zod from a single format). Four files, each its own concern rather than one file forced into a union shape: `experience.json` (array of `{period, role, description}`, About §19.6 point 3), `elsewhere.json` (array of `{label, value, href?}`, four entries — Email · Code · Social · Keys), `interests.json` (array of strings, joined with middots at render time, not stored pre-joined), `now-fallback.json` (`{uptime, servicesOk, lastDeploy}`, OD-17). `content.schemas.ts` gets one Zod schema per file, imported by both `content.config.ts` and the two pages that read them directly.
+2. `projectsSchema`: add `featured: z.boolean().optional()` (OD-16). `tests/invariants/featured.test.ts`: extend to load both collections, keep the existing "at most one featured writing entry" assertion, add "at most three featured projects."
+3. Content: author real values for all four `site` files (the About page's actual experience/elsewhere content, the homepage's actual interests line) — real copy, not lorem ipsum, same standing reasoning as every content sub-phase since 3.1. Mark `001`, `002`, `003` (the three non-draft projects) `featured: true`.
+
+**Exit:** `pnpm check:content` passes with the new collection and field; a scratch fourth featured project fails the new invariant; `pnpm check:astro` has no type errors from the `site` collection's new types.
+
+#### 7.2 · The Now panel (`src/lib/now.ts`, AD-12/ADR-0012)
+
+Per OD-17: a build-time-only fetch against `NOW_PANEL_URL` with an `AbortSignal.timeout(2000)`, `try/catch` around the whole thing, falling back to `now-fallback.json` on any rejection (network error, timeout, non-2xx, malformed JSON — one catch-all, not a per-failure-mode branch, since every branch has the identical outcome). No client-side code at all — this is a plain async function called from `index.astro`'s frontmatter, not a fourth island; ADR-0011's three-islands budget is untouched.
+
+**Exit:** `astro build` succeeds and the homepage renders the fallback numbers (the placeholder host cannot resolve, so every build exercises the fallback path until Phase 9); a unit test (`node:test`, same bar `archive.ts`/`related.ts` set) proves the fallback is used when the fetch promise rejects, without needing a real network call in CI.
+
+#### 7.3 · Project item's selected-work variant (component 07)
+
+Per component 07's own variants table (§6·07) and §22 rule 6 ("prefer a variant over a new component"): `ProjectItem.astro` gets a `variant: 'index' | 'selected'` prop alongside its existing `forceMobile` prop. Selected: 2 tracks (no separate number column), title 19 instead of 21, description capped at 58ch, 22px padding-y instead of 26, a shorter instrument list (status + primary link only — period and source drop, per the variant table's "shorter instrument list," matched against how much a homepage band can afford before it stops being a summary). Existing `index` variant's markup and CSS stay the default, zero change to `/projects/index.astro`'s own rendering.
+
+**Exit:** both variants render correctly on the specimen page (7.7) at all three widths in both themes; `/projects` still renders pixel-identical to its Phase 6 state.
+
+#### 7.4 · The homepage (`src/pages/index.astro`)
+
+Six bands per §19.1, replacing the Phase 0 placeholder. Layout B throughout (`148 / 1fr`, 44px gap), each band closed by a full-frame hairline, first band using the 128px top step (E12).
+
+1. **Index** — gutter `Index / <current year-month>`; opening statement (serif 400 24/1.50, the 23.2's named exception for this page) + one context paragraph; the Now panel beside it on a left hairline (7.2's data, rendered here as plain markup per §23.3 — no component).
+2. **Featured** — `FeaturedEntry` with `context="home"` (already built for this exact call site in Phase 6, per that component's own header comment) + 170px lead figure, the one `featured: true` writing entry. Absent if none exists, same conditional Phase 6's writing index already established.
+3. **Latest writing** — the four most-recently-published entries, `WritingRow` `variant="compact"` (already built in Phase 6 for this exact call site) + `all writing →` / `rss ↗`. Four-by-date is a one-line `.sort().slice(0, 4)` at the call site, not a new `lib/` function — nowhere near `groupByYear`'s "easy to get subtly wrong" bar.
+4. **Selected work** — three `featured: true` projects (7.1/OD-16), `ProjectItem` `variant="selected"` (7.3) + `all projects (N) →` with the real published count.
+5. **Interests** — the `site` collection's `interests.json`, middot-joined, sans 15/2.0, `--c-text-2` (§23.3's own named exception).
+6. **About & contact** — one paragraph (≤600px) + `CONTACT_EMAIL` (already in `consts.ts`) in serif 22 with an accent underline, + a mono link line reusing `SITE_LINKS`.
+
+**Responsive** (§19.1's own paragraph, verified against no counterexample elsewhere): band order fixed at every width; 44px → 32px band padding; Now panel moves below the intro paragraph and swaps its left hairline for a top one; the two list bands (Latest writing, Selected work) go to stacked rows.
+
+**Exit:** matches `docs/reference/home/{390,900,1320}-light.png` (Finding E's gap — no dark-theme shot to check against, noted rather than assumed); T3's matrix passes at all three widths in both themes regardless; the Now panel shows the committed fallback numbers, not a blank or stuck panel.
+
+#### 7.5 · The about page (`src/pages/about.astro`)
+
+New page, §19.6, four bands:
+
+1. **Header** — gutter `About / upd <date>`; `h1` is `AUTHOR_NAME` at `--t-title`; two serif paragraphs (18.5/1.72, second in `--c-text-2`, from `AUTHOR_BIO` or a longer about-specific variant — real prose, not the article-footer author block's shorter bio, since §19.6 explicitly wants two paragraphs where §10.6's block wants one); a 200×220 portrait using the existing Figure placeholder treatment (§1.8 — "the alternative to an image is not a decorative graphic, it is no image," which the system already renders as a specified hairline-hatch placeholder; no real portrait file exists yet, and inventing one is out of scope for a docs task).
+2. **Working on** — one middot-joined line, sans 15/2.0 (same treatment as the homepage's Interests line, different content — a "what I'm doing now" line, not interests; needs its own short constant, doesn't reuse `interests.json`).
+3. **Experience** — gutter `Experience / selected`; the `site` collection's `experience.json`, rendered as page-local markup on the same 150px-period-track row system the blog index already established (§19.6 point 3, §23.3's own naming) — not a shared component (Finding B). Three hairline-separated rows.
+4. **Elsewhere** — the `site` collection's `elsewhere.json`, four-column `LABEL`-over-value mono grid, 4 → 2 → 1 at the two breakpoints.
+
+**No author block** (component 09's `AuthorBlock`, built for articles in Phase 3.6, is explicitly excluded here per §19.6's own "this page is the author" and Phase 3.6's own note that it "never" appears on the about page).
+
+**Exit:** matches `docs/reference/about/{390,900,1320}-light.png` (same dark-theme gap as 7.4); Elsewhere collapses 4 → 2 → 1 exactly where the responsive note says; Experience rows stack period-above-role at mobile per §19.6's own line.
+
+#### 7.6 · The 404 page (`src/pages/404.astro`)
+
+New page, §19.7. Astro's static output serves this file automatically for unmatched routes with no adapter or SSR involved (AD-01 unaffected — this is a build-time-generated static file, not a server-rendered error handler). Masthead + gutter `404 / not found` (the number in accent) + `h1` `--t-title` ("This page does not exist") + one explanatory paragraph with the permalink pattern in inline code + a hairline-opened mono route list (`--c-text` + accent underline, em-dashed description). 128px band padding, top and bottom (E12's second and last user, alongside the homepage — confirmed by grep, no third user exists).
+
+Route-list counts (`/writing — 38 articles, newest first`) are **live `getCollection` counts, not hand-typed numbers** — the content brief's standing no-invented-metrics rule (already enforced everywhere else: `/projects`'s `N · M active`, the writing index's `N articles`) applies here exactly the same way, even though §19.7's own worked example reads like static copy.
+
+**Exit:** `/nonexistent-path` renders this page in `astro dev` (no way to test a true 404 status in a fully static build without a server, so this only proves the page itself renders, not the HTTP status — Phase 9's job); route counts match the real collections at build time; matches `docs/reference/404/1320-light.png` (Finding E's gap — no 390, no 900, no dark-theme shot exist for this page at all, the largest capture gap this plan has recorded).
+
+#### 7.7 · Specimen page audit, not extension
+
+Per Finding B/F: this phase adds zero new numbered components, so — unlike 3.9/4.11/5.11/6.11 — there is nothing new to add to `src/pages/dev/specimen.astro`. Audit instead: confirm all twenty numbered components (§6, components 01–20) render on the page, in both themes, and add the one genuinely new _state_ this phase introduces to an existing component — `ProjectItem`'s `selected` variant (7.3) — next to its existing `index`-variant entries.
+
+**Exit:** all twenty components confirmed present; `ProjectItem` shows both variants; nothing else changes on the page.
+
+#### 7.8 · Full screenshot baseline capture (T5)
+
+All seven page types exist for the first time as of 7.6 — the 42-render matrix (7 × 3 widths × 2 themes) named in T3/T5's own definition can finally be captured in full, rather than the partial subsets each prior phase captured for its own pages only. Capture and commit `tests/baselines/`'s images now. **This sub-phase produces and commits the images only** — wiring automated diff comparison into `npm run verify`/CI is explicitly Phase 8's job per the original stub split ("Full T2–T5 wired into `npm run verify` and CI"), the same "baseline exists before it's enforced" ordering §2.7 already used to bring T3's DOM checks forward of their own enforcement phase.
+
+**Exit:** 42 images committed under `tests/baselines/`, named per §0.3's `<page-slug>/<width>-<theme>.png` convention; Phase 8 has a real baseline to diff against on day one instead of having to generate one cold.
+
+---
+
+**Phase 7 overall exit criteria:**
+
+- All seven page types (§19.1–19.7) exist and render: homepage, blog index, article, projects index, project detail, about, 404.
+- `content.config.ts` has a third collection, `site` (`type: 'data'`), the first non-`writing`/`projects` collection in the codebase, backing the homepage's Now panel and Interests line and the about page's Experience and Elsewhere bands — none of which is a new component (§22 rule 8, §23.3), matching AD-03's own collections table for the first time since Phase 0.
+- `projectsSchema.featured` exists, capped at three by a new invariant (OD-16 → ADR-0024); the Now panel has a real build-time-fetch-with-fallback mechanism behind a placeholder endpoint, real infrastructure deferred to Phase 9 exactly as Phase 5's real-301 upgrade was (OD-17 → ADR-0025).
+- `ProjectItem` gains a `selected` variant (component 07's own table), no other component changes — the specimen page is audited, not extended, for the first time in this plan.
+- The homepage's six bands, the about page's four bands, and the 404 route list are all page-local compositions per §23.3, not new components — checked against §22 rule 8 explicitly, not assumed.
+- The full 42-render screenshot baseline is committed; automated enforcement stays Phase 8's, per the original stub.
+- The reference-screenshot gaps for all three of this phase's pages (home/about: no dark-theme capture at any width; 404: five of six combinations missing entirely) are either closed by a fresh capture request or explicitly recorded as unclosed — the largest such gap this plan has hit, and the exit criteria say so rather than treating prose-only as equivalent to a checked page.
 
 ### Phase 8 · Enforcement hardening _(1–2 days)_
 
