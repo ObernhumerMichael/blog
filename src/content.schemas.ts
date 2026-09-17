@@ -26,7 +26,11 @@ export const writingSchema = z
     section: z.enum(SECTIONS),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
-    tags: z.array(z.string()).min(1).max(3),
+    // §21.2: "eight has been tested and survives at 390" is the enforced
+    // ceiling; three is the editorial target stated in the same sentence,
+    // not a hard limit — Phase 6 Finding A corrects the schema, which had
+    // enforced the guideline as if it were the ceiling.
+    tags: z.array(z.string()).min(1).max(8),
     series: z
       .object({
         // Finding D: a stable slug-shaped grouping key, separate from
@@ -65,12 +69,29 @@ export const projectsSchema = z.object({
   }),
   caseStudy: z.boolean(),
   links: z.object({
-    article: z.url().optional(),
+    // Not `z.url()` (ADR-0022, OD-14): the primary link's href doubles as
+    // whatever `links.article` holds, which is sometimes an internal route
+    // rather than an external URL (`/writing/tag/ctf`, `browse 28 →`) — a
+    // real `z.url()` rejects a path with no scheme.
+    article: z.string().optional(),
     source: z.url().optional(),
+    // ADR-0022 (OD-14): a live demo and a written case study are
+    // independent things a project can have.
+    demo: z.url().optional(),
+    // ADR-0022 (OD-14): the primary link's label is content, not a fixed
+    // "case study →" string — component 07 derives that default only when
+    // this is absent.
+    primaryLabel: z.string().optional(),
   }),
   // Required-when-source-is-missing is a §5.3 invariant, not a schema
   // shape rule — a named test gives a better message than superRefine.
   sourceAbsence: z.string().optional(),
+  // ADR-0023 (OD-15): default false, unlike `writing`'s default-true —
+  // writing's "drafts exempt, fail closed" was guarding against a forgotten
+  // flag silently publishing unready prose; a project's forgotten flag
+  // would silently withhold one that's actually fine to ship, so the
+  // fail-safe direction is reversed here.
+  draft: z.boolean().default(false),
 });
 
 export type WritingEntry = z.infer<typeof writingSchema>;

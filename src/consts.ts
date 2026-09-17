@@ -162,6 +162,11 @@ export type FigureKind = (typeof FIGURE_KINDS)[number];
 // fixture a real related-articles match — the one thing its exit criterion
 // says it must not have. A short one-off note is also a real, reusable
 // category going forward, not a tag invented only to dodge the check.
+//
+// `linux`/`networking` added in 6.1 so the 8-tag T4 fixture (6.10) has
+// eight registry-valid tags to use — drawn from real thematic territory the
+// existing homelab/Ansible articles already cover, not invented categories,
+// same reasoning 5.9 gave `notes`.
 export const TAGS = [
   'ansible',
   'infrastructure',
@@ -169,6 +174,8 @@ export const TAGS = [
   'ctf',
   'security',
   'notes',
+  'linux',
+  'networking',
 ] as const;
 
 export type Tag = (typeof TAGS)[number];
