@@ -492,6 +492,17 @@
        declared neighbour (--t-project-title, same size family), tracking
        0 like --t-lead/--t-body (neither of which specify one either). */
     --t-year: 400 var(--fs-year)/1.3 var(--font-serif);
+    /* Phase 6.7 — component 07: "description sans 14–14.5/1.62–1.65
+       --c-text-2." --fs-ui is already exactly 14 (base) / 14.5 (760+) —
+       reused for the SIZE only (coincidence, not reuse: --t-ui's own
+       line-height is 1.55, which doesn't match this component's 1.62–1.65,
+       same "declare a new bundle when only the size coincides" precedent
+       --t-author-bio already sets against --fs-small). */
+    --t-project-desc: 400 var(--fs-ui)/1.65 var(--font-sans);
+    /* component 07: "instruments mono 11.5/1.9–2.0 muted." --fs-meta-sm is
+       already exactly 11.5, constant at every width — reused for the size
+       only, same reasoning as --t-project-desc above. */
+    --t-project-instr: 400 var(--fs-meta-sm)/1.95 var(--font-mono);
 
     /* =====================================================================
        6 · SPACING (§2.6, §3.3)

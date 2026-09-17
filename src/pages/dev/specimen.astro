@@ -15,6 +15,7 @@ import ReadingProgress from '../../components/article/ReadingProgress.astro';
 import Tag from '../../components/ui/Tag.astro';
 import WritingRow, { type WritingRowEntry } from '../../components/list/WritingRow.astro';
 import FeaturedEntry from '../../components/list/FeaturedEntry.astro';
+import ProjectItem from '../../components/list/ProjectItem.astro';
 import { findRelated } from '../../lib/related';
 
 // Token lists below were extracted directly from tokens.css via grep, not
@@ -153,6 +154,13 @@ const rowEntries = published.slice(0, 3).map(toRowEntry);
 // `featured: true` entry exists — article 001 is that entry today.
 const featuredData = published.find((e) => e.featured);
 const featuredEntry = featuredData && toRowEntry(featuredData);
+
+// Phase 6.7 — ProjectItem, real `projects` entries (all four — 6.10's own
+// "project with no source" T4 fixture is the draft industrial-platform
+// entry, so this also renders that case here without a separate fixture).
+// astro:content includes drafts unfiltered — dev-only page, no PROD guard
+// needed, same as this file's own writing-entry loads above.
+const projects = (await getCollection('projects')).map((e) => e.data);
 ---
 
 <html lang="en">
@@ -384,6 +392,14 @@ const featuredEntry = featuredData && toRowEntry(featuredData);
       }
       .row-list > :global(.row) {
         border-bottom: var(--bw) solid var(--c-rule);
+      }
+
+      /* Same demo-only precedent as .row-list above — the real
+         --c-rule-2-opened list is /projects's own job (6.8), not
+         ProjectItem's. ProjectItem already supplies its own
+         --c-rule bottom hairline per item (§11.1). */
+      .project-list {
+        border-top: var(--bw) solid var(--c-rule-2);
       }
     </style>
   </head>
@@ -967,6 +983,22 @@ const featuredEntry = featuredData && toRowEntry(featuredData);
       authors a lead image yet.
     </p>
     {featuredEntry && <FeaturedEntry entry={featuredEntry} context="index" />}
+
+    <h2>ProjectItem (component 07, §07) — added Phase 6.7</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      All four real <code>projects</code> entries, including the <code>draft: true</code>{
+        ' '
+      }
+      industrial platform (project with no source, OD-15/6.10) and the CTF entry's derived{
+        ' '
+      }
+      <code>browse 28 →</code> primary label (OD-14). Resize to see the number fold into the
+      substance column at tablet and the status-first mobile reorder (E3) — real DOM order,
+      not a CSS reorder.
+    </p>
+    <div class="project-list">
+      {projects.map((project) => <ProjectItem entry={project} />)}
+    </div>
 
     <h2>Glyphs (§2.11)</h2>
     <div class="glyph-row">

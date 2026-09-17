@@ -1,0 +1,344 @@
+---
+// ProjectItem.astro — component 07 (§07, IMPLEMENTATION_PLAN.md 6.7). The
+// projects-index full variant: three tracks `44 / minmax(0,1fr) / 210` at
+// desktop, narrowing to two (number folds into substance, instruments to
+// 170px) at tablet, per docs/reference/projects/index/900-light.png's own
+// caption. Collection-agnostic shape, same reasoning as WritingRowEntry.
+//
+// E3, the one sanctioned law-01 inversion: DOM order is number → status+
+// period → title → description → why → stack → primary-link+source —
+// checked against docs/reference/projects/index/390-light.png, which
+// shows exactly that order at mobile. At >=760 the two instrument-pair
+// wrapper elements (.status-period, .links) become `display: contents` so
+// their children place independently into the CSS Grid's instruments
+// column via `grid-column` alone — not a `flex-direction`/`order` reorder
+// trick, which would leave the DOM order (and so the tab order) wrong for
+// keyboard users at the width where it matters.
+export interface ProjectItemEntry {
+  number: number;
+  title: string;
+  description: string;
+  why?: string;
+  stack: readonly string[];
+  status: 'active' | 'maintained' | 'paused' | 'archived';
+  period: { from: Date; to: Date | null };
+  caseStudy: boolean;
+  links: { article?: string; source?: string; demo?: string; primaryLabel?: string };
+  sourceAbsence?: string;
+}
+
+export interface Props {
+  entry: ProjectItemEntry;
+}
+
+const { entry } = Astro.props;
+
+const num = String(entry.number).padStart(2, '0');
+
+// Filled dot: active (real evidence, docs/reference/projects/1320-light.png
+// — green dot + green word) and maintained (same crop — filled dot, but
+// --c-muted, not green: only "active" gets the --c-ok treatment). Hollow:
+// archived (same reference, hollow + muted). "paused" has no reference
+// example at all — inferred as hollow + muted by analogy to archived
+// (temporarily vs permanently stopped are both "not currently happening",
+// unlike active/maintained which both mean "still going").
+const isFilled = entry.status === 'active' || entry.status === 'maintained';
+const isOk = entry.status === 'active';
+
+const periodText = (() => {
+  const fromYear = entry.period.from.getFullYear();
+  if (!entry.period.to) return `${fromYear} — ongoing`;
+  const toYear = entry.period.to.getFullYear();
+  return fromYear === toYear ? String(fromYear) : `${fromYear} — ${toYear}`;
+})();
+
+// OD-14 / ADR-0022: primaryLabel overrides the derived "case study →";
+// links.article doubles as the href regardless of which label wins.
+const primaryText = entry.links.primaryLabel ?? (entry.caseStudy ? 'case study' : null);
+const showPrimary = Boolean(entry.links.article && primaryText);
+
+// 6.7: "source-or-demo-or-absence" — exactly one of the three, in that
+// priority order (the index item's own reduced instrument list; the
+// detail page's status band can show source AND demo together, §11.2).
+const sourceKind = entry.links.source ? 'source' : entry.links.demo ? 'demo' : 'absence';
+---
+
+<div class="item" data-status={entry.status}>
+  <p class="num">{num}</p>
+
+  <div class="status-period">
+    <p class="status">
+      <span class="dot" class:list={{ filled: isFilled, ok: isOk }} aria-hidden="true"
+      ></span>
+      <span class:list={{ ok: isOk }}>{entry.status}</span>
+    </p>
+    <p class="period">{periodText}</p>
+  </div>
+
+  <h3 class="title">
+    {entry.links.article ? <a href={entry.links.article}>{entry.title}</a> : entry.title}
+  </h3>
+
+  <p class="description">{entry.description}</p>
+
+  {
+    entry.why && (
+      <p class="why">
+        <strong>Why.</strong> {entry.why}
+      </p>
+    )
+  }
+
+  <p class="stack">{entry.stack.join(' · ')}</p>
+
+  <div class="links">
+    {
+      showPrimary && (
+        <p class="primary-link">
+          <a href={entry.links.article}>
+            {primaryText} <span aria-hidden="true">→</span>
+          </a>
+        </p>
+      )
+    }
+    <p class="source">
+      {
+        sourceKind === 'source' ? (
+          <a href={entry.links.source}>
+            source <span aria-hidden="true">↗</span>
+          </a>
+        ) : sourceKind === 'demo' ? (
+          <a href={entry.links.demo}>
+            demo <span aria-hidden="true">↗</span>
+          </a>
+        ) : (
+          <span class="source-absence">{entry.sourceAbsence}</span>
+        )
+      }
+    </p>
+  </div>
+</div>
+
+<style>
+  @layer components {
+    /* §11.1/component 07: "26px padding-y." Base tier: natural document
+       flow, no grid — .status-period/.links (below) are flex rows so the
+       two instrument pairs each read as one line, matching E3's mobile
+       reference exactly. */
+    .item {
+      padding-block: var(--sp-26);
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    .num {
+      font: var(--t-meta);
+      color: var(--c-accent);
+      margin: 0 0 var(--sp-8) 0;
+    }
+
+    .status-period {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: var(--sp-14);
+      margin: 0 0 var(--sp-16) 0;
+    }
+
+    .status,
+    .period {
+      font: var(--t-project-instr);
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    /* §09: "dot filled or hollow AND the word always present — never
+       colour alone." 6px, hollow = 1px border + transparent fill (ADR-0007a's
+       own resolution for the missing ●/○ glyphs — same drawn-dot pattern
+       specimen.astro's glyph section already established). */
+    .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      border: var(--bw) solid var(--c-muted);
+      margin-right: 6px;
+    }
+
+    .dot.filled {
+      background: var(--c-muted);
+    }
+
+    .dot.ok {
+      border-color: var(--c-ok);
+      background: var(--c-ok);
+    }
+
+    .status .ok {
+      color: var(--c-ok);
+    }
+
+    .title {
+      font: var(--t-project-title);
+      letter-spacing: var(--tr-project-title);
+      color: var(--c-text);
+      margin: 0 0 var(--sp-12) 0;
+    }
+
+    .title a {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    .title a:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .description {
+      font: var(--t-project-desc);
+      color: var(--c-text-2);
+      margin: 0 0 var(--sp-12) 0;
+    }
+
+    .why {
+      font: var(--t-project-desc);
+      color: var(--c-text-2);
+      margin: 0 0 var(--sp-12) 0;
+    }
+
+    .why strong {
+      color: var(--c-text);
+    }
+
+    .stack {
+      font: var(--t-meta);
+      color: var(--c-muted);
+      margin: 0;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: var(--sp-14);
+      margin-top: var(--sp-16);
+    }
+
+    .primary-link,
+    .source {
+      font: var(--t-project-instr);
+      margin: 0;
+    }
+
+    /* §07 states: the primary link is real navigation — --c-text plus a
+       permanent accent underline, same treatment as the title link and
+       FeaturedEntry's own title (checked against docs/reference/projects/
+       1320-light.png: "case study →" renders in the row's text colour with
+       an accent underline, not the muted instrument-line grey). Source and
+       demo stay muted with no underline — a passive reference, not the
+       page's primary action. */
+    .primary-link a {
+      color: var(--c-text);
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    .primary-link a:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .source a {
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+
+    .source a:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .source-absence {
+      color: var(--c-faint);
+    }
+
+    /* >=760: component 07's grid. Tablet keeps two tracks (number folds
+       into the substance column; instruments narrows to 170px, per the
+       900px reference capture's own caption) — desktop splits number into
+       its own 44px track. .status-period/.links become `display: contents`
+       so their children place directly via `grid-column`, independent of
+       DOM order (see the file header comment for why this isn't the
+       forbidden `order`/`flex-direction` trick). */
+    @media (min-width: 760px) {
+      .item {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) var(--project-instr-w-tablet);
+        column-gap: var(--sp-24);
+      }
+
+      .num,
+      .title,
+      .description,
+      .why,
+      .stack {
+        grid-column: 1;
+      }
+
+      .status-period,
+      .links {
+        display: contents;
+      }
+
+      .status,
+      .period,
+      .primary-link,
+      .source {
+        grid-column: 2;
+        justify-self: end;
+        text-align: right;
+        margin: 0;
+      }
+
+      /* Small gap within each instrument pair once unwrapped onto separate
+         grid rows — the pair's own flex `gap` (mobile) no longer applies
+         once `display: contents` removes it from layout. */
+      .status,
+      .primary-link {
+        margin-bottom: var(--sp-8);
+      }
+
+      .status-period,
+      .links {
+        margin: 0;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .item {
+        grid-template-columns: var(--project-num-w) minmax(0, 1fr) var(--project-instr-w);
+        column-gap: var(--sp-32);
+      }
+
+      .num {
+        grid-column: 1;
+        grid-row: 1 / -1;
+        align-self: start;
+        margin: 0;
+      }
+
+      .title,
+      .description,
+      .why,
+      .stack {
+        grid-column: 2;
+      }
+
+      .status,
+      .period,
+      .primary-link,
+      .source {
+        grid-column: 3;
+      }
+    }
+  }
+</style>
