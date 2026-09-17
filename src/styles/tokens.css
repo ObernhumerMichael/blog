@@ -505,6 +505,19 @@
        declared neighbour (--t-project-title, same size family), tracking
        0 like --t-lead/--t-body (neither of which specify one either). */
     --t-year: 400 var(--fs-year)/1.3 var(--font-serif);
+    /* §2.5 derived table: "homepage opening statement" — 24/1.50/−0.008em
+       (7.4, §23.3's named exception: the one place on the homepage a
+       serif size runs bigger than --t-lead outside an article). */
+    --t-statement: 400 var(--fs-statement)/1.5 var(--font-serif);
+    --tr-statement: -0.008em;
+    /* §2.2/§19.1: "the email address set in serif 22 with an accent
+       underline" — the design's own prose names the same "serif 22" value
+       --fs-year already carries, not a coincidental match, so the SIZE is
+       shared; a separate bundle still exists because the two roles (a
+       year-group gutter label vs. a standalone contact link) have nothing
+       else in common, same reasoning --t-project-desc's own comment gives
+       for reusing --fs-ui by size alone. */
+    --t-email: 400 var(--fs-year)/1.3 var(--font-serif);
     /* Phase 6.7 — component 07: "description sans 14–14.5/1.62–1.65
        --c-text-2." --fs-ui is already exactly 14 (base) / 14.5 (760+) —
        reused for the SIZE only (coincidence, not reuse: --t-ui's own
@@ -651,6 +664,8 @@
     --gutter-w: 148px; /* left metadata column, >=1280 only (ADR-0016) */
     --aside-w: 200px; /* right column, >=1280 only (ADR-0016) */
     --header-w: 760px; /* article header may exceed the measure (E11) */
+    --now-panel-w: 220px; /* 7.4 — homepage Now panel, beside the intro at >=1280 */
+    --about-contact-w: 600px; /* §19.1: "one paragraph (max 600px)" */
 
     --measure-lead: 62ch; /* lead paragraph — narrower, deliberately */
     --measure-desc: 58ch; /* project / homepage work descriptions */

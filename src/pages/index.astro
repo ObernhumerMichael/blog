@@ -1,17 +1,491 @@
 ---
-// Phase 0 placeholder. Real homepage composition (§19.1) lands in Phase 7,
-// built from the primitives and layouts established in Phases 1–6.
-import { SITE_NAME } from '../consts';
-import '../styles/global.css';
+// / — §19.1, IMPLEMENTATION_PLAN.md 7.4. Six bands, Layout B throughout,
+// replacing the Phase 0 placeholder. None of the six is a component (§22
+// rule 8, §23.3 names the Now panel, the 24px opening statement and the
+// interests line explicitly as page-local composition) — this page is the
+// one place that reads all three collections at once.
+import { getCollection, getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FeaturedEntry from '../components/list/FeaturedEntry.astro';
+import WritingRow, { type WritingRowEntry } from '../components/list/WritingRow.astro';
+import ProjectItem from '../components/list/ProjectItem.astro';
+import { getNowPanelData } from '../lib/now';
+import { interestsSchema } from '../content.schemas.ts';
+import { SITE_LINKS, CONTACT_EMAIL, AUTHOR_BIO } from '../consts';
+
+// Same shape and reasoning as /writing/index.astro: minutesRead is
+// remark-computed, not stored in entry.data, so every published entry needs
+// rendering once to get it.
+type IndexRowEntry = Omit<WritingRowEntry, 'date'> & { date: Date; isFeatured: boolean };
+const publishedWriting = await getCollection('writing', (e) => !e.data.draft);
+const writingRows: IndexRowEntry[] = await Promise.all(
+  publishedWriting.map(async (entry) => {
+    const { remarkPluginFrontmatter } = await render(entry);
+    return {
+      number: entry.data.number,
+      title: entry.data.title,
+      lead: entry.data.lead,
+      date: entry.data.date,
+      minutesRead: remarkPluginFrontmatter.minutesRead as number,
+      tags: entry.data.tags,
+      section: entry.data.section,
+      series: entry.data.series,
+      isFeatured: Boolean(entry.data.featured),
+    };
+  }),
+);
+const totalWriting = writingRows.length;
+
+// Invariant 2 (tests/invariants/featured.test.ts) guarantees at most one —
+// same lookup /writing/index.astro already does.
+const featuredWriting = writingRows.find((e) => e.isFeatured) ?? null;
+
+// Excludes the featured entry from its own candidate pool, same split
+// /writing/index.astro already makes for its year groups — otherwise a
+// future re-date could show the same article in both this band and the
+// Featured band above it. "Four most-recently-published": a one-line sort,
+// not a lib/ function (7.4 point 3) — nowhere near groupByYear's own
+// "subtly wrong" bar.
+const latestWriting = writingRows
+  .filter((e) => !e.isFeatured)
+  .sort((a, b) => b.date.getTime() - a.date.getTime())
+  .slice(0, 4);
+
+const publishedProjects = (await getCollection('projects', (e) => !e.data.draft))
+  .map((e) => e.data)
+  .sort((a, b) => a.number - b.number);
+const totalProjects = publishedProjects.length;
+// OD-16 / ADR-0024: capped at three by the same invariant.
+const selectedProjects = publishedProjects.filter((p) => p.featured);
+
+// AD-12/ADR-0012, OD-17/ADR-0025: always attempts the live fetch, falls
+// back to the committed now-fallback.json on any failure.
+const now = await getNowPanelData();
+const lastDeployISO = now.lastDeploy.toISOString().slice(0, 10);
+
+// The `site` collection's ids are fixed, known filenames (7.1) — not
+// statically typed by Astro's glob loader, so a missing entry is a real
+// content bug, not a "maybe" to code around silently.
+async function siteEntry(id: string) {
+  const entry = await getEntry('site', id);
+  if (!entry) throw new Error(`site collection entry "${id}" not found`);
+  return entry;
+}
+const interests = interestsSchema.parse((await siteEntry('interests')).data);
+
+const yearMonth = new Date().toISOString().slice(0, 7);
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{SITE_NAME}</title>
-  </head>
-  <body>
-    <p>Phase 0 scaffold. Nothing to see yet — see IMPLEMENTATION_PLAN.md.</p>
-  </body>
-</html>
+<BaseLayout
+  description="Backend systems and the infrastructure they run on, written down as they actually behave."
+>
+  <div class="frame">
+    <section class="band layout-band band--cover">
+      <div class="gutter">
+        <p class="gutter-label">Index</p>
+        <p class="gutter-count">{yearMonth}</p>
+      </div>
+      <p class="running-head">
+        <span>Index</span>
+        <span>{yearMonth}</span>
+      </p>
+      <div class="index-content">
+        <div class="intro">
+          <h1 class="statement">
+            I build backend systems and the infrastructure they run on, and I write down
+            how they actually behave.
+          </h1>
+          <p class="context">
+            Most of my time goes to services, data flow and the parts that decide whether
+            a system survives production: provisioning, observability, failure modes, and
+            the migration you have to do without downtime. Outside of that: Linux,
+            self-hosting, security research.
+          </p>
+        </div>
+        <div class="now-panel">
+          <p class="now-label">Now</p>
+          <p class="now-sentence">
+            Rebuilding the homelab's secrets pipeline and restore drills; reading the
+            Linux network stack from netfilter down.
+          </p>
+          <ul class="now-facts">
+            <li>homelab uptime {now.uptimeDays} d</li>
+            <li>{now.servicesOk} services <span class="ok">ok</span></li>
+            <li>last deploy {lastDeployISO}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {
+      featuredWriting && (
+        <section class="band layout-band">
+          <div class="gutter">
+            <p class="gutter-label">Featured</p>
+            <p class="gutter-count">{String(featuredWriting.number).padStart(3, '0')}</p>
+          </div>
+          <p class="running-head">
+            <span>Featured</span>
+            <span>{String(featuredWriting.number).padStart(3, '0')}</span>
+          </p>
+          <FeaturedEntry entry={featuredWriting} context="home" />
+        </section>
+      )
+    }
+
+    <section class="band layout-band">
+      <div class="gutter">
+        <p class="gutter-label">Latest writing</p>
+        <p class="gutter-count">{totalWriting} total</p>
+      </div>
+      <p class="running-head">
+        <span>Latest writing</span>
+        <span>{totalWriting} total</span>
+      </p>
+      <div class="list-content">
+        <div class="writing-rows">
+          {latestWriting.map((entry) => <WritingRow entry={entry} variant="compact" />)}
+        </div>
+        <p class="list-links">
+          <a class="primary-nav-link" href="/writing">
+            all writing <span aria-hidden="true">→</span>
+          </a>
+          <a class="passive-nav-link" href={SITE_LINKS.rss}>
+            rss <span aria-hidden="true">↗</span>
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <section class="band layout-band">
+      <div class="gutter">
+        <p class="gutter-label">Selected work</p>
+        <p class="gutter-count">
+          {selectedProjects.length} of {totalProjects}
+        </p>
+      </div>
+      <p class="running-head">
+        <span>Selected work</span>
+        <span>
+          {selectedProjects.length} of {totalProjects}
+        </span>
+      </p>
+      <div class="list-content">
+        <div class="project-rows">
+          {
+            selectedProjects.map((project) => (
+              <ProjectItem entry={project} variant="selected" />
+            ))
+          }
+        </div>
+        <p class="list-links">
+          <a class="primary-nav-link" href="/projects">
+            all projects ({totalProjects}) <span aria-hidden="true">→</span>
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <section class="band layout-band">
+      <div class="gutter">
+        <p class="gutter-label">Interests</p>
+        <p class="gutter-count">—</p>
+      </div>
+      <p class="running-head">
+        <span>Interests</span>
+        <span>—</span>
+      </p>
+      <p class="interests-line">{interests.join(' · ')}</p>
+    </section>
+
+    <section class="band layout-band">
+      <div class="gutter">
+        <p class="gutter-label">About &amp; contact</p>
+        <p class="gutter-count">—</p>
+      </div>
+      <p class="running-head">
+        <span>About &amp; contact</span>
+        <span>—</span>
+      </p>
+      <div class="about-content">
+        <p class="about-bio">{AUTHOR_BIO}</p>
+        <div class="contact">
+          <a class="email" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+          <p class="contact-links">
+            <a href={SITE_LINKS.rss}>
+              rss <span aria-hidden="true">↗</span>
+            </a>
+            <a href={SITE_LINKS.github}>
+              github <span aria-hidden="true">↗</span>
+            </a>
+            <a href={SITE_LINKS.pgp}>
+              pgp <span aria-hidden="true">↗</span>
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  @layer components {
+    /* Same layout.css's-.gutter-only-sets-text-align precedent every other
+       index page already uses (/projects/index.astro, WritingArchive.astro)
+       — hiding the CONTENT below 1280 is this page's own job. */
+    .gutter {
+      display: none;
+    }
+
+    @media (min-width: 1280px) {
+      .gutter {
+        display: block;
+      }
+    }
+
+    .gutter-label {
+      font: var(--t-gutter);
+      color: var(--c-text);
+      margin: 0;
+    }
+
+    .gutter-count {
+      font: var(--t-gutter);
+      color: var(--c-faint);
+      margin: 0;
+    }
+
+    /* §20.4: "gutter labels become running heads above their band" — the
+       homepage's own tablet/mobile substitute, distinct from the Writing
+       index's narrower pattern (only its year header gets one there,
+       because only that datum is named in §3.6's relocation table; every
+       band here needs one because every band's gutter carries a label AND
+       a value neither the h1 nor visible body content otherwise repeats).
+       Same uppercase-mono-plus-hairline treatment ProseLayout.astro's own
+       running head already established, including its row-gap cancel. */
+    .running-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--sp-16);
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin: 0 0 calc(-1 * var(--grid-gap) + var(--sp-16)) 0;
+      padding-bottom: var(--sp-12);
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    @media (min-width: 1280px) {
+      .running-head {
+        display: none;
+      }
+    }
+
+    /* Band 1 — Index. E12: the 128px top step, reserved for the homepage
+       and 404 only. Page-local rather than a layout.css modifier (unlike
+       .band--header) since 404 (7.6) is the only other consumer and
+       doesn't exist yet — revisit if that phase wants the same rule. */
+    .band--cover {
+      padding-top: var(--sp-128);
+    }
+
+    .index-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--sp-24);
+    }
+
+    @media (min-width: 1280px) {
+      .index-content {
+        grid-template-columns: minmax(0, 1fr) var(--now-panel-w);
+        column-gap: var(--grid-gap);
+      }
+    }
+
+    /* §2.5 derived table / §23.3: the opening statement is the one place
+       on the homepage a serif size runs between --t-lead and --t-title. */
+    .statement {
+      font: var(--t-statement);
+      letter-spacing: var(--tr-statement);
+      color: var(--c-text);
+      margin: 0 0 var(--sp-16) 0;
+      text-wrap: pretty;
+    }
+
+    .context {
+      font: var(--t-body);
+      color: var(--c-text-2);
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    /* §19.1: "paired with a mono Now panel on a left hairline"; responsive:
+       "drops its left hairline for a top one." */
+    .now-panel {
+      padding-top: var(--sp-24);
+      border-top: var(--bw) solid var(--c-rule);
+    }
+
+    @media (min-width: 1280px) {
+      .now-panel {
+        padding-top: 0;
+        padding-left: var(--sp-24);
+        border-top: 0;
+        border-left: var(--bw) solid var(--c-rule);
+      }
+    }
+
+    .now-label {
+      font: var(--t-label);
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin: 0 0 var(--sp-8) 0;
+    }
+
+    .now-sentence {
+      font: var(--t-small);
+      color: var(--c-text-2);
+      margin: 0 0 var(--sp-16) 0;
+      text-wrap: pretty;
+    }
+
+    .now-facts {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-8);
+      font: var(--t-meta);
+      color: var(--c-muted);
+    }
+
+    .now-facts .ok {
+      color: var(--c-ok);
+    }
+
+    /* Bands 3–4 — Latest writing / Selected work: "the two list bands go
+       to stacked rows" below 1280 is already each row component's own base
+       tier (WritingRow, ProjectItem) — nothing extra needed here beyond
+       opening the list with a rule, matching the homepage's own reference
+       screenshot (WritingArchive.astro's .year-rows sets the same
+       precedent for the writing list; ProjectItem already supplies its own
+       --c-rule bottom hairline per item, so only the opening rule is this
+       page's job for both lists). */
+    .writing-rows {
+      border-top: var(--bw) solid var(--c-rule-2);
+    }
+
+    .writing-rows > :global(.row) {
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    .project-rows {
+      border-top: var(--bw) solid var(--c-rule-2);
+    }
+
+    .list-links {
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: var(--sp-14);
+      row-gap: var(--sp-8);
+      margin: var(--sp-16) 0 0 0;
+    }
+
+    .primary-nav-link {
+      font: var(--t-meta);
+      color: var(--c-text);
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    .primary-nav-link:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .passive-nav-link {
+      font: var(--t-meta);
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+
+    .passive-nav-link:hover {
+      color: var(--c-accent-hi);
+    }
+
+    /* Band 5 — Interests: §23.3's own named exception, sans 15/2.0. */
+    .interests-line {
+      font: var(--t-ui);
+      line-height: 2;
+      color: var(--c-text-2);
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    /* Band 6 — About & contact. */
+    .about-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--sp-24);
+    }
+
+    @media (min-width: 760px) {
+      .about-content {
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: var(--grid-gap);
+        align-items: start;
+      }
+    }
+
+    .about-bio {
+      font: var(--t-body);
+      color: var(--c-text-2);
+      max-width: var(--about-contact-w);
+      margin: 0;
+      text-wrap: pretty;
+    }
+
+    .contact {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-12);
+    }
+
+    @media (min-width: 760px) {
+      .contact {
+        align-items: flex-end;
+        text-align: right;
+      }
+    }
+
+    .email {
+      font: var(--t-email);
+      color: var(--c-text);
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    .email:hover {
+      color: var(--c-accent-hi);
+    }
+
+    .contact-links {
+      display: flex;
+      gap: var(--sp-14);
+      margin: 0;
+      font: var(--t-meta);
+    }
+
+    .contact-links a {
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+
+    .contact-links a:hover {
+      color: var(--c-accent-hi);
+    }
+  }
+</style>
