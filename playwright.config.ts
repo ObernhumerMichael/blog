@@ -19,6 +19,13 @@ const projects = Object.entries(WIDTHS).flatMap(([widthName, width]) =>
 
 export default defineConfig({
   testDir: './tests/e2e',
+  // 8.3: visual.spec.ts's baselines live at tests/baselines/<page-slug>/
+  // <width>-<theme>.png — §0.3's own convention, already used verbatim for
+  // docs/reference/'s design screenshots. `{arg}` is visual.spec.ts's own
+  // [slug, filename] pair; overriding the default template drops the
+  // testFilePath-snapshots/projectName/platform segments Playwright would
+  // otherwise add, none of which this convention uses.
+  snapshotPathTemplate: 'tests/baselines/{arg}{ext}',
   // Serialized, not parallel: all projects share one `astro dev` instance
   // (started by `check:e2e`, see package.json), and concurrent requests
   // raced its on-demand Vite compiler — reproduced directly as a
