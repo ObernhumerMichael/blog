@@ -1,0 +1,288 @@
+---
+// /writing/index.astro — §19.2, IMPLEMENTATION_PLAN.md 6.5. The Writing
+// index: header (gutter, h1, lead, counted-tag filter row) → featured band
+// (only when a `featured: true` entry exists) → one band per year → an
+// in-page archive-by-year row.
+//
+// Layout B (`.layout-band`, gutter/minmax(0,1fr)) throughout — §19.2 gives
+// no page-composition table of its own the way the homepage/about do, but
+// every band here is a gutter-plus-content shape, same as those pages.
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Tag from '../../components/ui/Tag.astro';
+import WritingRow, { type WritingRowEntry } from '../../components/list/WritingRow.astro';
+import FeaturedEntry from '../../components/list/FeaturedEntry.astro';
+import { groupByYear, countTags } from '../../lib/archive';
+import { TAGS, SITE_LINKS } from '../../consts';
+
+// Draft visibility (same rule as /w/[num].astro, /writing/[slug].astro):
+// excluded from counts and from the page entirely in production.
+const publishedEntries = await getCollection('writing', (e) => !e.data.draft);
+
+// minutesRead is remark-computed, not stored in entry.data (Finding A,
+// Phase 5.0) — every published entry needs rendering once to get it, same
+// as /w/[num].astro's own withMinutesRead does for a handful of neighbours.
+// `date: Date` (narrower than WritingRowEntry's own `Date | string`, which
+// exists only for ArticleHeader's fixture-bypass case, 3.1) — the writing
+// schema coerces it (z.coerce.date()), so it's always a real Date here,
+// which is what groupByYear needs.
+type IndexRowEntry = Omit<WritingRowEntry, 'date'> & { date: Date; isFeatured: boolean };
+const rowEntries: IndexRowEntry[] = await Promise.all(
+  publishedEntries.map(async (entry) => {
+    const { remarkPluginFrontmatter } = await render(entry);
+    return {
+      number: entry.data.number,
+      title: entry.data.title,
+      lead: entry.data.lead,
+      date: entry.data.date,
+      minutesRead: remarkPluginFrontmatter.minutesRead as number,
+      tags: entry.data.tags,
+      section: entry.data.section,
+      series: entry.data.series,
+      isFeatured: Boolean(entry.data.featured),
+    };
+  }),
+);
+
+const total = rowEntries.length;
+
+// Invariant 2 (tests/invariants/featured.test.ts) guarantees at most one.
+const featured = rowEntries.find((e) => e.isFeatured) ?? null;
+const nonFeatured = rowEntries.filter((e) => !e.isFeatured);
+
+const tagCounts = countTags(rowEntries);
+const yearGroups = groupByYear(nonFeatured);
+---
+
+<BaseLayout
+  title="Writing"
+  description={`${total} articles on backend development and infrastructure automation.`}
+>
+  <div class="frame">
+    <header class="band layout-band">
+      <div class="gutter">
+        <p class="gutter-label">Writing</p>
+        <p class="gutter-count">{total} articles</p>
+      </div>
+      <div class="header-content">
+        <h1 class="title">Writing</h1>
+        <p class="lead">
+          Articles on backend development and infrastructure automation — what broke, what
+          the fix actually was, and what it cost.
+        </p>
+        <!-- §19.2 filter row: "all N" current, then one counted tag per
+             registry tag with a published article, ending with rss ↗. -->
+        <div class="filter-row">
+          <Tag tag="all" variant="current" count={total} />
+          {
+            TAGS.filter((tag) => (tagCounts.get(tag) ?? 0) > 0).map((tag) => (
+              <Tag tag={tag} variant="counted" count={tagCounts.get(tag)} />
+            ))
+          }
+          <a class="rss-link" href={SITE_LINKS.rss}
+            >rss <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </div>
+    </header>
+
+    {
+      featured && (
+        <section class="band layout-band">
+          <div class="gutter">
+            <p class="gutter-label">Featured</p>
+          </div>
+          <FeaturedEntry entry={featured} context="index" />
+        </section>
+      )
+    }
+
+    {
+      yearGroups.map((group) => (
+        <section class="band layout-band" id={String(group.year)}>
+          <div class="gutter">
+            <p class="gutter-year">{group.year}</p>
+            <p class="gutter-count">{group.count}</p>
+          </div>
+          <div class="year-content">
+            {/* §3.6: "Index year header ... sticky row spanning the
+                 list" below 1280, where the real .gutter above is
+                 display:none — the column is what goes, the data never
+                 does (§3.6's own framing), so this is a second render of
+                 the same two data points, not a CSS relocation of the
+                 gutter nodes themselves. */}
+            <p class="year-sticky">
+              {group.year} · {group.count}
+            </p>
+            <div class="year-rows">
+              {group.entries.map((entry) => (
+                <WritingRow entry={entry} variant="full" />
+              ))}
+            </div>
+          </div>
+        </section>
+      ))
+    }
+
+    <!-- §19.2 archive row: "archive by year → 2024 (9) 2023 (6) rss ↗",
+         resolved (6.5 point 4) as in-page anchors to each year's own band
+         — no second page exists to paginate to. -->
+    <div class="band layout-band">
+      <div class="gutter"></div>
+      <p class="archive-row">
+        archive by year <span aria-hidden="true">→</span>{' '}
+        {
+          yearGroups.map((group) => (
+            <a href={`#${group.year}`}>
+              {group.year} ({group.count})
+            </a>
+          ))
+        }
+        <a href={SITE_LINKS.rss}>rss <span aria-hidden="true">↗</span></a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  @layer components {
+    /* layout.css's .gutter only sets text-align — hiding its CONTENT below
+       1280 is each consumer's own job (§5.4's own comment; ArticleHeader.astro
+       does the same). Of the three gutter jobs on this page, only the year
+       header is named in §3.6's relocation table as needing a substitute
+       below 1280 (the sticky row above); "Writing / N articles" and
+       "Featured" aren't in that table — both are already carried by
+       content that's visible at every width (the h1, and the "all N" tag
+       respectively), so dropping them here isn't the E9 dek exception,
+       it's the same "gutter carries CONTEXT, not the only copy" reasoning
+       ArticleHeader's own metadata row gives the article number. */
+    .gutter {
+      display: none;
+    }
+
+    @media (min-width: 1280px) {
+      .gutter {
+        display: block;
+      }
+    }
+
+    .gutter-label {
+      font: var(--t-gutter);
+      color: var(--c-text);
+      margin: 0;
+    }
+
+    .gutter-count {
+      font: var(--t-gutter);
+      color: var(--c-faint);
+      margin: 0;
+    }
+
+    /* §19.2: "the year in serif 22 with the count beneath in --c-faint." */
+    .gutter-year {
+      font: var(--t-year);
+      color: var(--c-text);
+      margin: 0;
+    }
+
+    /* §3.6: below 1280 the year header leaves the (now display:none)
+       gutter and becomes its own sticky row, spanning the list, sitting
+       flush under the masthead's own sticky bar — not var(--masthead-h),
+       which is only accurate at >=1280 (that token's own comment). */
+    .year-sticky {
+      display: block;
+      position: sticky;
+      top: var(--masthead-h-narrow);
+      z-index: 5;
+      margin: 0;
+      padding-block: var(--sp-8);
+      background: var(--c-bg);
+      border-bottom: var(--bw) solid var(--c-rule-2);
+      font: var(--t-label);
+      text-transform: uppercase;
+      letter-spacing: var(--tr-label);
+      color: var(--c-muted);
+    }
+
+    @media (min-width: 1280px) {
+      .year-sticky {
+        display: none;
+      }
+    }
+
+    .header-content {
+      max-width: var(--header-w);
+    }
+
+    .title {
+      font: var(--t-title);
+      color: var(--c-text);
+      margin: 0 0 var(--sp-16) 0;
+    }
+
+    /* §19.2 states "lead 19px" in prose; the type scale (§2.5) has no
+       19px step of its own outside --t-lead's own 760–1279 tablet tier
+       (§3.4). Reusing --t-lead — the system's one lead-paragraph token,
+       already 20px at this same >=1280 tier — rather than introducing a
+       second, near-identical lead size the scale doesn't otherwise
+       define; same reasoning ArticleHeader's own lead already applies. */
+    .lead {
+      font: var(--t-lead);
+      color: var(--c-text-2);
+      max-width: var(--measure-lead);
+      margin: 0 0 var(--sp-24) 0;
+      text-wrap: pretty;
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: var(--sp-14);
+      row-gap: var(--sp-8);
+    }
+
+    .rss-link {
+      font: var(--t-meta);
+      color: var(--c-muted);
+      text-decoration: none;
+    }
+
+    .rss-link:hover {
+      color: var(--c-accent-hi);
+    }
+
+    /* >=1280 only: below that, .year-sticky's own bottom hairline already
+       opens the list (§05: "--c-rule-2 opening the group") — a second top
+       rule here would double it up against an adjacent sticky element. */
+    @media (min-width: 1280px) {
+      .year-rows {
+        border-top: var(--bw) solid var(--c-rule-2);
+      }
+    }
+
+    .year-rows > :global(.row) {
+      border-bottom: var(--bw) solid var(--c-rule);
+    }
+
+    .archive-row {
+      font: var(--t-meta);
+      color: var(--c-muted);
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: var(--sp-14);
+      row-gap: var(--sp-8);
+    }
+
+    .archive-row a {
+      color: var(--c-text);
+      text-decoration: none;
+    }
+
+    .archive-row a:hover {
+      color: var(--c-accent-hi);
+      text-decoration: underline;
+    }
+  }
+</style>
