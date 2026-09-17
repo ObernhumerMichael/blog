@@ -1,0 +1,70 @@
+---
+// /writing/tag/[tag].astro — AD-10's route, given no page-composition
+// entry of its own anywhere in §19 (§19.1–19.8 name exactly seven page
+// types). Resolved by derivation (6.6): a tag page IS the Writing index
+// with the filter state changed, not an eighth page type — so it shares
+// WritingArchive.astro's bands with /writing/index.astro wholesale.
+//
+// getStaticPaths only emits a path for a tag with at least one published
+// entry — a tag with zero never gets a route generated at all, which is
+// what makes it 404 rather than render an empty page (6.6's own exit
+// criterion), for free, on a static build.
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import WritingArchive from '../../../components/list/WritingArchive.astro';
+import type { WritingRowEntry } from '../../../components/list/WritingRow.astro';
+import { groupByYear, countTags } from '../../../lib/archive';
+import { TAGS } from '../../../consts';
+
+type IndexRowEntry = Omit<WritingRowEntry, 'date'> & { date: Date };
+
+// getStaticPaths only needs tag membership, not minutesRead — no render()
+// call here, unlike the page body below, which does need it for display.
+export const getStaticPaths = (async () => {
+  const publishedEntries = await getCollection('writing', (e) => !e.data.draft);
+  return TAGS.filter((tag) =>
+    publishedEntries.some((e) => e.data.tags.includes(tag)),
+  ).map((tag) => ({ params: { tag } }));
+}) satisfies GetStaticPaths;
+
+const { tag } = Astro.params;
+
+const publishedEntries = await getCollection('writing', (e) => !e.data.draft);
+const rowEntries: IndexRowEntry[] = await Promise.all(
+  publishedEntries.map(async (entry) => {
+    const { remarkPluginFrontmatter } = await render(entry);
+    return {
+      number: entry.data.number,
+      title: entry.data.title,
+      lead: entry.data.lead,
+      date: entry.data.date,
+      minutesRead: remarkPluginFrontmatter.minutesRead as number,
+      tags: entry.data.tags,
+      section: entry.data.section,
+      series: entry.data.series,
+    };
+  }),
+);
+const total = rowEntries.length;
+const tagCounts = countTags(rowEntries);
+
+// No Featured band on a tag page (6.6 point 3) — the site-wide featured
+// pick has no guaranteed relationship to this tag, so if it happens to
+// carry the tag it's just another row here, not pulled into its own band.
+const filtered = rowEntries.filter((e) => e.tags.includes(tag));
+const yearGroups = groupByYear(filtered);
+---
+
+<BaseLayout title={`#${tag}`} description={`${filtered.length} articles tagged #${tag}.`}>
+  <WritingArchive
+    heading={`#${tag}`}
+    lead={`${filtered.length} article${filtered.length === 1 ? '' : 's'} tagged #${tag}.`}
+    gutterLabel={`#${tag}`}
+    gutterSub={`${filtered.length} articles`}
+    siteTotal={total}
+    siteTagCounts={tagCounts}
+    currentTag={tag}
+    yearGroups={yearGroups}
+  />
+</BaseLayout>
