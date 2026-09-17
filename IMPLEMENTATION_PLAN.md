@@ -1763,7 +1763,7 @@ Where the system must be able to grow without violating itself.
 | Article > 8,000 words                      | E14 auto-split; `series` schema already models parts                                                                                     | Manual surgery on a published permalink            |
 | A new syntax role                          | §2.3 palette is a token set, not a Shiki theme literal                                                                                   | Re-authoring the theme                             |
 | Design system v1.1                         | Every exception is in the `exceptions` CSS layer with its E-number; baselines make drift a diff                                          | Silent drift                                       |
-| Someone else contributing                  | `docs/decisions/` + `npm run verify` + the manual checklist                                                                              | The system decays on first outside PR              |
+| Someone else contributing                  | `docs/decisions/` + `npm run verify` + `CHECKLIST.md` (8.6)                                                                              | The system decays on first outside PR              |
 
 Two things deliberately **not** prepared for, because preparing for them would compromise the design: a card grid, and a CMS. If either becomes genuinely necessary, that's a design-system revision, not an implementation change.
 
