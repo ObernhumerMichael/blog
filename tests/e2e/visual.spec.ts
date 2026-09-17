@@ -38,3 +38,44 @@ for (const { slug, url } of VISUAL_PAGES) {
     });
   });
 }
+
+// 8.4: dev/specimen.astro's `current`/`disabled`/`draft` states are already
+// prop-driven per component (ProjectItem's `forceMobile`, Tag's `current`
+// variant, none of them pseudo-classes) — nothing to capture there beyond
+// the page loads above. `:hover`/`:focus` are the two states nothing on the
+// page forces yet; captured here via Playwright's own real
+// `locator.hover()`/`.focus()` rather than a parallel `.force-hover` CSS
+// class across twenty components (real pointer/focus events, no class a
+// lint rule could satisfy that an event doesn't). `:active` is deliberately
+// skipped — checked directly, no component's CSS gives it a rule `:hover`
+// doesn't already share. Desktop only, both themes: the state itself is
+// what's being proven, not layout at other widths (already covered above).
+const SPECIMEN_STATES = [
+  {
+    slug: 'specimen/hover',
+    interact: (page: import('@playwright/test').Page) =>
+      page.locator('.row-list .row').first().hover(),
+  },
+  {
+    slug: 'specimen/focus',
+    interact: (page: import('@playwright/test').Page) =>
+      page.locator('#focus-demo').focus(),
+  },
+] as const;
+
+for (const { slug, interact } of SPECIMEN_STATES) {
+  test(`visual baseline — /dev/specimen (${slug})`, async ({ page }) => {
+    test.skip(
+      !test.info().project.name.startsWith('desktop-'),
+      'desktop only, see header',
+    );
+    await page.goto('/dev/specimen');
+    await interact(page);
+    const width = page.viewportSize()!.width;
+    const theme = test.info().project.name.endsWith('dark') ? 'dark' : 'light';
+    await expect(page).toHaveScreenshot([slug, `${width}-${theme}.png`], {
+      fullPage: true,
+      maxDiffPixelRatio: 0.001,
+    });
+  });
+}

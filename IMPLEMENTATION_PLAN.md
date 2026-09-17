@@ -267,7 +267,7 @@ Revised from my earlier proposal to match AD-03 and the actual page inventory.
 │   │   ├── 404.astro
 │   │   ├── rss.xml.ts
 │   │   └── dev/                           # gallery + fixtures — see §3 note below on how exclusion actually works
-│   │       ├── gallery.astro
+│   │       ├── specimen.astro
 │   │       └── fixtures/
 │   │
 │   ├── lib/
@@ -495,7 +495,7 @@ This is the highest-leverage part of the whole enforcement system, because these
 ## T5 · Visual regression and performance
 
 - **Screenshot baselines** for the 42-render matrix, committed. Threshold ~0.1%. Any intentional design change updates baselines in the same commit — so design drift becomes a reviewable diff instead of an accumulation.
-- **The gallery page** (`dev/gallery.astro`) renders all twenty components in every state (default / hover / focus / active / disabled / current) in both themes. Force states via CSS classes so screenshots capture them deterministically.
+- **The gallery page** (`dev/specimen.astro`, doing this job since Phase 3 — 8.4) renders all twenty components in every state (default / hover / focus / active / disabled / current) in both themes. `current`/`disabled`/`draft` are prop-driven per component; `:hover`/`:focus` are captured via real Playwright interaction (`locator.hover()`/`locator.focus()` in `visual.spec.ts`), not a parallel `.force-hover` CSS class — `:active` is deliberately skipped (8.4: pixel-identical to `:hover` for every component here).
 - **Lighthouse CI** budgets: performance ≥ 98, a11y = 100, JS ≤ 5 KB, CLS ≤ 0.01, LCP ≤ 1.2s. The JS budget is what keeps AD-11 honest over time.
 - **`lychee`** link check on the built output.
 
@@ -543,7 +543,7 @@ Five sub-phases, in dependency order. Nothing in 0.2 onward should start before 
 
 1. Export from Claude Design at the **six-combination matrix**: 390 / 900 / 1320 × light / dark, for all seven page types (home, writing index, article, projects index, project detail, about, 404) — 42 images.
 2. Fixed naming convention, since T5's screenshot baselines will eventually compare against these: `docs/reference/<page-slug>/<width>-<theme>.png`, e.g. `docs/reference/article/1320-light.png`.
-3. Also pull the **twenty-component gallery** if Claude Design has one rendered — this seeds `dev/gallery.astro` in Phase 7 and saves re-deriving component states from the spec text alone.
+3. Also pull the **twenty-component gallery** if Claude Design has one rendered — this seeds `dev/specimen.astro` (8.4: the page that has done this job since Phase 3) in Phase 7 and saves re-deriving component states from the spec text alone.
 
 Reasoning this is a Phase 0 blocker and not a "do it whenever" task: every visual judgement call from Phase 1 onward (including the ones already flagged as provisional in `tokens.css`) gets resolved by looking at these, not by re-opening Claude Design each time. Get them once, get them complete.
 
@@ -1193,7 +1193,7 @@ These are the highest-leverage part of the enforcement system precisely because 
 
 Per the precedent 3.9 set — the specimen page is where a token with no bundle behind it stops hiding. Add: a code block with and without line numbers, with a highlighted line and a diff hunk; a terminal block; all three figure kinds side by side in both themes (the only place the E15 distinction is visible as a comparison rather than one image at a time); a table with a prose cell, a right-aligned numeric column and a truncated digest; and the three caption forms.
 
-This also seeds `dev/gallery.astro` in Phase 7 with five of the twenty components already rendered in their states.
+This also seeds the same specimen page's own extension in Phase 7 (8.4: it was always `dev/specimen.astro`, never a separate `gallery.astro`) with five of the twenty components already rendered in their states.
 
 **Exit:** the specimen page renders every §13/§14/§15 component in both themes at all three widths.
 
