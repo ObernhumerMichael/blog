@@ -32,6 +32,7 @@ lives.
 | [0021](./ADR-0021-caption-authoring-convention.md)         | Captions are the paragraph after the block, authored numbers (OD-13)           |
 | [0022](./ADR-0022-project-link-kinds-and-primary-label.md) | `links.demo`/`links.primaryLabel` added; `links.article` is not a URL (OD-14)  |
 | [0023](./ADR-0023-projects-draft-field.md)                 | `projectsSchema` gains `draft`, default `false` (OD-15)                        |
+| [0024](./ADR-0024-projects-featured-field.md)              | `projectsSchema` gains `featured`, capped at three (OD-16)                     |
 
 ## Format
 
@@ -42,7 +43,7 @@ option can point back here instead of re-arguing it).
 
 ## Adding a new one
 
-Next number is 0024. Follow the existing format. If a decision corrects an
+Next number is 0025. Follow the existing format. If a decision corrects an
 earlier one, say so explicitly in the new ADR's Status line — don't silently
 edit the old one, since the "why we changed our mind" is itself worth
 keeping.

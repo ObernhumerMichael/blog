@@ -11,6 +11,7 @@ caseStudy: true
 links:
   article: '/projects/evolutionary-pixel-to-svg-conversion'
   source: 'https://github.com/mo/pixevo'
+featured: true
 draft: false
 ---
 

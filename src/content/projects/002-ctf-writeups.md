@@ -12,6 +12,7 @@ links:
   article: '/writing/tag/ctf'
   primaryLabel: 'browse 28'
   source: 'https://github.com/mo/ctf'
+featured: true
 draft: false
 ---
 

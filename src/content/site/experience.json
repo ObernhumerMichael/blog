@@ -1,0 +1,17 @@
+[
+  {
+    "period": "2024 — now",
+    "role": "Independent — homelab & infrastructure",
+    "description": "Design and operate a self-hosted service stack end to end, Ansible-driven, measured in minutes-to-rebuild rather than hoped-for uptime."
+  },
+  {
+    "period": "2021 — 2024",
+    "role": "Backend engineer",
+    "description": "Built and operated distributed backend services in production; owned the on-call rotation and the postmortems that came out of it."
+  },
+  {
+    "period": "2019 — 2021",
+    "role": "Security research & CTF",
+    "description": "Competitive CTF play — heap exploitation, format strings, and a first serious attempt at kernel-land bugs."
+  }
+]
