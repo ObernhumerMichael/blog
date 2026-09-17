@@ -18,16 +18,27 @@ const { progress = false } = Astro.props;
 const pathname = Astro.url.pathname;
 const isCurrent = (href: string) => isCurrentPath(pathname, href);
 
-// ASSUMPTION (same as last pass, still unverified against consts.ts):
 // NAV_LINKS entries optionally carry a `collection` key so counts (§7.5:
 // "Writing 38", "Projects 6") can be built here at render time. Entries
 // with no collection (About) fall through to null → "—" per §21.2.
+//
+// Real bug, caught while building 6.8's projects index (whose own N/M
+// count has to agree with this one, per that phase's own exit criterion):
+// this counted every entry, drafts included — both `writing` and
+// `projects` schemas' own draft fields exist precisely so drafts are
+// "excluded from prod build and from counts" (§6 frontmatter table), and
+// every other collection read in the codebase (/w/[num].astro,
+// /writing/index.astro, ProjectsItem's own callers) already filters this
+// way. The two counts would otherwise disagree the moment either
+// collection ever holds a draft — which `writing` already does today.
 const menuLinks = await Promise.all(
   NAV_LINKS.map(async (link) => ({
     href: link.href,
     label: link.label,
     current: isCurrent(link.href),
-    count: link.collection ? (await getCollection(link.collection)).length : null,
+    count: link.collection
+      ? (await getCollection(link.collection, (e) => !e.data.draft)).length
+      : null,
   })),
 );
 ---
