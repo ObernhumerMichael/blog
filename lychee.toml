@@ -1,0 +1,20 @@
+# check:links config (package.json) — IMPLEMENTATION_PLAN.md §8.2.
+# offline: dist/ has no server behind it locally or in CI; only checks that
+# a linked local file/route actually exists in the build output.
+offline = true
+root_dir = "dist"
+
+# consts.ts's own PLACEHOLDERS convention: "real values needed before
+# launch, but a build must not block on them" (same pattern as OD-07's
+# SITE_URL). PGP_URL is named TODO-set-real-pgp-key.asc for exactly that
+# reason — a real file isn't expected to exist yet.
+exclude = ["/TODO-set-real-pgp-key\\.asc$"]
+
+# dev/ pages build into dist/ like any real page (Astro routing has no
+# dev-only concept, CLAUDE.md) and are only stripped at deploy time — not
+# by this build-only CI workflow. specimen.astro deliberately renders all
+# four real `projects` entries including the draft one (6.10's own audit),
+# so it links to a detail page that doesn't exist in *this* build on
+# purpose. Real, deployed pages never link into dev/, so excluding dev/'s
+# own outgoing links from this check costs nothing.
+exclude_path = ["dist/dev"]

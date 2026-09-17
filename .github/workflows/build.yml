@@ -39,3 +39,14 @@ jobs:
       - run: pnpm verify
 
       - run: pnpm run build
+
+      # lychee audits dist/ output, so it runs after the build, not inside
+      # `verify` — IMPLEMENTATION_PLAN.md §8.2/§10. CI doesn't run inside the
+      # nix devShell that gives local runs the binary (flake.nix), so it's
+      # installed here instead; `pnpm run check:links` stays the one command
+      # that actually runs the check, same as a local run.
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: lychee
+
+      - run: pnpm run check:links

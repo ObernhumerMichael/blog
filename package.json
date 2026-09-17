@@ -21,9 +21,9 @@
     "check:tokens": "node scripts/verify-tokens.mjs",
     "check:content": "node --test tests/invariants/*.test.ts",
     "check:e2e": "astro dev --background && playwright test",
-    "check:links": "echo 'TODO Phase 8 — lychee link check on build output' && exit 0",
+    "check:links": "lychee 'dist/**/*.html'",
     "format": "prettier --write .",
-    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:tokens && pnpm run check:fonts && pnpm run check:content && pnpm run check:e2e && pnpm run check:links && pnpm run check:svelte"
+    "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:tokens && pnpm run check:fonts && pnpm run check:content && pnpm run check:e2e && pnpm run check:svelte"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.2.4",

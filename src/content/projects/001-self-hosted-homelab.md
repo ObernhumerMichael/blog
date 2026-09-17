@@ -10,7 +10,7 @@ period:
   to: null
 caseStudy: true
 links:
-  article: '/w/1'
+  article: '/w/001'
   source: 'https://github.com/mo/homelab'
 featured: true
 draft: false

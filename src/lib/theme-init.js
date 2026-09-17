@@ -11,8 +11,14 @@
 // before the browser paints anything.
 //
 // This file is injected into the page as a literal, unprocessed inline
-// <script> (see IMPLEMENTATION_PLAN.md 1.5 for why that specifically matters
-// in Astro) — so it deliberately has no imports, no exports, no build step.
+// script tag (see IMPLEMENTATION_PLAN.md 1.5 for why that specifically
+// matters in Astro) — so it deliberately has no imports, no exports, no
+// build step. Deliberately not spelled with angle brackets in this comment:
+// that literal substring, even inside a JS comment, isn't unsafe HTML (the
+// browser's script-raw-text parsing only breaks on a literal closing tag)
+// but it does break lychee's HTML tokenizer (8.2) — confirmed directly, it
+// silently drops every link after this point in the document rather than
+// erroring, so a real broken link elsewhere on the page would go unnoticed.
 
 (function () {
   var STORAGE_KEY = 'ledger-theme';
