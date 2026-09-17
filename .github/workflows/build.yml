@@ -50,3 +50,12 @@ jobs:
           tool: lychee
 
       - run: pnpm run check:links
+
+      # Lighthouse CI audits dist/ output via `astro preview`, so it runs
+      # after the build too, immediately after check:links — both post-build
+      # per §10's order (IMPLEMENTATION_PLAN.md §8.5). A GitHub Action, not
+      # an npm dependency, same reasoning as lychee above (AD-11's own
+      # JS-budget discipline shouldn't grow node_modules to measure it).
+      - uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: './lighthouserc.cjs'
