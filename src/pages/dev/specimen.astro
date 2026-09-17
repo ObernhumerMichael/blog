@@ -1002,7 +1002,7 @@ const pausedExample: ProjectItemEntry = {
     </p>
     {featuredEntry && <FeaturedEntry entry={featuredEntry} context="index" />}
 
-    <h2>ProjectItem (component 07, §07) — added Phase 6.7</h2>
+    <h2>ProjectItem (component 07, §07) — added Phase 6.7, selected variant 7.7</h2>
     <p class="lede" style="font-size: 13.5px;">
       All four real <code>projects</code> entries, including the <code>draft: true</code>{
         ' '
@@ -1020,6 +1020,16 @@ const pausedExample: ProjectItemEntry = {
       {projects.map((project) => <ProjectItem entry={project} />)}
       <ProjectItem entry={pausedExample} />
       <ProjectItem entry={projects[0]} forceMobile />
+    </div>
+    <p class="lede" style="font-size: 13.5px; margin-top: 24px;">
+      Selected variant (7.3, the homepage's "Selected work" band): 2 tracks at every width
+      — the number never gets its own third column — title at{' '}
+      <code>--t-project-title-compact</code>, description capped at{' '}
+      <code>--measure-desc</code>, and a shorter instrument list (period and source drop
+      from the markup entirely).
+    </p>
+    <div class="project-list">
+      {projects.map((project) => <ProjectItem entry={project} variant="selected" />)}
     </div>
 
     <h2>Glyphs (§2.11)</h2>
