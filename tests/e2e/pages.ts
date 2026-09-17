@@ -17,6 +17,14 @@
 // as the two pages above: every check in chrome.spec.ts/prose.spec.ts is a
 // general assertion, not specific to /dev/fixtures/article, so these six
 // belong in the one shared matrix rather than a parallel list.
+//
+// 8.1 adds the real T3 matrix (IMPLEMENTATION_PLAN.md §8.1): eleven real
+// routes covering all seven page types, alongside — not in place of — the
+// eight fixtures above, which still exercise stress shapes (a
+// 210-character code line, a 7-column table) the real pages don't reach on
+// their own. `/writing/<slug>` is deliberately excluded: it's AD-10's
+// redirect alias to `/w/<num>` (a meta-refresh utility page), not one of
+// the seven page types §19 defines.
 export const PAGES = [
   '/dev/layout-check',
   '/dev/fixtures/article',
@@ -26,4 +34,15 @@ export const PAGES = [
   '/dev/fixtures/image-free',
   '/dev/fixtures/four-code-blocks',
   '/dev/fixtures/long-caption',
+  '/',
+  '/writing',
+  '/w/001',
+  '/w/007',
+  '/w/006',
+  '/w/004',
+  '/projects',
+  '/projects/self-hosted-homelab-infrastructure-automation',
+  '/projects/industrial-production-testing-data-visualisation',
+  '/about',
+  '/404',
 ] as const;

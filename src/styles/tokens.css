@@ -62,7 +62,15 @@
        lightness moved to clear 4.5:1 against the worst ground each theme
        uses. */
     --c-muted: light-dark(oklch(0.525 0.012 75), oklch(0.64 0.012 75));
-    --c-faint: light-dark(oklch(0.72 0.012 75), oklch(0.65 0.012 75));
+    /* CORRECTED 2026-09-17, Phase 8.1: same shape as --c-muted's own
+       correction above. 0.72 measured 2.36:1 against --c-bg — §18.1's
+       blanket "nothing on the site is below 4.5:1" claim was violated the
+       moment 8.1's T3 matrix first ran real chrome (.gutter-count,
+       ProjectHeader's status labels) rather than only dev/ fixtures.
+       Lightness moved to the tightest value that still clears 4.5:1 while
+       staying visually fainter than --c-muted (0.525) — dark's 0.65 was
+       already compliant (5.76:1) and is untouched. */
+    --c-faint: light-dark(oklch(0.545 0.012 75), oklch(0.65 0.012 75));
 
     /* Article running prose. §2.2 deviation 1 + §25.1: in dark, body text sits
        one step under headings. In light there is no such distinction, so this

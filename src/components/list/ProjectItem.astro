@@ -91,9 +91,9 @@ const showPrimary = Boolean(entry.links.article && primaryText);
     {variant === 'index' && <p class="period">{periodText}</p>}
   </div>
 
-  <h3 class="title">
+  <p class="title">
     {entry.links.article ? <a href={entry.links.article}>{entry.title}</a> : entry.title}
-  </h3>
+  </p>
 
   <p class="description">{entry.description}</p>
 

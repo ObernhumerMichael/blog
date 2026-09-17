@@ -21,29 +21,23 @@ const ROLE_RATIOS: Record<string, { light: number; dark: number }> = {
   '--c-accent': { light: 5.1, dark: 5 },
 };
 
-// Two documented, narrow exceptions to the blanket sweep below — both
-// confirmed real (axe-core flagged both before this list existed), neither
-// a bug this check should chase:
+// One documented, narrow exception to the blanket sweep below — confirmed
+// real (axe-core flagged it before this list existed), not a bug this check
+// should chase: the machine/chrome palette (tokens.css §13.2/§13.3:
+// --code-chrome-muted, --code-linenum, --term-label — "the dimmest chrome
+// text", constant across themes) is the exact "held to a lightness band
+// rather than a contrast ratio" palette this file's own header comment
+// names. Its three real consumers, exhaustively: the language tag, the
+// line-number gutter, the terminal label.
 //
-// - The machine/chrome palette (tokens.css §13.2/§13.3: --code-chrome-muted,
-//   --code-linenum, --term-label — "the dimmest chrome text", constant
-//   across themes) is the exact "held to a lightness band rather than a
-//   contrast ratio" palette this file's own header comment names. Its three
-//   real consumers, exhaustively: the language tag, the line-number gutter,
-//   the terminal label.
-// - .gutter-series (ArticleHeader.astro) is the one real-content consumer
-//   of --c-faint, which — unlike text/text-2/muted/accent above — has no
-//   row in §18.1's table at all and was never claimed to hit 4.5:1. Its
-//   light value (0.72) measures ~2.36:1; darkening it to AA would collapse
-//   the muted/faint hierarchy (muted's own corrected floor already sits at
-//   ~0.53). A real tension between §18.1's prose ("nothing ... including
-//   placeholder") and the token architecture, left for a design call rather
-//   than papered over here.
+// --c-faint (.gutter-series and its siblings) is NOT an exception here —
+// Phase 8.1 corrected the token itself (tokens.css) once expanding this
+// matrix to real pages caught it below 4.5:1; see that file's own
+// CORRECTED comment.
 const KNOWN_CONTRAST_EXCEPTIONS = [
   '.code-block__lang',
   '.code-block__gutter',
   '.term-block__label',
-  '.gutter-series',
 ];
 
 function relativeLuminance([r, g, b]: number[]) {
