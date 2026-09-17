@@ -29,6 +29,12 @@ export interface ProjectItemEntry {
 
 export interface Props {
   entry: ProjectItemEntry;
+  // Component 07's own variants table (§6·07), 7.3: 'index' is the
+  // projects-index full variant (3 tracks, unchanged); 'selected' is the
+  // homepage Selected-work band (2 tracks, no separate number column,
+  // shorter instrument list) — a variant per §22 rule 6, not a second
+  // component.
+  variant?: 'index' | 'selected';
   // 6.11, T5's own "force states via CSS classes so screenshots capture
   // them deterministically" convention (§9, T5) — pulled forward from the
   // not-yet-built dev/gallery.astro onto this component specifically, so
@@ -38,7 +44,7 @@ export interface Props {
   forceMobile?: boolean;
 }
 
-const { entry, forceMobile = false } = Astro.props;
+const { entry, variant = 'index', forceMobile = false } = Astro.props;
 
 const num = String(entry.number).padStart(2, '0');
 
@@ -69,7 +75,11 @@ const showPrimary = Boolean(entry.links.article && primaryText);
 // cell, §11.2), falling back to sourceAbsence only when neither is set.
 ---
 
-<div class="item" data-status={entry.status} class:list={{ 'force-mobile': forceMobile }}>
+<div
+  class="item"
+  data-status={entry.status}
+  class:list={[`item--${variant}`, { 'force-mobile': forceMobile }]}
+>
   <p class="num">{num}</p>
 
   <div class="status-period">
@@ -78,7 +88,7 @@ const showPrimary = Boolean(entry.links.article && primaryText);
       ></span>
       <span class:list={{ ok: isOk }}>{entry.status}</span>
     </p>
-    <p class="period">{periodText}</p>
+    {variant === 'index' && <p class="period">{periodText}</p>}
   </div>
 
   <h3 class="title">
@@ -107,25 +117,27 @@ const showPrimary = Boolean(entry.links.article && primaryText);
         </p>
       )
     }
-    <p class="source">
-      {
-        entry.links.source ? (
-          <a href={entry.links.source}>
-            source <span aria-hidden="true">↗</span>
-          </a>
-        ) : (
-          entry.sourceAbsence && <span class="source-absence">{entry.sourceAbsence}</span>
-        )
-      }
-      {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
-      {
-        entry.links.demo && (
-          <a href={entry.links.demo}>
-            demo <span aria-hidden="true">↗</span>
-          </a>
-        )
-      }
-    </p>
+    {
+      variant === 'index' && (
+        <p class="source">
+          {entry.links.source ? (
+            <a href={entry.links.source}>
+              source <span aria-hidden="true">↗</span>
+            </a>
+          ) : (
+            entry.sourceAbsence && (
+              <span class="source-absence">{entry.sourceAbsence}</span>
+            )
+          )}
+          {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
+          {entry.links.demo && (
+            <a href={entry.links.demo}>
+              demo <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </p>
+      )
+    }
   </div>
 </div>
 
@@ -348,6 +360,53 @@ const showPrimary = Boolean(entry.links.article && primaryText);
       .primary-link,
       .source {
         grid-column: 3;
+      }
+    }
+
+    /* 7.3, component 07's variants table: "2 tracks, title 19, description
+       14 capped at 58ch, 22px padding-y, shorter instrument list." Padding,
+       title and description apply at every width; the grid override below
+       only needs to act at >=1280, where the base rules above would
+       otherwise give the number its own third column — below that, the
+       >=760 tier's own two-track grid is already the "no separate number
+       column" shape this variant wants at every width, so nothing needs
+       overriding there. */
+    .item--selected {
+      padding-block: var(--sp-22);
+    }
+
+    .item--selected .title {
+      font: var(--t-project-title-compact);
+      letter-spacing: var(--tr-project-title-compact);
+    }
+
+    .item--selected .description {
+      max-width: var(--measure-desc);
+    }
+
+    @media (min-width: 1280px) {
+      .item--selected {
+        grid-template-columns: minmax(0, 1fr) var(--project-instr-w-tablet);
+        column-gap: var(--sp-24);
+      }
+
+      .item--selected .num {
+        grid-column: 1;
+        grid-row: auto;
+        align-self: auto;
+        margin: 0 0 var(--sp-8) 0;
+      }
+
+      .item--selected .title,
+      .item--selected .description,
+      .item--selected .why,
+      .item--selected .stack {
+        grid-column: 1;
+      }
+
+      .item--selected .status,
+      .item--selected .primary-link {
+        grid-column: 2;
       }
     }
 
