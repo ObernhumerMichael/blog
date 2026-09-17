@@ -1,0 +1,85 @@
+---
+// Tag.astro — component 08, §6·08/§8.3. A lowercase hash-prefixed mono
+// token: no chip, no background, no border, no radius (the component's own
+// anatomy line is the whole visual spec). Three variants as props, not
+// three components (§22.6): plain and counted share one interactive `<a>`
+// rendering — the only difference is whether `count` is passed — and
+// `current` renders a non-interactive `<span>`, since a link to the page
+// already showing is a no-op affordance (the same "current page" treatment
+// §7.2 already gives nav links).
+//
+// Phase 6 Finding B: the first real build of this component. Every
+// existing tag render (ArticleHeader.astro's metadata row) is the
+// descriptive case §6·08 itself calls out as correctly plain, non-
+// interactive markup — not retrofitted to this component, which exists for
+// the first genuinely navigational tag surfaces (the filter row, 6.5; tag
+// pages, 6.6).
+//
+// The literal `'all'` tag is the filter row's own pseudo-tag (§19.2, 6.5):
+// not a real TAGS registry entry, it links to `/writing` rather than
+// `/writing/tag/all` and renders without the `#` prefix.
+export interface Props {
+  tag: string;
+  variant?: 'plain' | 'counted' | 'current';
+  count?: number;
+}
+
+const { tag, variant = 'plain', count } = Astro.props;
+
+const isAll = tag === 'all';
+const label = isAll ? 'all' : `#${tag}`;
+const href = isAll ? '/writing' : `/writing/tag/${tag}`;
+---
+
+{
+  variant === 'current' ? (
+    <span class="tag tag--current">
+      {label}
+      {count !== undefined && ` ${count}`}
+    </span>
+  ) : (
+    <a class="tag" href={href}>
+      {label}
+      {count !== undefined && <span class="tag-count"> {count}</span>}
+    </a>
+  )
+}
+
+<style>
+  @layer components {
+    /* §8.3: "mono 12, --c-accent, underline on hover" — reuses --t-meta
+       rather than a new token: numerically identical (11.5 floor, 12 from
+       760 up) to the metadata row's own tag rendering (ArticleHeader's
+       `.metadata dd.metadata-accent`), which is the same datum in its
+       descriptive context. */
+    .tag {
+      font: var(--t-meta);
+      color: var(--c-accent);
+      text-decoration: none;
+    }
+
+    a.tag:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+
+    /* §6·08 "Counted tag ... plain plus a muted count appended" — muted,
+       not a second accent use; inherits the accent underline from the
+       shared `a.tag:hover` rule on hover since it's a nested inline span,
+       not a separate hit target. */
+    .tag-count {
+      color: var(--c-muted);
+    }
+
+    /* §6·08: "the only tag rendered in --c-text with an accent underline
+       to mark the current filter" — permanent, not hover-only, and never a
+       link (no href above), so no :hover rule applies here. */
+    .tag--current {
+      color: var(--c-text);
+      text-decoration: underline;
+      text-decoration-color: var(--c-accent);
+      text-underline-offset: 0.15em;
+    }
+  }
+</style>

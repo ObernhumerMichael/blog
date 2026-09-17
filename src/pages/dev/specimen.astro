@@ -12,6 +12,7 @@ import ArticleApparatus, {
   type ApparatusEntry,
 } from '../../components/article/ArticleApparatus.astro';
 import ReadingProgress from '../../components/article/ReadingProgress.astro';
+import Tag from '../../components/ui/Tag.astro';
 import { findRelated } from '../../lib/related';
 
 // Token lists below were extracted directly from tokens.css via grep, not
@@ -340,6 +341,16 @@ const apparatusFlags = [true, true, true];
       }
       .measure-demo {
         max-width: var(--measure);
+      }
+
+      /* §6·08: "12–14px gaps, wrapping flex row" — the container's job, not
+         Tag.astro's own (a single tag has no row to wrap). The real filter
+         row (6.5) and metadata row (ArticleHeader.astro's `.metadata`) each
+         supply this themselves; this is the demo page's own copy of it. */
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
       }
     </style>
   </head>
@@ -881,6 +892,21 @@ const apparatusFlags = [true, true, true];
         next={apparatusNext}
         related={apparatusRelated}
       />
+    </div>
+
+    <h2>Tag (component 08, §6·08) — added Phase 6.3</h2>
+    <p class="lede" style="font-size: 13.5px;">
+      Three variants as props, not three components (§22.6). Plain and counted are both
+      real links to <code>/writing/tag/&lt;tag&gt;</code>; tab to either and the token
+      focus ring should show. Current has no <code>href</code> at all — not tabbable, by construction
+      rather than a disabled/aria-current workaround.
+    </p>
+    <div class="tag-row">
+      <Tag tag="ansible" variant="plain" />
+      <Tag tag="infrastructure" variant="counted" count={11} />
+      <Tag tag="all" variant="current" count={38} />
+      <Tag tag="ctf" variant="current" />
+      <Tag tag="homelab" variant="plain" />
     </div>
 
     <h2>Glyphs (§2.11)</h2>
