@@ -723,6 +723,12 @@
     --project-instr-w: 210px;
     --project-instr-w-tablet: 170px;
 
+    /* 7.5, §19.6 point 3 — the about page's Experience row: "150px mono
+       period track" beside role + description. Page-local markup (Finding
+       B/§23.3: not a shared component), but the track width still earns a
+       token like every other component-internal grid track above it. */
+    --about-period-w: 150px;
+
     --toc-cap: 150px; /* TOC scroll cap above 20 sections (E4). §15's own
       responsive table only lists this under <760, but §10.10's "very long
       article" stress case states it width-agnostically ("TOC gains its
