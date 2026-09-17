@@ -29,9 +29,16 @@ export interface ProjectItemEntry {
 
 export interface Props {
   entry: ProjectItemEntry;
+  // 6.11, T5's own "force states via CSS classes so screenshots capture
+  // them deterministically" convention (§9, T5) — pulled forward from the
+  // not-yet-built dev/gallery.astro onto this component specifically, so
+  // the specimen page can show the E3 mobile reorder without needing an
+  // actual <760px viewport. Real callers (/projects/index.astro) never
+  // pass this; it defaults off.
+  forceMobile?: boolean;
 }
 
-const { entry } = Astro.props;
+const { entry, forceMobile = false } = Astro.props;
 
 const num = String(entry.number).padStart(2, '0');
 
@@ -63,7 +70,7 @@ const showPrimary = Boolean(entry.links.article && primaryText);
 const sourceKind = entry.links.source ? 'source' : entry.links.demo ? 'demo' : 'absence';
 ---
 
-<div class="item" data-status={entry.status}>
+<div class="item" data-status={entry.status} class:list={{ 'force-mobile': forceMobile }}>
   <p class="num">{num}</p>
 
   <div class="status-period">
@@ -339,6 +346,23 @@ const sourceKind = entry.links.source ? 'source' : entry.links.demo ? 'demo' : '
       .source {
         grid-column: 3;
       }
+    }
+
+    /* 6.11: force the base (mobile, E3) layout back on regardless of
+       viewport width — specificity alone (two classes beat one) wins over
+       the >=760/>=1280 rules above without an !important, source order
+       aside. Two rules are enough: once .item isn't display:grid, the
+       children's own grid-column/justify-self/grid-row simply stop
+       applying (CSS Grid properties are inert outside a grid container),
+       so only .status-period/.links — the two `display: contents` at
+       >=760 — need an explicit rule back to their own base value. */
+    .item.force-mobile {
+      display: block;
+    }
+
+    .item.force-mobile .status-period,
+    .item.force-mobile .links {
+      display: flex;
     }
   }
 </style>

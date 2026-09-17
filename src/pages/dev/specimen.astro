@@ -15,7 +15,9 @@ import ReadingProgress from '../../components/article/ReadingProgress.astro';
 import Tag from '../../components/ui/Tag.astro';
 import WritingRow, { type WritingRowEntry } from '../../components/list/WritingRow.astro';
 import FeaturedEntry from '../../components/list/FeaturedEntry.astro';
-import ProjectItem from '../../components/list/ProjectItem.astro';
+import ProjectItem, {
+  type ProjectItemEntry,
+} from '../../components/list/ProjectItem.astro';
 import { findRelated } from '../../lib/related';
 
 // Token lists below were extracted directly from tokens.css via grep, not
@@ -161,6 +163,22 @@ const featuredEntry = featuredData && toRowEntry(featuredData);
 // astro:content includes drafts unfiltered — dev-only page, no PROD guard
 // needed, same as this file's own writing-entry loads above.
 const projects = (await getCollection('projects')).map((e) => e.data);
+
+// 6.11: "paused" has no real content anywhere in the site (component 07's
+// own comment above: "no reference example at all") — one clearly-labelled
+// synthetic entry so every dot/colour state the component supports still
+// has somewhere to render, the same real-data-except-where-nothing-exists
+// treatment 6.10's own 8-tag fixture gave the writing side.
+const pausedExample: ProjectItemEntry = {
+  number: 0,
+  title: 'Example: paused status',
+  description: 'A synthetic entry — no real project is paused today (component 07, §09).',
+  stack: ['example'],
+  status: 'paused',
+  period: { from: new Date('2025-06-01'), to: null },
+  caseStudy: false,
+  links: {},
+};
 ---
 
 <html lang="en">
@@ -994,10 +1012,14 @@ const projects = (await getCollection('projects')).map((e) => e.data);
       }
       <code>browse 28 →</code> primary label (OD-14). Resize to see the number fold into the
       substance column at tablet and the status-first mobile reorder (E3) — real DOM order,
-      not a CSS reorder.
+      not a CSS reorder. The "paused" example below is synthetic (no real project is currently
+      paused); the last row uses <code>forceMobile</code> to show E3's own order at any width,
+      screenshot-deterministic per T5's own force-states-via-class convention.
     </p>
     <div class="project-list">
       {projects.map((project) => <ProjectItem entry={project} />)}
+      <ProjectItem entry={pausedExample} />
+      <ProjectItem entry={projects[0]} forceMobile />
     </div>
 
     <h2>Glyphs (§2.11)</h2>
