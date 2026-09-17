@@ -28,6 +28,8 @@
 // file.data.astro.frontmatter, Astro's documented mechanism for computed
 // frontmatter, which is why they show up on this same `frontmatter` prop
 // already flowing in from ProseLayout.astro.
+import Tag from '../ui/Tag.astro';
+
 interface Series {
   // Finding D (Phase 5): a stable grouping key, separate from `name`.
   id: string;
@@ -167,7 +169,9 @@ const isLongTitle = frontmatter.title.length > 90;
         frontmatter.tags.map((tag) => (
           <Fragment>
             <dt class="visually-hidden">Tag</dt>
-            <dd class="metadata-accent">#{tag}</dd>
+            <dd>
+              <Tag tag={tag} />
+            </dd>
           </Fragment>
         ))
       }
@@ -362,8 +366,9 @@ const isLongTitle = frontmatter.title.length > 90;
        above: `.metadata dd` compiles two attribute selectors deep
        (`.metadata[data-astro-cid] dd[data-astro-cid]`), so a same-depth
        override has to repeat the `.metadata` ancestor to out-specify it.
-       Every accent datum (the number, every tag) rendered muted instead
-       until this matched that depth. */
+       The article number is the only remaining user — every tag now
+       renders via Tag.astro, which sets its own --c-accent regardless of
+       the ambient .metadata dd muted colour. */
     .metadata dd.metadata-accent {
       color: var(--c-accent);
     }

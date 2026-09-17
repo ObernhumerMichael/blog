@@ -11,6 +11,7 @@
 // same two-named-variants reasoning WritingRow's compact variant already
 // uses, not a speculative third state.
 import type { WritingRowEntry } from './WritingRow.astro';
+import Tag from '../ui/Tag.astro';
 
 export interface Props {
   entry: WritingRowEntry;
@@ -45,7 +46,9 @@ const href = `/w/${num}`;
         entry.tags.map((tag) => (
           <Fragment>
             <dt class="visually-hidden">Tag</dt>
-            <dd class="metadata-accent">#{tag}</dd>
+            <dd>
+              <Tag tag={tag} />
+            </dd>
           </Fragment>
         ))
       }

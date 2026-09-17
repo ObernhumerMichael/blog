@@ -97,11 +97,15 @@ const activeCount = published.filter((p) => p.status === 'active').length;
       text-wrap: pretty;
     }
 
-    /* §11.1: "--c-rule-2 opening the list." Each ProjectItem supplies its
-       own --c-rule bottom hairline (component 07), so only the list's own
-       top rule is this page's job. */
-    .project-rows {
-      border-top: var(--bw) solid var(--c-rule-2);
+    /* No rule opens the list and none closes it — only the hairlines
+       between entries (each ProjectItem's own --c-rule bottom border,
+       component 07) should show. The last item's own border-bottom is
+       switched off here rather than in ProjectItem.astro, since that
+       component has no way to know it's last; :global() reaches its
+       scoped `.item` class from this parent, same technique
+       WritingArchive.astro already uses for `.year-rows > :global(.row)`. */
+    .project-rows > :global(.item):last-child {
+      border-bottom: none;
     }
   }
 </style>

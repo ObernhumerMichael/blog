@@ -8,12 +8,13 @@
 // already showing is a no-op affordance (the same "current page" treatment
 // §7.2 already gives nav links).
 //
-// Phase 6 Finding B: the first real build of this component. Every
-// existing tag render (ArticleHeader.astro's metadata row) is the
-// descriptive case §6·08 itself calls out as correctly plain, non-
-// interactive markup — not retrofitted to this component, which exists for
-// the first genuinely navigational tag surfaces (the filter row, 6.5; tag
-// pages, 6.6).
+// Every descriptive tag render (ArticleHeader/FeaturedEntry's metadata
+// rows) now also goes through this component (`variant="plain"`, no
+// count) rather than raw `#{tag}` text, so every tag on the site — filter
+// row, tag pages, and metadata rows alike — links to /writing/tag/<tag>.
+// WritingRow's single "primary tag" track is the one exception: the whole
+// row is already an `<a>`, and nesting an interactive `<a>` inside another
+// is invalid HTML, so it stays plain text there.
 //
 // The literal `'all'` tag is the filter row's own pseudo-tag (§19.2, 6.5):
 // not a real TAGS registry entry, it links to `/writing` rather than
@@ -64,12 +65,12 @@ const href = isAll ? '/writing' : `/writing/tag/${tag}`;
       text-underline-offset: 0.15em;
     }
 
-    /* §6·08 "Counted tag ... plain plus a muted count appended" — muted,
-       not a second accent use; inherits the accent underline from the
-       shared `a.tag:hover` rule on hover since it's a nested inline span,
-       not a separate hit target. */
+    /* The count is part of the same accent-coloured tag, not a second
+       (muted) datum — it inherits `.tag`'s --c-accent rather than
+       overriding it, so it reads as one orange token, "#foo 3", not a
+       two-tone split. */
     .tag-count {
-      color: var(--c-muted);
+      color: inherit;
     }
 
     /* §6·08: "the only tag rendered in --c-text with an accent underline

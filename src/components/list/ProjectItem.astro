@@ -64,10 +64,9 @@ const periodText = (() => {
 const primaryText = entry.links.primaryLabel ?? (entry.caseStudy ? 'case study' : null);
 const showPrimary = Boolean(entry.links.article && primaryText);
 
-// 6.7: "source-or-demo-or-absence" — exactly one of the three, in that
-// priority order (the index item's own reduced instrument list; the
-// detail page's status band can show source AND demo together, §11.2).
-const sourceKind = entry.links.source ? 'source' : entry.links.demo ? 'demo' : 'absence';
+// Source and demo aren't mutually exclusive — both render when both are
+// authored (same "· "-joined pair as ProjectHeader.astro's own Links
+// cell, §11.2), falling back to sourceAbsence only when neither is set.
 ---
 
 <div class="item" data-status={entry.status} class:list={{ 'force-mobile': forceMobile }}>
@@ -110,16 +109,20 @@ const sourceKind = entry.links.source ? 'source' : entry.links.demo ? 'demo' : '
     }
     <p class="source">
       {
-        sourceKind === 'source' ? (
+        entry.links.source ? (
           <a href={entry.links.source}>
             source <span aria-hidden="true">↗</span>
           </a>
-        ) : sourceKind === 'demo' ? (
+        ) : (
+          entry.sourceAbsence && <span class="source-absence">{entry.sourceAbsence}</span>
+        )
+      }
+      {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
+      {
+        entry.links.demo && (
           <a href={entry.links.demo}>
             demo <span aria-hidden="true">↗</span>
           </a>
-        ) : (
-          <span class="source-absence">{entry.sourceAbsence}</span>
         )
       }
     </p>
