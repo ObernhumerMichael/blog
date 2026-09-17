@@ -54,6 +54,14 @@ export const SITE_LINKS = {
   pgp: PGP_URL,
 };
 
+// OD-17 / ADR-0025 — AD-12/ADR-0012's Now-panel fetch target. Same
+// placeholder treatment as GITHUB_URL/PGP_URL above, with one addition:
+// `.invalid` is the RFC 2606 reserved TLD that is guaranteed to never
+// resolve, so a placeholder build fails DNS resolution immediately instead
+// of waiting out src/lib/now.ts's own 2-second timeout on every build.
+// Phase 9 swaps this for the real homelab endpoint — a one-constant change.
+export const NOW_PANEL_URL = 'https://now.internal.invalid/status.json';
+
 // §10.6's author block — sourced from here rather than the `site` data
 // collection (AD-03 assigns that collection to experience rows, Elsewhere
 // links and the Now-panel fallback; a single-author blog's own author block
