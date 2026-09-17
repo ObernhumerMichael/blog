@@ -91,88 +91,88 @@ const isLongTitle = frontmatter.title.length > 90;
          the data never does" (§3.6's own number/date/effort/revision/
          taxonomy datums cover the same ground at <1280 through the
          metadata row and breadcrumb instead). -->
-    <div class="gutter">
-      <div class="gutter-number">{num}</div>
-      <div class="gutter-section">{frontmatter.section}</div>
-      {
-        frontmatter.series && (
-          <div class="gutter-series">
-            series {frontmatter.series.part}/{frontmatter.series.total}
-          </div>
-        )
-      }
-    </div>
+  <div class="gutter">
+    <div class="gutter-number">{num}</div>
+    <div class="gutter-section">{frontmatter.section}</div>
+    {
+      frontmatter.series && (
+        <div class="gutter-series">
+          series {frontmatter.series.part}/{frontmatter.series.total}
+        </div>
+      )
+    }
+  </div>
 
-    <div class="header-content">
-      <!-- §16 breadcrumb. "infrastructure" is plain text, not a link — no
+  <div class="header-content">
+    <!-- §16 breadcrumb. "infrastructure" is plain text, not a link — no
            section-archive route exists yet (Phase 6); linking it now would
            be a dead link invented ahead of the page that would resolve it. -->
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <ol>
-          <li><a href="/writing">writing</a></li>
-          <li>{frontmatter.section.toLowerCase()}</li>
-          <!-- §6·16 says this segment may drop below 760 (the number is
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/writing">writing</a></li>
+        <li>{frontmatter.section.toLowerCase()}</li>
+        <!-- §6·16 says this segment may drop below 760 (the number is
              still present in the metadata row's first datum on the same
              screen either way) — kept visible at every width instead, per
              explicit user direction overriding that default. -->
-          <li class="breadcrumb-current" aria-current="page">{num}</li>
-        </ol>
-        {
-          frontmatter.series && (
-            <span class="breadcrumb-series">
-              series {frontmatter.series.part}/{frontmatter.series.total}
-            </span>
-          )
-        }
-      </nav>
+        <li class="breadcrumb-current" aria-current="page">{num}</li>
+      </ol>
+      {
+        frontmatter.series && (
+          <span class="breadcrumb-series">
+            series {frontmatter.series.part}/{frontmatter.series.total}
+          </span>
+        )
+      }
+    </nav>
 
-      <h1 class:list={['title', { 'title--long': isLongTitle }]}>
-        {frontmatter.title}
-      </h1>
+    <h1 class:list={['title', { 'title--long': isLongTitle }]}>
+      {frontmatter.title}
+    </h1>
 
-      <p class="lead">{frontmatter.lead}</p>
+    <p class="lead">{frontmatter.lead}</p>
 
-      <dl class="metadata">
-        <!-- §3.6's own resolution of the gutter/metadata-row number
+    <dl class="metadata">
+      <!-- §3.6's own resolution of the gutter/metadata-row number
              question (checked against docs/reference/article/900-light.png
              and 1320-light-full.png, not assumed from the ambiguous prose):
              the number is the row's own first datum below 1280 — hidden by
              the same breakpoint the gutter appears at, so it's never shown
              twice. dt and dd share .metadata-number so the pair hides
              together — a dt with no adjacent dd is broken dl semantics. -->
-        <dt class="visually-hidden metadata-number">Article number</dt>
-        <dd class="metadata-number metadata-accent">{num}</dd>
+      <dt class="visually-hidden metadata-number">Article number</dt>
+      <dd class="metadata-number metadata-accent">{num}</dd>
 
-        <dt class="visually-hidden">Published</dt>
-        <dd><time datetime={isoDate}>{isoDate}</time></dd>
+      <dt class="visually-hidden">Published</dt>
+      <dd><time datetime={isoDate}>{isoDate}</time></dd>
 
-        <dt class="visually-hidden">Reading time</dt>
-        <dd>{frontmatter.minutesRead} min</dd>
+      <dt class="visually-hidden">Reading time</dt>
+      <dd>{frontmatter.minutesRead} min</dd>
 
-        <dt class="visually-hidden">Word count</dt>
-        <dd>{wordCountText} words</dd>
+      <dt class="visually-hidden">Word count</dt>
+      <dd>{wordCountText} words</dd>
 
-        {
-          showUpdated && (
-            <Fragment>
-              <dt class="visually-hidden">Updated</dt>
-              <dd>
-                upd <time datetime={isoUpdated}>{isoUpdated}</time>
-              </dd>
-            </Fragment>
-          )
-        }
+      {
+        showUpdated && (
+          <Fragment>
+            <dt class="visually-hidden">Updated</dt>
+            <dd>
+              upd <time datetime={isoUpdated}>{isoUpdated}</time>
+            </dd>
+          </Fragment>
+        )
+      }
 
-        {
-          frontmatter.tags.map((tag) => (
-            <Fragment>
-              <dt class="visually-hidden">Tag</dt>
-              <dd class="metadata-accent">#{tag}</dd>
-            </Fragment>
-          ))
-        }
-      </dl>
-    </div>
+      {
+        frontmatter.tags.map((tag) => (
+          <Fragment>
+            <dt class="visually-hidden">Tag</dt>
+            <dd class="metadata-accent">#{tag}</dd>
+          </Fragment>
+        ))
+      }
+    </dl>
+  </div>
 </header>
 
 <style>
