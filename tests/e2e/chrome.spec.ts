@@ -27,6 +27,13 @@ import { PAGES } from './pages';
 // a real Tab press does; a rect-count check doesn't. This never surfaced
 // against /dev/layout-check because that page has no <details> at all.
 
+// client:load islands drop their `ssr` attribute once hydrated. A click before
+// that hits inert SSR markup and is silently lost (flaky on a cold dev compile).
+const waitForMenuHydrated = (page: Page) =>
+  page
+    .locator('astro-island:not([ssr]):has(.menu-trigger)')
+    .waitFor({ state: 'attached' });
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -47,6 +54,7 @@ for (const PAGE of PAGES) {
     test.skip(page.viewportSize()?.width !== 390, 'only meaningful at mobile width');
 
     await page.goto(PAGE);
+    await waitForMenuHydrated(page);
     await page.click('.menu-trigger');
     // Assertion-based wait, not a fixed sleep: the dev server compiles routes
     // on demand, so the island's hydration time varies (fast once Vite's
@@ -158,6 +166,7 @@ for (const PAGE of PAGES) {
     for (let i = 0; i <= triggerIndex; i++) {
       await tabAndAssertRing(page, i + 1);
     }
+    await waitForMenuHydrated(page);
     await page.click('.menu-trigger');
     await expect(page.locator('.menu-trigger')).toHaveAttribute('aria-expanded', 'true');
     await expect(page.locator('.menu-row').first()).toBeVisible();
