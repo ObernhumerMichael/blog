@@ -22,6 +22,8 @@ import rehypeTableRegion from './src/plugins/rehype-table-region.ts';
 // needed.
 import shikiLedgerTheme from './src/plugins/shiki-ledger-theme.json' with { type: 'json' };
 import sitemap from '@astrojs/sitemap';
+import { globSync, rmSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { loadCollection, WRITING_DIR } from './src/lib/load-content.ts';
 import { writingSchema } from './src/content.schemas.ts';
 import { slugify } from './src/lib/slug.ts';
@@ -79,6 +81,21 @@ export default defineConfig({
   // list and the reasoning for not using client:load by default.
   integrations: [
     svelte(),
+    // Astro's routing has no dev-only pages (ADR-0014), so src/pages/dev/
+    // builds like any other route. Strip it from dist/ here, in the build
+    // itself, so no deploy step can forget to.
+    {
+      name: 'strip-dev-pages',
+      hooks: {
+        'astro:build:done': ({ dir }) => {
+          const root = fileURLToPath(dir);
+          rmSync(`${root}dev`, { recursive: true, force: true });
+          // Optimised copies of the fixtures' images land in _astro/ too.
+          for (const f of globSync('_astro/screenshot-4k-*', { cwd: root }))
+            rmSync(`${root}${f}`);
+        },
+      },
+    },
     // 5.10 point 2. filter receives each built page's full URL string;
     // matched against the exact redirect-slug set above, plus a /dev/
     // prefix check for the gallery/fixtures (never a blanket

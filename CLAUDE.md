@@ -73,7 +73,7 @@ there, not in the `.astro` pages. `src/consts.ts` is structural values only
 - `src/pages/dev/` (no underscore, see ADR-0014) holds real, routable dev
   pages — `specimen.astro` (design-token/component reference),
   `layout-check`, `fixtures/*`. They're stripped from the deployed output
-  by a `rm -rf dist/dev` step at deploy time, not by Astro routing, so
+  by the `strip-dev-pages` hook in `astro.config.mjs` (`astro:build:done`), not by Astro routing, so
   they build and render like any other page locally. `specimen.astro` is
   extended at the end of most phases to give new components a home
   outside a full article render — follow that precedent rather than
