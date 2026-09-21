@@ -4,14 +4,14 @@
 // rule 8, §23.3 names the Now panel, the 24px opening statement and the
 // interests line explicitly as page-local composition) — this page is the
 // one place that reads all three collections at once.
-import { getCollection, getEntry, render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FeaturedEntry from '../components/list/FeaturedEntry.astro';
 import WritingRow, { type WritingRowEntry } from '../components/list/WritingRow.astro';
 import ProjectItem from '../components/list/ProjectItem.astro';
 import { getNowPanelData } from '../lib/now';
-import { interestsSchema } from '../content.schemas.ts';
-import { SITE_LINKS, CONTACT_EMAIL, AUTHOR_BIO } from '../consts';
+import { SITE_LINKS, CONTACT_EMAIL } from '../consts';
+import { COPY } from '../copy';
 
 // Same shape and reasoning as /writing/index.astro: minutesRead is
 // remark-computed, not stored in entry.data, so every published entry needs
@@ -63,22 +63,10 @@ const selectedProjects = publishedProjects.filter((p) => p.featured);
 const now = await getNowPanelData();
 const lastDeployISO = now.lastDeploy.toISOString().slice(0, 10);
 
-// The `site` collection's ids are fixed, known filenames (7.1) — not
-// statically typed by Astro's glob loader, so a missing entry is a real
-// content bug, not a "maybe" to code around silently.
-async function siteEntry(id: string) {
-  const entry = await getEntry('site', id);
-  if (!entry) throw new Error(`site collection entry "${id}" not found`);
-  return entry;
-}
-const interests = interestsSchema.parse((await siteEntry('interests')).data);
-
 const yearMonth = new Date().toISOString().slice(0, 7);
 ---
 
-<BaseLayout
-  description="Backend systems and the infrastructure they run on, written down as they actually behave."
->
+<BaseLayout description={COPY.home.metaDescription}>
   <div class="frame">
     <section class="band layout-band band--cover">
       <div class="gutter">
@@ -91,23 +79,12 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       </p>
       <div class="index-content">
         <div class="intro">
-          <h1 class="statement">
-            I build backend systems and the infrastructure they run on, and I write down
-            how they actually behave.
-          </h1>
-          <p class="context">
-            Most of my time goes to services, data flow and the parts that decide whether
-            a system survives production: provisioning, observability, failure modes, and
-            the migration you have to do without downtime. Outside of that: Linux,
-            self-hosting, security research.
-          </p>
+          <h1 class="statement">{COPY.home.statement}</h1>
+          <p class="context">{COPY.home.context}</p>
         </div>
         <div class="now-panel">
           <p class="now-label">Now</p>
-          <p class="now-sentence">
-            Rebuilding the homelab's secrets pipeline and restore drills; reading the
-            Linux network stack from netfilter down.
-          </p>
+          <p class="now-sentence">{COPY.home.nowSentence}</p>
           <ul class="now-facts">
             <li>homelab uptime {now.uptimeDays} d</li>
             <li>{now.servicesOk} services <span class="ok">ok</span></li>
@@ -195,7 +172,7 @@ const yearMonth = new Date().toISOString().slice(0, 7);
         <span>Interests</span>
         <span>—</span>
       </p>
-      <p class="interests-line">{interests.join(' · ')}</p>
+      <p class="interests-line">{COPY.home.interests.join(' · ')}</p>
     </section>
 
     <section class="band layout-band">
@@ -208,7 +185,7 @@ const yearMonth = new Date().toISOString().slice(0, 7);
         <span>—</span>
       </p>
       <div class="about-content">
-        <p class="about-bio">{AUTHOR_BIO}</p>
+        <p class="about-bio">{COPY.site.authorBio}</p>
         <div class="contact">
           <a class="email" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
           <p class="contact-links">

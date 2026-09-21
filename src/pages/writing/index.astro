@@ -10,6 +10,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import WritingArchive from '../../components/list/WritingArchive.astro';
 import type { WritingRowEntry } from '../../components/list/WritingRow.astro';
 import { groupByYear, countTags } from '../../lib/archive';
+import { COPY } from '../../copy';
 
 // Draft visibility (same rule as /w/[num].astro, /writing/[slug].astro):
 // excluded from counts and from the page entirely in production.
@@ -50,10 +51,7 @@ const tagCounts = countTags(rowEntries);
 const yearGroups = groupByYear(nonFeatured);
 ---
 
-<BaseLayout
-  title="Writing"
-  description={`${total} articles on backend development and infrastructure automation.`}
->
+<BaseLayout title="Writing" description={COPY.writing.metaDescription(total)}>
   <WritingArchive
     heading="Writing"
     lead="Articles on backend development and infrastructure automation — what broke, what the fix actually was, and what it cost."

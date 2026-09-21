@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
-import { SITE_NAME, SITE_ROLE, NAV_LINKS, SITE_LINKS } from '../../consts';
+import { NAV_LINKS, SITE_LINKS } from '../../consts';
+import { COPY } from '../../copy';
 import { isCurrentPath } from '../../lib/nav';
 import ThemeControl from './ThemeControl.astro';
 import MobileMenu from './MobileMenu.svelte';
@@ -47,8 +48,8 @@ const menuLinks = await Promise.all(
   <div class="frame">
     <div class="row">
       <div class="identity">
-        <a href="/" class="wordmark">{SITE_NAME}</a>
-        <span class="role">{SITE_ROLE}</span>
+        <a href="/" class="wordmark">{COPY.site.name}</a>
+        <span class="role">{COPY.site.role}</span>
       </div>
 
       <nav class="nav-inline" aria-label="Primary">

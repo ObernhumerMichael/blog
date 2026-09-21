@@ -7,7 +7,7 @@
 import rss from '@astrojs/rss';
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { SITE_NAME, SITE_DESCRIPTION } from '../consts.ts';
+import { COPY } from '../copy.ts';
 
 export const GET: APIRoute = async (context) => {
   const entries = await getCollection('writing', (e) => !e.data.draft);
@@ -16,8 +16,8 @@ export const GET: APIRoute = async (context) => {
   );
 
   return rss({
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
+    title: COPY.site.name,
+    description: COPY.site.feedDescription,
     site: context.site!,
     items: sorted.map((entry) => ({
       title: entry.data.title,

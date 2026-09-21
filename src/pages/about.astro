@@ -5,42 +5,28 @@
 // excludes it here — "this page is the author"). None of the four bands
 // is a component (§22 rule 8, §23.3 names the 150px period track and the
 // four-column Elsewhere grid explicitly as page-local composition).
-import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { experienceSchema, elsewhereSchema } from '../content.schemas.ts';
-import { AUTHOR_NAME, ABOUT_BIO, WORKING_ON, ABOUT_UPDATED } from '../consts';
+import { COPY } from '../copy';
 
-// Same fixed-filename lookup as index.astro's siteEntry helper — the
-// `site` collection's ids aren't statically typed by Astro's glob loader,
-// so a missing entry is a real content bug, not a "maybe" to code around.
-async function siteEntry(id: string) {
-  const entry = await getEntry('site', id);
-  if (!entry) throw new Error(`site collection entry "${id}" not found`);
-  return entry;
-}
-const experience = experienceSchema.parse((await siteEntry('experience')).data);
-const elsewhere = elsewhereSchema.parse((await siteEntry('elsewhere')).data);
+const { experience, elsewhere } = COPY.about;
 ---
 
-<BaseLayout
-  title="About"
-  description="A colophon, not a résumé — who writes this, what they work on, and how to reach them."
->
+<BaseLayout title="About" description={COPY.about.metaDescription}>
   <div class="frame">
     <header class="band layout-band">
       <div class="gutter">
         <p class="gutter-label">About</p>
-        <p class="gutter-count">upd {ABOUT_UPDATED}</p>
+        <p class="gutter-count">upd {COPY.about.updated}</p>
       </div>
       <p class="running-head">
         <span>About</span>
-        <span>upd {ABOUT_UPDATED}</span>
+        <span>upd {COPY.about.updated}</span>
       </p>
       <div class="header-content">
         <div class="intro">
-          <h1 class="title">{AUTHOR_NAME}</h1>
-          <p class="bio">{ABOUT_BIO[0]}</p>
-          <p class="bio bio--muted">{ABOUT_BIO[1]}</p>
+          <h1 class="title">{COPY.site.name}</h1>
+          <p class="bio">{COPY.about.bio[0]}</p>
+          <p class="bio bio--muted">{COPY.about.bio[1]}</p>
         </div>
         <div class="portrait" aria-hidden="true">
           <span class="portrait-label">[ portrait ]<br />200 × 220</span>
@@ -57,7 +43,7 @@ const elsewhere = elsewhereSchema.parse((await siteEntry('elsewhere')).data);
         <span>Working on</span>
         <span>—</span>
       </p>
-      <p class="working-on-line">{WORKING_ON.join(' · ')}</p>
+      <p class="working-on-line">{COPY.about.workingOn.join(' · ')}</p>
     </section>
 
     <section class="band layout-band">

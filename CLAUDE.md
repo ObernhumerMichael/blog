@@ -42,6 +42,15 @@ phase N` / `feat: ...` commits to see which sub-phases are already done
 - `docs/reference/` — captured design screenshots per page type, and
   `glyph-coverage.md` for font-coverage findings.
 
+## Where the site's text lives
+
+All hand-written prose (home statement, about bios, experience, interests,
+elsewhere links, meta descriptions, masthead role, …) is in `src/copy.ts`,
+grouped by page, each entry commented with where it renders. Edit text
+there, not in the `.astro` pages. `src/consts.ts` is structural values only
+(URLs, nav, registries). There is no `site` content collection any more;
+`src/content/site/now-fallback.json` is read directly by `src/lib/now.ts`.
+
 ## Architecture constraints (do not reintroduce)
 
 - **Static output, no adapter** (AD-01). No SSR, no server-rendered

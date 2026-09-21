@@ -5,7 +5,8 @@
 // call), no current-page state, no theme control. §18's own Rules line bans
 // exactly the things a footer usually grows (newsletter box, social icon
 // row, sitemap columns, "back to top"), so this stays two tracks and stops.
-import { SITE_NAME, NAV_LINKS, SITE_LINKS } from '../../consts';
+import { NAV_LINKS, SITE_LINKS } from '../../consts';
+import { COPY } from '../../copy';
 
 const year = new Date().getFullYear();
 ---
@@ -14,7 +15,7 @@ const year = new Date().getFullYear();
   <div class="frame">
     <div class="row">
       <div class="track track-left">
-        <a href="/" class="name">{SITE_NAME}</a>
+        <a href="/" class="name">{COPY.site.name}</a>
         <nav aria-label="Footer">
           <ul class="footer-nav">
             {

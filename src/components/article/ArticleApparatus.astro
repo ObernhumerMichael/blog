@@ -7,13 +7,8 @@
 // remaining blocks, same granularity as ArticleHeader.astro bundling
 // breadcrumb/h1/lead/metadata — they're one design-doc region, hairline-
 // separated from each other, not three independently reusable components.
-import {
-  AUTHOR_NAME,
-  AUTHOR_BIO,
-  CONTACT_EMAIL,
-  GITHUB_URL,
-  RSS_PATH,
-} from '../../consts';
+import { CONTACT_EMAIL, GITHUB_URL, RSS_PATH } from '../../consts';
+import { COPY } from '../../copy';
 
 interface Heading {
   depth: number;
@@ -88,8 +83,8 @@ function isoDate(date: Date) {
     >
       <div class="author-portrait" aria-hidden="true" />
       <div class="author-text">
-        <p class="author-name">{AUTHOR_NAME}</p>
-        <p class="author-bio">{AUTHOR_BIO}</p>
+        <p class="author-name">{COPY.site.name}</p>
+        <p class="author-bio">{COPY.site.authorBio}</p>
         <p class="author-contact">
           <a href={`mailto:${CONTACT_EMAIL}`}>
             {CONTACT_EMAIL} <span aria-hidden="true">↗</span>

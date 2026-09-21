@@ -8,17 +8,6 @@
 // grep across the codebase.
 export const SITE_URL = 'https://obernhumer.com';
 
-export const SITE_NAME = 'Michael Obernhumer';
-
-// §7.1 — role text under the wordmark in the masthead.
-export const SITE_ROLE = 'backend · infrastructure';
-
-// 5.10 — the RSS feed's <description>. Reuses the masthead role line rather
-// than inventing separate site-summary copy nothing else in the design
-// calls for.
-export const SITE_DESCRIPTION =
-  'Writing on backend development and infrastructure automation.';
-
 // §7.1 — exactly three destinations. Do not add a fourth without revisiting
 // OD-02 (CTF-as-tag) and IMPLEMENTATION_PLAN.md AD-03 first.
 //
@@ -61,45 +50,6 @@ export const SITE_LINKS = {
 // of waiting out src/lib/now.ts's own 2-second timeout on every build.
 // Phase 9 swaps this for the real homelab endpoint — a one-constant change.
 export const NOW_PANEL_URL = 'https://now.internal.invalid/status.json';
-
-// §10.6's author block — sourced from here rather than the `site` data
-// collection (AD-03 assigns that collection to experience rows, Elsewhere
-// links and the Now-panel fallback; a single-author blog's own author block
-// is closer to SITE_NAME/SITE_ROLE's existing home). AUTHOR_NAME reuses
-// SITE_NAME rather than repeating the string. AUTHOR_BIO is real prose, not
-// a structural placeholder like GITHUB_URL/PGP_URL — but it's still a first
-// draft, worth a real pass before launch.
-export const AUTHOR_NAME = SITE_NAME;
-export const AUTHOR_BIO =
-  'Backend developer working on distributed systems and infrastructure automation. Writes about homelab engineering, security research and the tooling that holds both together. Corrections and disagreements are welcome by email.';
-
-// §19.6 point 1 — the about page's own two-paragraph intro, explicitly
-// NOT the article-footer author block's shorter bio above (that section's
-// own wording: "this page is the author", so it gets fuller, first-person
-// prose rather than the apparatus block's one-paragraph summary). Real
-// copy, same "first draft, worth a real pass before launch" status as
-// AUTHOR_BIO.
-export const ABOUT_BIO: readonly [string, string] = [
-  'I build backend systems and the infrastructure they run on, mostly for services that are supposed to keep running long after the interesting part of building them is over. Most of what ends up on this site comes out of that work: provisioning, observability, migrations without downtime, and the failure modes you only find by hitting them.',
-  'Outside of work hours it is the same territory at smaller scale — a homelab run the way I would want production run, security research and CTF play, and enough Linux internals to be dangerous. I write things down here because it is the only way I actually remember what I learned.',
-];
-
-// §19.6 point 2 — "Working on", a middot-joined line distinct from the
-// homepage's interests.json (7.1): interests is what I'm generally into,
-// this is what's actually in progress right now. Short enough that a
-// dedicated site-collection file would be overkill for it.
-export const WORKING_ON: readonly string[] = [
-  'rebuilding the homelab secrets pipeline',
-  'restore drills',
-  'the Linux network stack from netfilter down',
-];
-
-// §19.6's own worked gutter example ("About / upd 2026-08-02") — the date
-// this page's content was last actually written, same "worked example is
-// the real value" reasoning OD-17 gives the Now panel's fallback numbers,
-// not a placeholder. Update by hand the next time the about content
-// changes; not worth a build-time mechanism for a once-a-quarter edit.
-export const ABOUT_UPDATED = '2026-08-02';
 
 // Phase 4.1 (§13.2) — the closed vocabulary of fence languages a code block
 // may declare, validated by remark-code-meta.ts and failing the build on

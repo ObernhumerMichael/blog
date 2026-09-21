@@ -6,6 +6,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectItem from '../../components/list/ProjectItem.astro';
+import { COPY } from '../../copy';
 
 // Draft visibility, same rule as every other collection read in the
 // codebase: excluded from counts and from the page entirely in production.
@@ -16,10 +17,7 @@ const total = published.length;
 const activeCount = published.filter((p) => p.status === 'active').length;
 ---
 
-<BaseLayout
-  title="Projects"
-  description="Projects worth writing about — what each one is, why it exists and what it is built from."
->
+<BaseLayout title="Projects" description={COPY.projects.metaDescription}>
   <div class="frame">
     <header class="band layout-band">
       <div class="gutter">
