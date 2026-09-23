@@ -105,29 +105,31 @@ const glyphs = [
 
 // Apparatus & aside (Phase 5.11) — real writing entries, not invented data
 // (same anti-lorem-ipsum reasoning as the fixture articles, Phase 5.9).
-// Article 003 sits mid-sequence with published neighbours on both sides
-// and shares tags with two others, so it's the one entry that exercises
-// prev, next AND a non-empty related grid at once.
+// Content-plan step 5 finding: with only two launch articles, no entry has
+// both a prev AND a next, so `current` just takes the latest published
+// entry — prev/next/related render empty, which is fine for a layout page
+// (CONTENT_PLAN.md step 5). `?? null` also covers the zero-article state
+// this page builds against before step 7 adds real content.
 const published = (await getCollection('writing', (e) => !e.data.draft))
   .map((e) => e.data)
   .sort((a, b) => a.number - b.number);
-const current = published.find((e) => e.number === 3)!;
+const current = published.at(-1) ?? null;
 
 // minutesRead needs the remark pipeline's output (render(), Finding A,
 // §5.0) — irrelevant to a layout check, so a fixed placeholder stands in
 // rather than rendering every entry just to compute a real one.
-const toApparatusEntry = (e: typeof current): ApparatusEntry => ({
+const toApparatusEntry = (e: NonNullable<typeof current>): ApparatusEntry => ({
   number: e.number,
   title: e.title,
   date: e.date,
   minutesRead: 5,
 });
 
-const prevData = published.filter((e) => e.number < current.number).at(-1) ?? null;
-const nextData = published.find((e) => e.number > current.number) ?? null;
+const prevData = current ? (published.filter((e) => e.number < current.number).at(-1) ?? null) : null;
+const nextData = current ? (published.find((e) => e.number > current.number) ?? null) : null;
 const apparatusPrev = prevData && toApparatusEntry(prevData);
 const apparatusNext = nextData && toApparatusEntry(nextData);
-const apparatusRelated = findRelated(current, published).map(toApparatusEntry);
+const apparatusRelated = current ? findRelated(current, published).map(toApparatusEntry) : [];
 
 // Three numbered h2s — ArticleApparatus's own showAuthorBlock threshold
 // (§10.10) — so the author block actually renders instead of gating shut.
@@ -157,11 +159,11 @@ const rowEntries = published.slice(0, 3).map(toRowEntry);
 const featuredData = published.find((e) => e.featured);
 const featuredEntry = featuredData && toRowEntry(featuredData);
 
-// Phase 6.7 — ProjectItem, real `projects` entries (all four — 6.10's own
-// "project with no source" T4 fixture is the draft industrial-platform
-// entry, so this also renders that case here without a separate fixture).
-// astro:content includes drafts unfiltered — dev-only page, no PROD guard
-// needed, same as this file's own writing-entry loads above.
+// Phase 6.7 — ProjectItem, real `projects` entries. The real project uses
+// `sourceAbsence` (no public source), so it also covers that case here
+// without a separate fixture. astro:content includes drafts unfiltered —
+// dev-only page, no PROD guard needed, same as this file's own
+// writing-entry loads above.
 const projects = (await getCollection('projects')).map((e) => e.data);
 
 // 6.11: "paused" has no real content anywhere in the site (component 07's
@@ -937,13 +939,15 @@ const pausedExample: ProjectItemEntry = {
         >ReadingProgress bare</code
       >, what <code>Masthead.astro</code> mounts under itself) — side by side rather than one
       disappearing into the other at a real viewport width. Author block, prev/next and the
-      related grid below are real
-      <code>writing</code> entries (article 003 and its neighbours), not invented data.
+      related grid below use the latest real
+      <code>writing</code> entry — with only two launch articles neither has both a prev and
+      a next, so those render empty here (CONTENT_PLAN.md step 5), which is fine for a layout
+      page.
     </p>
     <div class="aside-demo-row">
       <div class="aside-demo">
         <p class="aside-demo-label">&gt;=1280 — the aside column</p>
-        <ArticleAside title={current.title} />
+        <ArticleAside title={current?.title ?? '(no published articles yet)'} />
       </div>
       <div class="aside-demo aside-demo--bare">
         <p class="aside-demo-label">&lt;1280 — relocated under the masthead</p>
@@ -970,9 +974,9 @@ const pausedExample: ProjectItemEntry = {
     </p>
     <div class="tag-row">
       <Tag tag="ansible" variant="plain" />
-      <Tag tag="infrastructure" variant="counted" count={11} />
-      <Tag tag="all" variant="current" count={38} />
-      <Tag tag="ctf" variant="current" />
+      <Tag tag="infrastructure" variant="counted" count={1} />
+      <Tag tag="all" variant="current" count={2} />
+      <Tag tag="security" variant="current" />
       <Tag tag="homelab" variant="plain" />
     </div>
 
@@ -1004,13 +1008,7 @@ const pausedExample: ProjectItemEntry = {
 
     <h2>ProjectItem (component 07, §07) — added Phase 6.7, selected variant 7.7</h2>
     <p class="lede" style="font-size: 13.5px;">
-      All four real <code>projects</code> entries, including the <code>draft: true</code>{
-        ' '
-      }
-      industrial platform (project with no source, OD-15/6.10) and the CTF entry's derived{
-        ' '
-      }
-      <code>browse 28 →</code> primary label (OD-14). Resize to see the number fold into the
+      All real <code>projects</code> entries. Resize to see the number fold into the
       substance column at tablet and the status-first mobile reorder (E3) — real DOM order,
       not a CSS reorder. The "paused" example below is synthetic (no real project is currently
       paused); the last row uses <code>forceMobile</code> to show E3's own order at any width,
@@ -1019,7 +1017,7 @@ const pausedExample: ProjectItemEntry = {
     <div class="project-list">
       {projects.map((project) => <ProjectItem entry={project} />)}
       <ProjectItem entry={pausedExample} />
-      <ProjectItem entry={projects[0]} forceMobile />
+      {projects[0] && <ProjectItem entry={projects[0]} forceMobile />}
     </div>
     <p class="lede" style="font-size: 13.5px; margin-top: 24px;">
       Selected variant (7.3, the homepage's "Selected work" band): 2 tracks at every width

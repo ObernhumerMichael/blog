@@ -11,7 +11,7 @@ module.exports = {
         'http://localhost:4321/writing',
         'http://localhost:4321/w/001',
         'http://localhost:4321/projects',
-        'http://localhost:4321/projects/self-hosted-homelab-infrastructure-automation',
+        'http://localhost:4321/projects/self-hosted-homelab-on-ansible',
         'http://localhost:4321/about',
         'http://localhost:4321/404',
       ],

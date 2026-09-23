@@ -5,7 +5,8 @@ Personal technical blog — Astro static site, built to the Ledger design system
 
 ## Status
 
-Phase 0 — repository and tooling bootstrap. Not yet buildable as a real site.
+Buildable and deployable. Real content is going in per `CONTENT_PLAN.md` —
+the first two articles and project land in a follow-up commit.
 
 ## License
 

@@ -20,7 +20,7 @@ const VISUAL_PAGES = [
   { slug: 'article/index', url: '/writing' },
   { slug: 'article', url: '/w/001' },
   { slug: 'projects/index', url: '/projects' },
-  { slug: 'projects', url: '/projects/self-hosted-homelab-infrastructure-automation' },
+  { slug: 'projects', url: '/projects/self-hosted-homelab-on-ansible' },
   { slug: 'about', url: '/about' },
   { slug: '404', url: '/404' },
 ] as const;

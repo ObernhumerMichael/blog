@@ -25,6 +25,13 @@
 // their own. `/writing/<slug>` is deliberately excluded: it's AD-10's
 // redirect alias to `/w/<num>` (a meta-refresh utility page), not one of
 // the seven page types §19 defines.
+//
+// Content-plan step 5: the three demo articles that used to sit here
+// (007/006/004) were parked as T4 fixtures rather than deleted outright —
+// /dev/fixtures/eight-tags, long-article and short-article cover the same
+// stress shapes (8 tags, ~9k words, a 90-word article) the real two-article
+// launch set doesn't reach. Only one real project is published, so there's
+// one real `/projects/<slug>` entry, not two.
 export const PAGES = [
   '/dev/layout-check',
   '/dev/fixtures/article',
@@ -37,12 +44,11 @@ export const PAGES = [
   '/',
   '/writing',
   '/w/001',
-  '/w/007',
-  '/w/006',
-  '/w/004',
+  '/dev/fixtures/eight-tags',
+  '/dev/fixtures/long-article',
+  '/dev/fixtures/short-article',
   '/projects',
-  '/projects/self-hosted-homelab-infrastructure-automation',
-  '/projects/industrial-production-testing-data-visualisation',
+  '/projects/self-hosted-homelab-on-ansible',
   '/about',
   '/404',
 ] as const;
