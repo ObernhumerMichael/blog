@@ -56,16 +56,16 @@ These are checked by the build; get them right in the draft so review
 isn't spent on formatting. Full detail in DESIGN_SYSTEM.md §21 and the
 Zod schema — this is the shortlist:
 
-| Rule | Detail |
-|---|---|
-| Frontmatter | `number` (permanent, contiguous), `title`, `lead`, `section` (`Infrastructure` \| `Security`), `date`, `tags` (1–8, from the closed list in `consts.ts`, aim ≤3), `featured` (at most one site-wide), `draft` (defaults `true` — set `false` to publish) |
-| Headings | `## 01 · Title`, numbered from 01, no gaps; `### 1.1 · Title` for subsections; **no h4**. No h1 — the title is the frontmatter. |
-| Dek/lead | One paragraph, 25–40 words. Never two paragraphs. |
-| Length | Under 8,000 words or the build warns; past that it splits into series parts. |
-| Code fences | Language must be in `CODE_LANGS`; use `title="path"` for real files, ` ```terminal host="..." ` for sessions. |
-| Callouts | `:::note` / `:::warning`, no code blocks inside them. |
-| Figures | `:::figure{kind=...}` — `diagram`, `photo`, or `screenshot`; alt text required; captions numbered contiguously per kind. |
-| Internal links | `[text](/w/001)` must resolve to a real published article. |
+| Rule           | Detail                                                                                                                                                                                                                                                   |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontmatter    | `number` (permanent, contiguous), `title`, `lead`, `section` (`Infrastructure` \| `Security`), `date`, `tags` (1–8, from the closed list in `consts.ts`, aim ≤3), `featured` (at most one site-wide), `draft` (defaults `true` — set `false` to publish) |
+| Headings       | `## 01 · Title`, numbered from 01, no gaps; `### 1.1 · Title` for subsections; **no h4**. No h1 — the title is the frontmatter.                                                                                                                          |
+| Dek/lead       | One paragraph, 25–40 words. Never two paragraphs.                                                                                                                                                                                                        |
+| Length         | Under 8,000 words or the build warns; past that it splits into series parts.                                                                                                                                                                             |
+| Code fences    | Language must be in `CODE_LANGS`; use `title="path"` for real files, ` ```terminal host="..." ` for sessions.                                                                                                                                            |
+| Callouts       | `:::note` / `:::warning`, no code blocks inside them.                                                                                                                                                                                                    |
+| Figures        | `:::figure{kind=...}` — `diagram`, `photo`, or `screenshot`; alt text required; captions numbered contiguously per kind.                                                                                                                                 |
+| Internal links | `[text](/w/001)` must resolve to a real published article.                                                                                                                                                                                               |
 
 ## Things to avoid
 

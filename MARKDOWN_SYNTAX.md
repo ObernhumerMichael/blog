@@ -46,10 +46,10 @@ Prose only. No nested directive, no code block inside.
 
 Three kinds only — anything else fails the build with "not implemented":
 
-| Kind | Use it for |
-| --- | --- |
-| `note` | A skippable aside. |
-| `warning` | Something the reader must not skip. |
+| Kind         | Use it for                                                       |
+| ------------ | ---------------------------------------------------------------- |
+| `note`       | A skippable aside.                                               |
+| `warning`    | Something the reader must not skip.                              |
 | `correction` | Flagging that something stated earlier in the article was wrong. |
 
 Rules: never nested, never contains a code block, closing `:::` required.
@@ -103,7 +103,7 @@ repo-relative path, not a basename (`title="src/routes/index.ts"`, not
 ````
 
 - **Highlight lines**: append `{14-16}` after the title
-  (`` ```yaml title="a.yml" {14-16} ``) — a Shiki transformer reads it
+  (` ```yaml title="a.yml" {14-16} `) — a Shiki transformer reads it
   straight from the fence meta, tints those lines.
 - **Line-number gutter** appears automatically above 12 lines. Don't
   author numbers yourself.
@@ -142,7 +142,7 @@ Fig. 1 — What to notice in the figure.
   counter**; figures use `Fig.`; tables use `Table`. Using the wrong label
   for the block kind fails the build.
 - Must use a real em dash (`—`), and the number must be contiguous from 1
-  *within that kind*, across the whole article — skipping or reusing a
+  _within that kind_, across the whole article — skipping or reusing a
   number fails the build.
 - For code/terminal/table: the caption is the next paragraph immediately
   after the block. For figures: it's the caption paragraph inside the
@@ -201,7 +201,7 @@ output looks different from GFM's defaults elsewhere.
 ```
 
 Plain `>` blockquote, no directive. **Convention** (not build-enforced):
-if the quote has an attribution, put it as the quote's *last* paragraph,
+if the quote has an attribution, put it as the quote's _last_ paragraph,
 starting with an em dash (`—`). A single-paragraph quote gets no
 attribution styling; a multi-paragraph quote's last paragraph is styled as
 a small attribution line automatically.

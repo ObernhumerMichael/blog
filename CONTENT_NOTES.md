@@ -43,13 +43,13 @@ content is committed — it's a working note, not a permanent doc.
 
 ## Experience (`about.experience`, newest first)
 
-| period | role | description |
-|---|---|---|
-| `Oct 2025 — now` | Computer Science — TU Wien | Undergraduate CS degree, started after working full-time at Hargassner for the year prior. |
-| `May 2025 — now` | Backend developer — Hargassner Ges.m.b.H. | Spring Boot end-of-line testing system and a Laravel-based translation platform; full-time before the degree started, part-time during term, full-time again over the summer breaks. |
-| `Jul 2024 — Mar 2025` | Civil service | Compulsory Zivildienst. |
-| `2019 — 2024` | HTL Braunau — Cyber Security | Secondary technical education, Cyber Security branch. |
-| `Jul–Aug 2022 & 2023` | Network technician (internship) — Ocilion IPTV Technologies | Two-month internships, one each summer. |
+| period                | role                                                        | description                                                                                                                                                                          |
+| --------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Oct 2025 — now`      | Computer Science — TU Wien                                  | Undergraduate CS degree, started after working full-time at Hargassner for the year prior.                                                                                           |
+| `May 2025 — now`      | Backend developer — Hargassner Ges.m.b.H.                   | Spring Boot end-of-line testing system and a Laravel-based translation platform; full-time before the degree started, part-time during term, full-time again over the summer breaks. |
+| `Jul 2024 — Mar 2025` | Civil service                                               | Compulsory Zivildienst.                                                                                                                                                              |
+| `2019 — 2024`         | HTL Braunau — Cyber Security                                | Secondary technical education, Cyber Security branch.                                                                                                                                |
+| `Jul–Aug 2022 & 2023` | Network technician (internship) — Ocilion IPTV Technologies | Two-month internships, one each summer.                                                                                                                                              |
 
 ## Interests (`home.interests`)
 
@@ -76,14 +76,14 @@ content is committed — it's a working note, not a permanent doc.
 - `about.metaDescription`: unchanged — "A colophon, not a résumé — who
   writes this, what they work on, and how to reach them."
 - `about.workingOn`: `['rebuilding the homelab on Ansible', 'the CS degree
-  at TU Wien']`
+at TU Wien']`
 
 ## Site-wide
 
 - `site.feedDescription`: "Writing on backend development, self-hosted
   infrastructure and Linux."
 - `writing.metaDescription` (fn): `` `${total} articles on backend
-  development, infrastructure and Linux.` ``
+development, infrastructure and Linux.` ``
 - `projects.metaDescription`: unchanged.
 
 ## Now panel numbers

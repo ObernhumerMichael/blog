@@ -125,11 +125,17 @@ const toApparatusEntry = (e: NonNullable<typeof current>): ApparatusEntry => ({
   minutesRead: 5,
 });
 
-const prevData = current ? (published.filter((e) => e.number < current.number).at(-1) ?? null) : null;
-const nextData = current ? (published.find((e) => e.number > current.number) ?? null) : null;
+const prevData = current
+  ? (published.filter((e) => e.number < current.number).at(-1) ?? null)
+  : null;
+const nextData = current
+  ? (published.find((e) => e.number > current.number) ?? null)
+  : null;
 const apparatusPrev = prevData && toApparatusEntry(prevData);
 const apparatusNext = nextData && toApparatusEntry(nextData);
-const apparatusRelated = current ? findRelated(current, published).map(toApparatusEntry) : [];
+const apparatusRelated = current
+  ? findRelated(current, published).map(toApparatusEntry)
+  : [];
 
 // Three numbered h2s — ArticleApparatus's own showAuthorBlock threshold
 // (§10.10) — so the author block actually renders instead of gating shut.
@@ -1008,11 +1014,11 @@ const pausedExample: ProjectItemEntry = {
 
     <h2>ProjectItem (component 07, §07) — added Phase 6.7, selected variant 7.7</h2>
     <p class="lede" style="font-size: 13.5px;">
-      All real <code>projects</code> entries. Resize to see the number fold into the
-      substance column at tablet and the status-first mobile reorder (E3) — real DOM order,
-      not a CSS reorder. The "paused" example below is synthetic (no real project is currently
-      paused); the last row uses <code>forceMobile</code> to show E3's own order at any width,
-      screenshot-deterministic per T5's own force-states-via-class convention.
+      All real <code>projects</code> entries. Resize to see the number fold into the substance
+      column at tablet and the status-first mobile reorder (E3) — real DOM order, not a CSS
+      reorder. The "paused" example below is synthetic (no real project is currently paused);
+      the last row uses <code>forceMobile</code> to show E3's own order at any width, screenshot-deterministic
+      per T5's own force-states-via-class convention.
     </p>
     <div class="project-list">
       {projects.map((project) => <ProjectItem entry={project} />)}

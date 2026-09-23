@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 448" width="360" height="448" role="img" aria-label="Diagram of the backup chain: the production VPS sends restic backups over SFTP, plus Nextcloud's Borg archives, to a Raspberry Pi backup server, which stores them on a primary drive that is mirrored to a second drive with rsync --delete">
+  <rect width="360" height="448" fill="#fcf9f5" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#6f6963" />
+    </marker>
+  </defs>
+  <g fill="none" stroke="#6f6963" stroke-width="1.5">
+    <rect x="20" y="16" width="190" height="56" />
+    <rect x="20" y="136" width="190" height="56" />
+    <rect x="20" y="256" width="190" height="56" />
+    <rect x="20" y="376" width="190" height="56" stroke-dasharray="4 3" />
+    <path d="M115 72 L115 134" marker-end="url(#arrow)" />
+    <path d="M115 192 L115 254" marker-end="url(#arrow)" />
+    <path d="M115 312 L115 374" marker-end="url(#arrow)" />
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">
+    <text x="115" y="40" font-size="13" fill="#27231e">production VPS</text>
+    <text x="115" y="58" font-size="11" fill="#6f6963">caddy · apps · restic</text>
+    <text x="115" y="160" font-size="13" fill="#27231e">raspberry pi</text>
+    <text x="115" y="178" font-size="11" fill="#6f6963">backup server</text>
+    <text x="115" y="280" font-size="13" fill="#27231e">drive 1</text>
+    <text x="115" y="298" font-size="11" fill="#6f6963">primary</text>
+    <text x="115" y="400" font-size="13" fill="#27231e">drive 2</text>
+    <text x="115" y="418" font-size="11" fill="#6f6963">mirror</text>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" fill="#4c4741">
+    <text x="129" y="100">restic over sftp</text>
+    <text x="129" y="116">+ nextcloud borg</text>
+    <text x="129" y="228">repositories</text>
+    <text x="129" y="348">rsync --delete</text>
+  </g>
+</svg>

@@ -7,12 +7,16 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { loadCollection, WRITING_DIR, PROJECTS_DIR } from './load.ts';
 import { writingSchema, projectsSchema } from '../../src/content.schemas.ts';
 import { staticPageRoutes, writingRoute } from './routes.ts';
 
 // Matches both `[text](/path)` and `![alt](/path)` — an absolute internal
-// target starting with `/`. Fragment/query stripped before lookup.
+// target starting with `/`. Fragment/query stripped before lookup. A target
+// may be a route or a file served from public/ (MARKDOWN_SYNTAX.md: absolute
+// diagram paths are the ones that get tap-to-full-size).
 const INTERNAL_LINK = /\]\((\/[^)\s]*)\)/g;
 
 function internalLinks(body: string): string[] {
@@ -29,7 +33,7 @@ test('every internal link in prose resolves to a real route', () => {
   for (const entry of [...writing, ...projects]) {
     for (const link of internalLinks(entry.body)) {
       assert.ok(
-        validRoutes.has(link),
+        validRoutes.has(link) || existsSync(join('public', link)),
         `${entry.file}: internal link "${link}" has no matching route`,
       );
     }

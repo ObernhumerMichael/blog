@@ -128,6 +128,12 @@ export type FigureKind = (typeof FIGURE_KINDS)[number];
 //
 // Seeded from the two real launch articles. Extend this list the first time
 // a real article needs a tag that isn't here yet.
-export const TAGS = ['ansible', 'homelab', 'infrastructure', 'privacy', 'security'] as const;
+export const TAGS = [
+  'ansible',
+  'homelab',
+  'infrastructure',
+  'privacy',
+  'security',
+] as const;
 
 export type Tag = (typeof TAGS)[number];
