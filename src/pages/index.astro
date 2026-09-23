@@ -9,7 +9,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FeaturedEntry from '../components/list/FeaturedEntry.astro';
 import WritingRow, { type WritingRowEntry } from '../components/list/WritingRow.astro';
 import ProjectItem from '../components/list/ProjectItem.astro';
-import { getNowPanelData } from '../lib/now';
 import { SITE_LINKS, CONTACT_EMAIL } from '../consts';
 import { COPY } from '../copy';
 
@@ -58,11 +57,6 @@ const totalProjects = publishedProjects.length;
 // OD-16 / ADR-0024: capped at three by the same invariant.
 const selectedProjects = publishedProjects.filter((p) => p.featured);
 
-// AD-12/ADR-0012, OD-17/ADR-0025: always attempts the live fetch, falls
-// back to the committed now-fallback.json on any failure.
-const now = await getNowPanelData();
-const lastDeployISO = now.lastDeploy.toISOString().slice(0, 10);
-
 const yearMonth = new Date().toISOString().slice(0, 7);
 ---
 
@@ -85,11 +79,6 @@ const yearMonth = new Date().toISOString().slice(0, 7);
         <div class="now-panel">
           <p class="now-label">Now</p>
           <p class="now-sentence">{COPY.home.nowSentence}</p>
-          <ul class="now-facts">
-            <li>homelab uptime {now.uptimeDays} d</li>
-            <li>{now.servicesOk} services <span class="ok">ok</span></li>
-            <li>last deploy {lastDeployISO}</li>
-          </ul>
         </div>
       </div>
     </section>
@@ -338,42 +327,8 @@ const yearMonth = new Date().toISOString().slice(0, 7);
     .now-sentence {
       font: var(--t-small);
       color: var(--c-text-2);
-      margin: 0 0 var(--sp-16) 0;
-      text-wrap: pretty;
-    }
-
-    .now-facts {
-      list-style: none;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--sp-8);
-      font: var(--t-meta);
-      color: var(--c-muted);
-    }
-
-    /* Tablet only: the sentence was wrapping to several lines and pushing
-       the three facts into a tall stacked column, reading as far more
-       content than a "Now" panel warrants at this width. Desktop keeps
-       the sentence (room beside it), mobile keeps the stacked column
-       (room below it) — only the tablet middle ground drops the sentence
-       and lets the facts run as one line instead. */
-    @media (min-width: 760px) and (max-width: 1279px) {
-      .now-sentence {
-        display: none;
-      }
-
-      .now-facts {
-        flex-direction: row;
-        flex-wrap: wrap;
-        column-gap: var(--sp-16);
-        row-gap: var(--sp-8);
-      }
-    }
-
-    .now-facts .ok {
-      color: var(--c-ok);
+      text-wrap: pretty;
     }
 
     /* Bands 3–4 — Latest writing / Selected work: "the two list bands go

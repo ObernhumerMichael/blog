@@ -100,18 +100,3 @@ export const projectsSchema = z.object({
 
 export type WritingEntry = z.infer<typeof writingSchema>;
 export type ProjectEntry = z.infer<typeof projectsSchema>;
-
-// OD-17 / ADR-0025: the Now panel's committed fallback — §19.1's own
-// worked numbers (`homelab uptime 214 d`, `11 services ok`,
-// `last deploy 2026-08-19`). Raw values, not pre-formatted strings — the
-// Now panel owns the "uptime ___ d" / "___ services ok" phrasing, the same
-// division of labour as ProjectItem's `periodText`. This is also the shape
-// the live endpoint's own response is validated against (src/lib/now.ts) —
-// one schema, whichever source produced the data.
-export const nowFallbackSchema = z.object({
-  uptimeDays: z.number().int().min(0),
-  servicesOk: z.number().int().min(0),
-  lastDeploy: z.coerce.date(),
-});
-
-export type NowPanelData = z.infer<typeof nowFallbackSchema>;

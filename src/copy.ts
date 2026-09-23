@@ -7,10 +7,8 @@
 // which reuses the URL constants so a link is only ever defined once.
 //
 // Not here on purpose: text computed from live data (article/project
-// counts, the Now panel's uptime numbers — see src/lib/now.ts and
-// src/content/site/now-fallback.json), and the 404 page / UI labels
-// ("Latest writing", "all projects →"), which are interface chrome rather
-// than copy.
+// counts), and the 404 page / UI labels ("Latest writing", "all projects
+// →"), which are interface chrome rather than copy.
 
 import { CONTACT_EMAIL, GITHUB_URL, PGP_URL } from './consts.ts';
 
@@ -30,22 +28,31 @@ export interface ElsewhereLink {
 
 const experience: ExperienceRow[] = [
   {
-    period: '2024 — now',
-    role: 'Independent — homelab & infrastructure',
+    period: 'Oct 2025 — now',
+    role: 'Computer Science — TU Wien',
     description:
-      'Design and operate a self-hosted service stack end to end, Ansible-driven, measured in minutes-to-rebuild rather than hoped-for uptime.',
+      'Undergraduate CS degree, started after working full-time at Hargassner.',
   },
   {
-    period: '2021 — 2024',
-    role: 'Backend engineer',
+    period: 'May 2025 — now',
+    role: 'Backend developer — Hargassner Ges.m.b.H.',
     description:
-      'Built and operated distributed backend services in production; owned the on-call rotation and the postmortems that came out of it.',
+      'Spring Boot end-of-line testing system and a Laravel-based translation platform; full-time before the degree started, part-time during term, full-time again over the summer breaks.',
   },
   {
-    period: '2019 — 2021',
-    role: 'Security research & CTF',
-    description:
-      'Competitive CTF play — heap exploitation, format strings, and a first serious attempt at kernel-land bugs.',
+    period: 'Jul 2024 — Mar 2025',
+    role: 'Civil service',
+    description: 'Compulsory Zivildienst.',
+  },
+  {
+    period: 'Jul–Aug 2022 & 2023',
+    role: 'Network technician (internship) — Ocilion IPTV Technologies',
+    description: 'Two-month internships, one each summer.',
+  },
+  {
+    period: '2019 — 2024',
+    role: 'HTL Braunau — Cyber Security',
+    description: 'Secondary technical education, Cyber Security branch.',
   },
 ];
 
@@ -68,38 +75,39 @@ export const COPY = {
     /** Small text under the wordmark in the masthead. */
     role: 'backend · infrastructure',
     /** RSS feed `<description>`. */
-    feedDescription: 'Writing on backend development and infrastructure automation.',
+    feedDescription:
+      'Writing on backend development, self-hosted infrastructure and Linux.',
     /**
      * SHORT bio: the home page's "About & contact" band and the article-footer
      * author block. (The about page has its own longer one, `about.bio`.)
      */
     authorBio:
-      'Backend developer working on distributed systems and infrastructure automation. Writes about homelab engineering, security research and the tooling that holds both together. Corrections and disagreements are welcome by email.',
+      'CS student at TU Wien and backend developer at Hargassner (Spring Boot, Laravel). Writes about what comes out of building things privately — a homelab rebuilt to be reproducible with Ansible, and ongoing interests in Linux, privacy and security.',
   },
 
   // ── Home page (/) ───────────────────────────────────────────────────
   home: {
     /** `<meta name="description">`; the search-result snippet. */
     metaDescription:
-      'Backend systems and the infrastructure they run on, written down as they actually behave.',
+      'Backend systems built professionally and for myself — Spring Boot and Laravel by day, a reproducible homelab and Linux internals the rest of the time.',
     /** Big serif `<h1>` at the top of the page. */
     statement:
-      'I build backend systems and the infrastructure they run on, and I write down how they actually behave.',
+      'I build backend systems and write down what actually happens while building them.',
     /** Paragraph directly under the statement. */
     context:
-      'Most of my time goes to services, data flow and the parts that decide whether a system survives production: provisioning, observability, failure modes, and the migration you have to do without downtime. Outside of that: Linux, self-hosting, security research.',
-    /** Sentence in the "Now" panel, above the live uptime/services/deploy facts. */
+      "Day to day that's Spring Boot and Laravel at Hargassner, alongside a CS degree at TU Wien. The same instinct applies to my own infrastructure outside of work — a homelab rebuilt to be reproducible with Ansible, and the Linux and privacy questions that come with running it.",
+    /** Sentence in the "Now" panel. */
     nowSentence:
-      "Rebuilding the homelab's secrets pipeline and restore drills; reading the Linux network stack from netfilter down.",
+      'Rebuilding the homelab on Ansible, and studying for the CS degree at TU Wien.',
     /** "Interests" band — a general list, joined with " · " at render time. */
     interests: [
       'self-hosted infrastructure',
       'ansible',
-      'CTF & exploitation',
-      'distributed systems',
-      'terminal tooling',
-      'home networking',
-      'type systems',
+      'linux internals',
+      'privacy & data protection',
+      'NixOS',
+      'backend systems',
+      'problem solving',
     ],
   },
 
@@ -109,18 +117,14 @@ export const COPY = {
     metaDescription:
       'A colophon, not a résumé — who writes this, what they work on, and how to reach them.',
     /** "upd …" date in the header gutter. Update by hand when the text below changes. */
-    updated: '2026-08-02',
+    updated: '2026-09-23',
     /** LONG bio: the two paragraphs under the name (the second one is muted). */
     bio: [
-      'I build backend systems and the infrastructure they run on, mostly for services that are supposed to keep running long after the interesting part of building them is over. Most of what ends up on this site comes out of that work: provisioning, observability, migrations without downtime, and the failure modes you only find by hitting them.',
-      'Outside of work hours it is the same territory at smaller scale — a homelab run the way I would want production run, security research and CTF play, and enough Linux internals to be dangerous. I write things down here because it is the only way I actually remember what I learned.',
+      "I'm a CS student at TU Wien, and an avid Linux and privacy/security enthusiast — NixOS on my daily setup after a few years each on Arch and Fedora, Debian on the homelab. Most of what ends up on this site comes out of what I build in my own time: rebuilding that homelab to be fully reproducible with Ansible rather than something I just hope stays up, and thinking through what data collection actually costs people. I write things down here mostly because it's the only way I actually remember what I learned — the problems, the wrong turns, and how I got past them.",
+      'Day to day I work as a backend developer at Hargassner: an end-of-line testing system in Spring Boot, and a Laravel-based platform where clients and translation offices upload language files, get them machine-translated by an LLM, and run them through a versioning and review workflow.',
     ] as const,
     /** "Working on" band — what is in progress right now; joined with " · ". */
-    workingOn: [
-      'rebuilding the homelab secrets pipeline',
-      'restore drills',
-      'the Linux network stack from netfilter down',
-    ],
+    workingOn: ['rebuilding the homelab on Ansible', 'the CS degree at TU Wien'],
     /** "Experience" band — one row each, newest first. */
     experience,
     /** "Elsewhere" band — four-column grid of label over value. */
@@ -138,6 +142,6 @@ export const COPY = {
   writing: {
     /** `<meta name="description">`; a function because it embeds the live article count. */
     metaDescription: (total: number) =>
-      `${total} articles on backend development and infrastructure automation.`,
+      `${total} articles on backend development, infrastructure and Linux.`,
   },
 };

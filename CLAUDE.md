@@ -55,8 +55,9 @@ All hand-written prose (home statement, about bios, experience, interests,
 elsewhere links, meta descriptions, masthead role, …) is in `src/copy.ts`,
 grouped by page, each entry commented with where it renders. Edit text
 there, not in the `.astro` pages. `src/consts.ts` is structural values only
-(URLs, nav, registries). There is no `site` content collection any more;
-`src/content/site/now-fallback.json` is read directly by `src/lib/now.ts`.
+(URLs, nav, registries). There is no `site` content collection, and no Now
+panel live-data endpoint either — the home page's "Now" panel is just
+`COPY.home.nowSentence`, no fetched numbers.
 
 ## Architecture constraints (do not reintroduce)
 
