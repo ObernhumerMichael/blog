@@ -7,8 +7,10 @@
 // remaining blocks, same granularity as ArticleHeader.astro bundling
 // breadcrumb/h1/lead/metadata — they're one design-doc region, hairline-
 // separated from each other, not three independently reusable components.
+import { Image } from 'astro:assets';
 import { CONTACT_EMAIL, GITHUB_URL, RSS_PATH } from '../../consts';
 import { COPY } from '../../copy';
+import portraitPhoto from '../../assets/portrait.jpg';
 
 interface Heading {
   depth: number;
@@ -58,11 +60,6 @@ const order = [
 ].filter((x): x is string => x !== false);
 const first = order[0];
 
-// No real portrait image exists yet — same "placeholder now, one-line fix
-// later" treatment as GITHUB_URL/PGP_URL in consts.ts. .author-portrait
-// below is sized by --portrait-author so the grid, gap and text column are
-// already correct the day a real <img> replaces that empty div.
-
 function href(number: number) {
   return `/w/${String(number).padStart(3, '0')}`;
 }
@@ -81,7 +78,9 @@ function isoDate(date: Date) {
         { 'apparatus-first': first === 'author' },
       ]}
     >
-      <div class="author-portrait" aria-hidden="true" />
+      <div class="author-portrait">
+        <Image src={portraitPhoto} alt="Portrait of Michael Obernhumer" width={88} height={88} />
+      </div>
       <div class="author-text">
         <p class="author-name">{COPY.site.name}</p>
         <p class="author-bio">{COPY.site.authorBio}</p>
@@ -197,8 +196,15 @@ function isoDate(date: Date) {
     .author-portrait {
       width: var(--portrait-author);
       height: var(--portrait-author);
-      background: var(--c-sunken);
       border: var(--bw) solid var(--c-rule);
+      overflow: hidden;
+    }
+
+    .author-portrait img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .author-name {

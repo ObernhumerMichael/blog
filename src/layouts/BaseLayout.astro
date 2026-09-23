@@ -40,6 +40,10 @@ const { title, description, lang = 'en', progress = false } = Astro.props;
 
 const pageTitle = title ? `${title} · ${COPY.site.name}` : COPY.site.name;
 const canonical = new URL(Astro.url.pathname, SITE_URL);
+// One static site-wide card (content-plan step 6) — not a per-page
+// generator. §21.4/no-logo rule: wordmark + role + statement, the same
+// anatomy as the masthead, not an invented mark.
+const ogImage = new URL('/og-image.png', SITE_URL);
 
 // These MUST stay in sync with the @font-face src URLs in styles/fonts.css.
 // A silent mismatch (preloading a file that doesn't exist, or preloading the
@@ -88,6 +92,19 @@ const PRELOAD_FONTS = [
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={canonical.href} />
     <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content={ogImage.href} />
   </head>
 
   <body>
