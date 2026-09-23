@@ -41,6 +41,13 @@ phase N` / `feat: ...` commits to see which sub-phases are already done
   plan prose it corrects.
 - `docs/reference/` — captured design screenshots per page type, and
   `glyph-coverage.md` for font-coverage findings.
+- `ARTICLE_GUIDE.md` — voice, goals and things to avoid when drafting an
+  article. Read before writing article prose; DESIGN_SYSTEM.md §21 and
+  `content.schemas.ts` remain the enforced source of truth for mechanics.
+- `MARKDOWN_SYNTAX.md` — every non-standard markdown construct this site's
+  remark/rehype pipeline understands (numbered headings, callouts,
+  figures, code-fence meta, captions, footnotes, table conventions). Read
+  while actually writing an article body, alongside ARTICLE_GUIDE.md.
 
 ## Where the site's text lives
 
