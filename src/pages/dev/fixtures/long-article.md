@@ -1,11 +1,12 @@
 ---
-number: 6
-title: '34 lessons from three years of running a homelab'
+layout: ../../../layouts/ProseLayout.astro
+number: 908
+title: 'T4 fixture — 34 sections, ~9k words: TOC scroll cap and the word-count warning'
 lead: 'Every one of these was learned the expensive way — by having the shortcut fail first and the fix arrive after, not before.'
-section: 'Infrastructure'
+section: 'Fixtures'
 date: 2026-09-14
-tags: ['infrastructure', 'homelab']
-draft: false
+tags: ['fixture']
+draft: true
 ---
 
 ## 01 · Idempotent is not the same as reproducible

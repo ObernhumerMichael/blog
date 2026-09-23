@@ -1,11 +1,12 @@
 ---
-number: 5
-title: 'A four-line fix for tmux losing pane titles over SSH'
+layout: ../../../layouts/ProseLayout.astro
+number: 907
+title: 'T4 fixture — a short article: no TOC, no author block, no related list'
 lead: 'A shell function, not a config file — the whole fix fits on one line and has outlived every dotfile framework I tried before it.'
-section: 'Infrastructure'
+section: 'Fixtures'
 date: 2026-09-05
-tags: ['notes']
-draft: false
+tags: ['fixture']
+draft: true
 ---
 
 Every terminal multiplexer config I tried for renaming tmux panes after an

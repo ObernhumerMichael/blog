@@ -1,8 +1,9 @@
 ---
-number: 7
-title: 'What CTF pwn challenges taught me about my own SSH config'
+layout: ../../../layouts/ProseLayout.astro
+number: 909
+title: 'T4 fixture — 8 tags wrapping at 390px'
 lead: 'Every challenge box that fell to a service only ever meant to be reachable from localhost eventually made me go check my own — the boring hardening step was always the one that mattered.'
-section: 'Security'
+section: 'Fixtures'
 date: 2026-09-16
 tags:
   [
@@ -15,7 +16,7 @@ tags:
     'linux',
     'networking',
   ]
-draft: false
+draft: true
 ---
 
 Enough CTF pwn boxes fall to a service that was only ever meant to be
