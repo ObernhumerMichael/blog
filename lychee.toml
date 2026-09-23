@@ -4,12 +4,6 @@
 offline = true
 root_dir = "dist"
 
-# consts.ts's own PLACEHOLDERS convention: "real values needed before
-# launch, but a build must not block on them" (same pattern as OD-07's
-# SITE_URL). PGP_URL is named TODO-set-real-pgp-key.asc for exactly that
-# reason — a real file isn't expected to exist yet.
-exclude = ["/TODO-set-real-pgp-key\\.asc$"]
-
 # dev/ pages build into dist/ like any real page (Astro routing has no
 # dev-only concept, CLAUDE.md) and are only stripped at deploy time — not
 # by this build-only CI workflow. specimen.astro deliberately renders all

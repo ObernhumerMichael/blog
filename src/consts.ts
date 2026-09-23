@@ -25,17 +25,13 @@ export const NAV_LINKS = [
 ] as const;
 
 // §7.5's mobile menu final row: `rss ↗ · github ↗ · pgp ↗`.
-//
-// PLACEHOLDERS — same pattern as OD-07's SITE_URL: real values needed before
-// launch, but a build must not block on them. RSS_PATH is the one exception
-// that isn't a placeholder — it's a stable route this site will always use,
-// even though Phase 5 hasn't built the feed generator yet.
 export const RSS_PATH = '/rss.xml';
 export const GITHUB_URL = 'https://github.com/ObernhumerMichael';
-export const PGP_URL = '/TODO-set-real-pgp-key.asc';
+// Public key served from public/pgp.asc.
+export const PGP_URL = '/pgp.asc';
 
 // §10.8's aside `reply by email ↗` line and the site's `mailto:` share
-// fallback (5.7). Same placeholder treatment as GITHUB_URL/PGP_URL above.
+// fallback (5.7).
 export const CONTACT_EMAIL = 'mail@obernhumer.com';
 export const SITE_LINKS = {
   rss: RSS_PATH,
@@ -138,30 +134,8 @@ export type FigureKind = (typeof FIGURE_KINDS)[number];
 // invariant 4. Same shape and reason as CODE_LANGS: one canonical lowercase
 // form per tag, no `#`, so `#linux`/`#Linux` can't drift into two tags.
 //
-// Seeded from the Phase 3.6 fixture's own tags, plus OD-02's `ctf`/`security`
-// (CTF writeups are `writing` entries tagged `#ctf`, not a separate
-// collection — AD-03). Extend this list the first time a real article needs
-// a tag that isn't here yet.
-//
-// `notes` added in 5.9 for the 90-word T4 fixture: every other registry tag
-// is already used by a published article, so any of them would give that
-// fixture a real related-articles match — the one thing its exit criterion
-// says it must not have. A short one-off note is also a real, reusable
-// category going forward, not a tag invented only to dodge the check.
-//
-// `linux`/`networking` added in 6.1 so the 8-tag T4 fixture (6.10) has
-// eight registry-valid tags to use — drawn from real thematic territory the
-// existing homelab/Ansible articles already cover, not invented categories,
-// same reasoning 5.9 gave `notes`.
-export const TAGS = [
-  'ansible',
-  'infrastructure',
-  'homelab',
-  'ctf',
-  'security',
-  'notes',
-  'linux',
-  'networking',
-] as const;
+// Seeded from the two real launch articles. Extend this list the first time
+// a real article needs a tag that isn't here yet.
+export const TAGS = ['ansible', 'homelab', 'infrastructure', 'privacy', 'security'] as const;
 
 export type Tag = (typeof TAGS)[number];
