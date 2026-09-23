@@ -136,6 +136,8 @@ export const COPY = {
     /** `<meta name="description">`. */
     metaDescription:
       'Projects worth writing about — what each one is, why it exists and what it is built from.',
+    /** Lead paragraph under the "Projects" `<h1>`. */
+    lead: "Each entry states what it is, why it exists and what it is built from; where there's more to say, it links to the write-up.",
   },
 
   // ── Writing index (/writing) ────────────────────────────────────────
