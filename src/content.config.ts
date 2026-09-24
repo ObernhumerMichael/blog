@@ -25,11 +25,11 @@
 
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { writingSchema, projectsSchema } from './content.schemas.ts';
+import { makeWritingSchema, projectsSchema } from './content.schemas.ts';
 
 const writing = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
-  schema: writingSchema,
+  schema: ({ image }) => makeWritingSchema(image),
 });
 
 const projects = defineCollection({

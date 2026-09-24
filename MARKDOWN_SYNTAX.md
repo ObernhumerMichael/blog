@@ -66,6 +66,9 @@ Fig. 1 — Caption text.
 :::
 ```
 
+- Images live next to the article (`writing/<nnn>-<slug>/index.md` plus
+  its files) and are referenced relatively, never from `public/`
+  (ADR-0030). `leadFigure.src` in frontmatter works the same way.
 - `kind` is required and must be `diagram`, `screenshot`, or `photo` — no
   default, nothing inferred.
 - Must wrap exactly one `![alt](src)` image with **non-empty alt text** —
