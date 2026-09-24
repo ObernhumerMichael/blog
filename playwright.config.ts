@@ -26,12 +26,12 @@ export default defineConfig({
   // testFilePath-snapshots/projectName/platform segments Playwright would
   // otherwise add, none of which this convention uses.
   snapshotPathTemplate: 'tests/baselines/{arg}{ext}',
-  // Serialized, not parallel: all projects share one `astro dev` instance
-  // (started by `check:e2e`, see package.json), and concurrent requests
-  // raced its on-demand Vite compiler — reproduced directly as a
-  // silently-broken click handler (aria-expanded stuck at "false") under
-  // the default multi-worker run.
-  workers: 1,
+  // Parallel (Playwright's default worker count) is safe because
+  // `check:e2e` serves a prebuilt static dist-e2e/ via `astro preview`.
+  // Don't point this at `astro dev`: concurrent requests race its
+  // on-demand Vite compiler — reproduced as a silently-broken click
+  // handler (aria-expanded stuck at "false") — which forced `workers: 1`.
+  fullyParallel: true,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:4321',

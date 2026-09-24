@@ -88,6 +88,9 @@ export default defineConfig({
       name: 'strip-dev-pages',
       hooks: {
         'astro:build:done': ({ dir }) => {
+          // check:e2e builds to dist-e2e/ (never deployed) and needs the
+          // fixtures there.
+          if (process.env.KEEP_DEV_PAGES) return;
           const root = fileURLToPath(dir);
           rmSync(`${root}dev`, { recursive: true, force: true });
           // Optimised copies of the fixtures' images land in _astro/ too.
