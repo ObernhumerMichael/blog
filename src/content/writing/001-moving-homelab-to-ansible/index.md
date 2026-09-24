@@ -7,7 +7,7 @@ date: 2026-09-23
 tags: ['ansible', 'homelab', 'infrastructure']
 featured: true
 leadFigure:
-  src: '/figures/001-backup-chain.svg'
+  src: './backup-chain.svg'
   alt: 'Diagram of the backup chain: production VPS to a Raspberry Pi backup server, mirrored across two drives'
 draft: false
 ---
@@ -183,7 +183,7 @@ After a config change, SimpleLogin would get stuck in an invalid state unless it
 Everything the old server ran now comes out of the repository: Caddy, Uptime Kuma, Nextcloud, Immich and SimpleLogin, plus ntfy, which I added during the move so the backups had somewhere to report to. Seventeen roles cover the base system (SSH, firewall, fail2ban, automatic security updates, Docker) and the applications on top of it. The production VPS backs up to a Raspberry Pi with two external drives, and a second playbook configures the Pi itself.
 
 :::figure{kind="diagram"}
-![Diagram of the backup chain: the production VPS sends restic backups over SFTP, plus Nextcloud's Borg archives, to a Raspberry Pi backup server, which stores them on a primary drive that is mirrored to a second drive with rsync --delete](/figures/001-backup-chain.svg)
+![Diagram of the backup chain: the production VPS sends restic backups over SFTP, plus Nextcloud's Borg archives, to a Raspberry Pi backup server, which stores them on a primary drive that is mirrored to a second drive with rsync --delete](./backup-chain.svg)
 
 Fig. 1 — The backup chain. The second drive is a copy of the first, not a second backup.
 :::

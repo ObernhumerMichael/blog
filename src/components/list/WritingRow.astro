@@ -33,7 +33,7 @@ export interface WritingRowEntry {
   // this same interface.
   series?: { id: string; name: string; part: number; total: number };
   // Same: FeaturedEntry.astro's lead figure (ADR-0028).
-  leadFigure?: { src: string; alt: string };
+  leadFigure?: { src: ImageMetadata; alt: string };
 }
 
 export interface Props {

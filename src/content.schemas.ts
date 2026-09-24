@@ -15,47 +15,54 @@ import { z } from 'astro/zod';
 // article needs a section that isn't here yet.
 const SECTIONS = ['Infrastructure', 'Security'] as const;
 
-export const writingSchema = z
-  .object({
-    number: z.number().int().min(1).max(999),
-    title: z.string(),
-    // §21.1: the lead is never two paragraphs.
-    lead: z.string().refine((s) => !s.includes('\n\n'), {
-      message: 'lead must be a single paragraph (no blank line)',
-    }),
-    section: z.enum(SECTIONS),
-    date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
-    // §21.2: "eight has been tested and survives at 390" is the enforced
-    // ceiling; three is the editorial target stated in the same sentence,
-    // not a hard limit — Phase 6 Finding A corrects the schema, which had
-    // enforced the guideline as if it were the ceiling.
-    tags: z.array(z.string()).min(1).max(8),
-    series: z
-      .object({
-        // Finding D: a stable slug-shaped grouping key, separate from
-        // the display `name` — invariant 3 groups by this, not by name.
-        id: z.string(),
-        name: z.string(),
-        part: z.number().int(),
-        total: z.number().int(),
-      })
-      .refine((s) => s.part <= s.total, {
-        message: 'series.part must be <= series.total',
-      })
-      .optional(),
-    featured: z.boolean().optional(),
-    // ADR-0028: the featured entry's lead figure (§9.5) — a real image the
-    // article already has, or nothing. No placeholder, no default image.
-    leadFigure: z.object({ src: z.string(), alt: z.string().min(1) }).optional(),
-    // OD-03 "drafts exempt": default stays true so a forgotten `draft:`
-    // line fails closed, not silently publishes.
-    draft: z.boolean().default(true),
-  })
-  .refine(
-    (e) => !e.updated || e.updated.getTime() > e.date.getTime() + 24 * 60 * 60 * 1000,
-    { message: 'updated must be more than a day after date', path: ['updated'] },
-  );
+// `image` is Astro's image() helper, which only exists inside the content
+// layer — content.config.ts passes the real one; the plain-node invariant
+// tests get `writingSchema` below, with a string stand-in.
+export const makeWritingSchema = <I extends z.ZodTypeAny>(image: () => I) =>
+  z
+    .object({
+      number: z.number().int().min(1).max(999),
+      title: z.string(),
+      // §21.1: the lead is never two paragraphs.
+      lead: z.string().refine((s) => !s.includes('\n\n'), {
+        message: 'lead must be a single paragraph (no blank line)',
+      }),
+      section: z.enum(SECTIONS),
+      date: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+      // §21.2: "eight has been tested and survives at 390" is the enforced
+      // ceiling; three is the editorial target stated in the same sentence,
+      // not a hard limit — Phase 6 Finding A corrects the schema, which had
+      // enforced the guideline as if it were the ceiling.
+      tags: z.array(z.string()).min(1).max(8),
+      series: z
+        .object({
+          // Finding D: a stable slug-shaped grouping key, separate from
+          // the display `name` — invariant 3 groups by this, not by name.
+          id: z.string(),
+          name: z.string(),
+          part: z.number().int(),
+          total: z.number().int(),
+        })
+        .refine((s) => s.part <= s.total, {
+          message: 'series.part must be <= series.total',
+        })
+        .optional(),
+      featured: z.boolean().optional(),
+      // ADR-0028: the featured entry's lead figure (§9.5) — a real image the
+      // article already has, or nothing. No placeholder, no default image.
+      // `src` is relative to the article's own folder (ADR-0030).
+      leadFigure: z.object({ src: image(), alt: z.string().min(1) }).optional(),
+      // OD-03 "drafts exempt": default stays true so a forgotten `draft:`
+      // line fails closed, not silently publishes.
+      draft: z.boolean().default(true),
+    })
+    .refine(
+      (e) => !e.updated || e.updated.getTime() > e.date.getTime() + 24 * 60 * 60 * 1000,
+      { message: 'updated must be more than a day after date', path: ['updated'] },
+    );
+
+export const writingSchema = makeWritingSchema(() => z.string());
 
 export const projectsSchema = z.object({
   number: z.number().int().min(1).max(99),
