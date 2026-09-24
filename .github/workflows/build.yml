@@ -15,9 +15,23 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Weekly: external-links job only (offline check:links never sees link rot).
+  schedule:
+    - cron: '0 6 * * 1'
+
+# Least privilege; jobs that need more ask for it themselves.
+permissions:
+  contents: read
+
+# A new push to a PR cancels its superseded run. Pushes to main each get a
+# unique group (run_id), so a merge's deploy is never cancelled or skipped.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -109,3 +123,49 @@ jobs:
         run: |
           rsync -rz --delete --chmod=D755,F644 dist/ "$TARGET:$ROOT/releases/$SHA/"
           ssh "$TARGET" "cd $ROOT && ln -sfn releases/$SHA current.tmp && mv -T current.tmp current && ls -1t releases | tail -n +6 | xargs -r -I{} rm -rf releases/{}"
+
+      # A green rsync doesn't prove Caddy is serving. URL mirrors SITE_URL in
+      # src/consts.ts.
+      - name: Smoke-check the live site
+        run: |
+          for path in / /rss.xml; do
+            curl -fsS --retry 3 --retry-all-errors -o /dev/null "https://obernhumer.com$path"
+          done
+
+  # Weekly external link-rot check. Opens one "Broken external links" issue,
+  # updating it on later runs instead of opening duplicates; close it once fixed.
+  external-links:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: lychee
+
+      - id: lychee
+        env:
+          GITHUB_TOKEN: ${{ github.token }} # avoids github.com rate limits
+        run: lychee 'dist/**/*.html' --offline=false --format markdown --output links.md || echo "broken=true" >> "$GITHUB_OUTPUT"
+
+      - if: steps.lychee.outputs.broken == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Broken external links"
+          n=$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number')
+          if [ -n "$n" ]; then
+            gh issue edit "$n" --body-file links.md
+          else
+            gh issue create --title "$title" --body-file links.md
+          fi

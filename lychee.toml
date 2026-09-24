@@ -12,3 +12,7 @@ root_dir = "dist"
 # purpose. Real, deployed pages never link into dev/, so excluding dev/'s
 # own outgoing links from this check costs nothing.
 exclude_path = ["dist/dev"]
+
+# Only reached by build.yml's weekly online run (--offline=false): the 404
+# page's own canonical URL answers 404 by definition.
+exclude = ['^https://obernhumer\.com/404$']
