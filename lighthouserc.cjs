@@ -18,7 +18,10 @@ module.exports = {
       startServerCommand: 'pnpm run preview',
       // Foreground (CI) prints "ready in"; background mode prints "Preview server running".
       startServerReadyPattern: 'ready in|Preview server running',
-      numberOfRuns: 1,
+      // Asserts use LHCI's default "optimistic" aggregation (best run), so
+      // three runs absorb shared-runner CPU noise — one run once scored `/`
+      // 0.76 on CI while it measures a steady 0.95 locally.
+      numberOfRuns: 3,
     },
     assert: {
       assertions: {
