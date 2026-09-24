@@ -31,6 +31,17 @@ for (const { slug, url } of VISUAL_PAGES) {
     // their injected CSS keep arriving after `load` — /w/001 measurably
     // grew 57px in that window, racing the first full-page capture.
     await page.goto(url, { waitUntil: 'networkidle' });
+    // Astro's <Image> is loading="lazy": a below-the-fold image (the
+    // article's author portrait) otherwise lands in the capture or not
+    // depending on machine speed — blank locally, loaded on CI.
+    await page.evaluate(() =>
+      Promise.all(
+        [...document.images].map((img) => {
+          img.loading = 'eager';
+          return img.decode().catch(() => {});
+        }),
+      ),
+    );
     const width = page.viewportSize()!.width;
     const theme = test.info().project.name.endsWith('dark') ? 'dark' : 'light';
     // ~0.1% per §8's own table — anti-aliasing headroom, not a licence to
