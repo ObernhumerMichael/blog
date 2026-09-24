@@ -1,7 +1,7 @@
 // Lighthouse CI budgets — IMPLEMENTATION_PLAN.md §8.5/§8's own T5 table.
 // Runs against `astro preview`'s local server (already a script, no new
-// server mechanism) on 8.3's seven representative URLs — the same set
-// visual.spec.ts uses. Fixture pages are excluded: a budget audits a real
+// server mechanism) on 8.3's seven representative URLs, one per page
+// type. Fixture pages are excluded: a budget audits a real
 // page's payload, not a stress test's.
 module.exports = {
   ci: {
