@@ -119,7 +119,7 @@ homelab / CTF persona that may not be yours.
 | `about.bio`                | About, two paragraphs (second is muted) | Long bio from step 1. Keep exactly two entries.                                                |
 | `about.workingOn`          | About "Working on" band                 | Real, current items.                                                                           |
 | `about.experience`         | About experience rows                   | `period` is free text (`'2024 — now'`). Newest first.                                          |
-| `about.elsewhere`          | About four-column grid                  | Email, Code, Social, Keys. Omit `href` to show `—` for a link you don't have.                  |
+| `about.elsewhere`          | About three-column grid                 | Email, Code, Keys.                                                                             |
 | `projects.metaDescription` | Projects search snippet                 |                                                                                                |
 | `writing.metaDescription`  | Writing search snippet                  | A function that embeds the live count. Check that the sentence reads well with a count of `2`. |
 

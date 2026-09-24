@@ -4,7 +4,7 @@
 // block (component 09's AuthorBlock is for articles; §19.6 explicitly
 // excludes it here — "this page is the author"). None of the four bands
 // is a component (§22 rule 8, §23.3 names the 150px period track and the
-// four-column Elsewhere grid explicitly as page-local composition).
+// three-column Elsewhere grid explicitly as page-local composition).
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { COPY } from '../copy';
@@ -91,13 +91,9 @@ const { experience, elsewhere } = COPY.about;
           elsewhere.map((entry) => (
             <div class="elsewhere-cell">
               <p class="elsewhere-label">{entry.label}</p>
-              {entry.href ? (
-                <a class="elsewhere-value" href={entry.href}>
-                  {entry.value}
-                </a>
-              ) : (
-                <p class="elsewhere-value elsewhere-value--absent">{entry.value}</p>
-              )}
+              <a class="elsewhere-value" href={entry.href}>
+                {entry.value}
+              </a>
             </div>
           ))
         }
@@ -288,8 +284,8 @@ const { experience, elsewhere } = COPY.about;
       text-wrap: pretty;
     }
 
-    /* Band 4 — Elsewhere. §19.6 point 4: "a four-column grid of LABEL
-       over value in mono 12/1.9." Responsive: "four -> two -> one
+    /* Band 4 — Elsewhere. §19.6 point 4: "a three-column grid of LABEL
+       over value in mono 12/1.9." Responsive: "three -> two -> one
        column." */
     .elsewhere-grid {
       display: grid;
@@ -306,7 +302,7 @@ const { experience, elsewhere } = COPY.about;
 
     @media (min-width: 1280px) {
       .elsewhere-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
@@ -327,10 +323,6 @@ const { experience, elsewhere } = COPY.about;
 
     .elsewhere-value:hover {
       color: var(--c-accent-hi);
-    }
-
-    .elsewhere-value--absent {
-      color: var(--c-faint);
     }
   }
 </style>

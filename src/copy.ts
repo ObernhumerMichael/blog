@@ -22,8 +22,7 @@ export interface ExperienceRow {
 export interface ElsewhereLink {
   label: string;
   value: string;
-  /** Omit to state an absence ("—") instead of linking nowhere. */
-  href?: string;
+  href: string;
 }
 
 const experience: ExperienceRow[] = [
@@ -59,7 +58,6 @@ const experience: ExperienceRow[] = [
 const elsewhere: ElsewhereLink[] = [
   { label: 'Email', value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
   { label: 'Code', value: 'github.com/ObernhumerMichael', href: GITHUB_URL },
-  { label: 'Social', value: '—' },
   { label: 'Keys', value: 'PGP', href: PGP_URL },
 ];
 
@@ -127,7 +125,7 @@ export const COPY = {
     workingOn: ['rebuilding the homelab on Ansible', 'the CS degree at TU Wien'],
     /** "Experience" band — one row each, newest first. */
     experience,
-    /** "Elsewhere" band — four-column grid of label over value. */
+    /** "Elsewhere" band — three-column grid of label over value. */
     elsewhere,
   },
 

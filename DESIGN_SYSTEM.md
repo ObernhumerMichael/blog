@@ -1563,11 +1563,11 @@ See §11.2. Layout A, exactly the article grid, plus a status band.
 1. **Header** — gutter `About / upd 2026-08-02`; `h1` is the person's name at `--t-title`; two body-size serif paragraphs (18.5 / 1.72, the second in `--c-text-2`) beside a 200 × 220 portrait.
 2. **Working on** — one middot-joined line, sans 15 / 2.0.
 3. **Experience** — gutter `Experience / selected`; **the same row system as the blog index**: a `150px` mono period track (`2024 — now`) beside a role title (sans 600 15) and a description (sans 13.5 / 1.6, max 66ch). Three rows, hairline-separated.
-4. **Elsewhere** — a four-column grid of `LABEL` over value in mono 12 / 1.9: Email · Code · Social · Keys.
+4. **Elsewhere** — a three-column grid of `LABEL` over value in mono 12 / 1.9: Email · Code · Keys.
 
 **No author block** (this page _is_ the author), no CV download, no skill bars, no timeline graphic.
 
-**Responsive.** Portrait drops below the intro paragraphs; the experience rows stack period-above-role; the Elsewhere grid goes four → two → one column.
+**Responsive.** Portrait drops below the intro paragraphs; the experience rows stack period-above-role; the Elsewhere grid goes three → two → one column.
 
 ## 19.7 404
 
@@ -1645,7 +1645,7 @@ Identical to the article page at all three widths. The four-column status band g
 
 ## 20.7 About
 
-**Desktop.** `680 / 200` intro with the portrait right; experience rows on a `150 / 1fr` grid; Elsewhere in four columns.
+**Desktop.** `680 / 200` intro with the portrait right; experience rows on a `150 / 1fr` grid; Elsewhere in three columns.
 **Tablet.** Portrait drops below the intro; experience rows keep both tracks; Elsewhere in two columns.
 **Mobile.** Portrait below the intro at full bleed width; experience rows stack (period above role); Elsewhere in one column.
 
@@ -1708,7 +1708,7 @@ The design assumes prose that admits cost, states measurements, and names dead e
 | Blog index     | 20–40 rows visible per year group without feeling crowded |
 | Projects index | 4–8 items; each with two paragraphs maximum               |
 | Homepage       | Six bands; four rows of writing; three projects           |
-| About          | Three experience rows; four Elsewhere columns             |
+| About          | Three experience rows; three Elsewhere columns            |
 | Article        | 5–8 `h2` sections at ~3,000 words                         |
 
 ---
@@ -1768,7 +1768,7 @@ Everything in §2 (tokens), §3.2 (stacking laws), §16 (states), §17 (motion),
 - Homepage: the "Now" panel, the 24px opening statement, the 2.0-line-height interests line.
 - Blog index: the counted-tag filter row, the year-in-serif gutter, the archive-by-year row.
 - Project detail: the four-column status band, the Decision/Alternative/Why table.
-- About: the 150px period track, the four-column Elsewhere grid, no author block.
+- About: the 150px period track, the three-column Elsewhere grid, no author block.
 - 404: the route list.
 
 Each of these is a _composition_ of existing components and tokens, not a new component.
