@@ -1,0 +1,39 @@
+# Weekly dependency-update PRs; build.yml's pull_request trigger runs the
+# full verify/build/links/Lighthouse gate on each one. Nothing auto-merges —
+# a merge to main deploys.
+#
+# cooldown: skip versions younger than 7 days. Supply-chain hygiene, and it
+# must stay >= pnpm's own minimumReleaseAge (pnpm-workspace.yaml) or the PR's
+# `pnpm install --frozen-lockfile` rejects the version Dependabot just picked.
+#
+# flake.lock is deliberately not covered: its Chromium/fontconfig are what
+# tests/baselines/ were captured with, so bumping it means re-capturing
+# baselines — a manual `nix flake update`, not a bot PR.
+
+version: 2
+updates:
+  - package-ecosystem: npm # handles pnpm-lock.yaml too
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      # One PR for all minor/patch bumps; majors stay separate PRs so a
+      # breaking change never hides inside a batch.
+      minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: 'build(deps):'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: 'ci(deps):'
