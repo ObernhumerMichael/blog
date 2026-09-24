@@ -1,7 +1,7 @@
 # ADR-0025 — Now-panel placeholder endpoint and fallback wiring
 
 **Date:** 2026-09-17
-**Status:** Accepted (OD-17)
+**Status:** Superseded — Now-panel fetch removed in `37725fb`; the panel is static text (`COPY.home.nowSentence`)
 
 ## Decision
 

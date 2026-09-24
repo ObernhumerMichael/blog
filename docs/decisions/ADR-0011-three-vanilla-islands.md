@@ -1,7 +1,7 @@
 # ADR-0011 — Three vanilla-JS islands, no UI framework, <4KB total
 
 **Date:** 2026-08-25
-**Status:** Accepted
+**Status:** Superseded by [ADR-0017](./ADR-0017-svelte.md)
 
 ## Decision
 

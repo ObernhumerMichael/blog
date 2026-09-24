@@ -293,7 +293,7 @@ export default defineConfig({
       // after the fact.
       remarkRehype: {
         // 1. The back-reference glyph is U+21A9 (↩) by default, which is
-        //    NOT in the font subset (docs/glyph-coverage.md) — it would
+        //    NOT in the font subset (docs/reference/glyph-coverage.md) — it would
         //    silently render from a fallback family. '←' (U+2190) IS
         //    subset, and §2.11 already assigns it "previous in sequence",
         //    which is exactly what a back-reference is.

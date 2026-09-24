@@ -13,7 +13,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check:svelte": "astro check && svelte-check --tsconfig ./tsconfig.json",
+    "check:svelte": "svelte-check --tsconfig ./tsconfig.json",
     "check:astro": "astro check",
     "check:css": "stylelint \"src/**/*.css\" \"src/**/*.astro\"",
     "check:format": "prettier --check .",
