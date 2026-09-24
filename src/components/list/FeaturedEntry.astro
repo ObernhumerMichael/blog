@@ -10,6 +10,7 @@
 // table and §14.1's sizes-by-role list) — `context` picks between them, the
 // same two-named-variants reasoning WritingRow's compact variant already
 // uses, not a speculative third state.
+import { Image } from 'astro:assets';
 import type { WritingRowEntry } from './WritingRow.astro';
 import Tag from '../ui/Tag.astro';
 
@@ -79,7 +80,7 @@ const href = `/w/${num}`;
   {
     entry.leadFigure && (
       <div class="featured-figure">
-        <img src={entry.leadFigure.src} alt={entry.leadFigure.alt} />
+        <Image src={entry.leadFigure.src} alt={entry.leadFigure.alt} loading="eager" />
       </div>
     )
   }

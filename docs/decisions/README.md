@@ -38,6 +38,7 @@ lives.
 | [0027](./ADR-0027-lighthouse-budgets-relaxed.md)           | Lighthouse CI budgets relaxed to measured reality                              |
 | [0028](./ADR-0028-featured-lead-figure-optional.md)        | Featured entry lead figure is optional, never a placeholder                    |
 | [0029](./ADR-0029-deploy-pipeline.md)                      | Deploy: rsync releases + symlink swap into Dockerised Caddy                    |
+| [0030](./ADR-0030-article-bundles.md)                      | Each article is a folder bundling its own images                               |
 
 ## Format
 
@@ -48,7 +49,7 @@ option can point back here instead of re-arguing it).
 
 ## Adding a new one
 
-Next number is 0030. Follow the existing format. If a decision corrects an
+Next number is 0031. Follow the existing format. If a decision corrects an
 earlier one, say so explicitly in the new ADR's Status line — don't silently
 edit the old one, since the "why we changed our mind" is itself worth
 keeping.
