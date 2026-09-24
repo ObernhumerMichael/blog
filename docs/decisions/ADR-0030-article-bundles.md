@@ -9,7 +9,9 @@ A `writing` entry is `src/content/writing/<nnn>-<slug>/index.md`, with its
 images next to it and referenced relatively (`./backup-chain.svg`) from
 both the body and `leadFigure.src`. `leadFigure.src` is Astro's `image()`
 helper, not a string, so `FeaturedEntry.astro` renders it with `<Image>`.
-`public/figures/` is gone.
+`public/figures/` is gone. `projects` entries use the same layout
+(`src/content/projects/<nn>-<slug>/index.md`). None has an image yet, so
+the projects schema has no image field.
 
 ## Reasoning
 
