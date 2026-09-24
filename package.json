@@ -26,12 +26,12 @@
     "verify": "pnpm run check:format && pnpm run check:astro && pnpm run check:css && pnpm run check:tokens && pnpm run check:fonts && pnpm run check:content && pnpm run check:e2e && pnpm run check:svelte"
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^7.2.4",
+    "@astrojs/markdown-remark": "^7.3.1",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@astrojs/svelte": "^9.0.1",
     "@shikijs/transformers": "^4.4.3",
-    "astro": "^7.2.6",
+    "astro": "^7.3.3",
     "mdast-util-to-string": "^4.0.0",
     "remark-directive": "^4.0.0",
     "sharp": "^0.35.4",
@@ -42,13 +42,13 @@
     "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.6.1",
     "gray-matter": "^4.0.3",
     "postcss-html": "^2.0.0",
-    "prettier": "^3.3.3",
+    "prettier": "^3.9.7",
     "prettier-plugin-astro": "^0.14.1",
     "shiki": "^4.4.3",
-    "stylelint": "^17.14.1",
+    "stylelint": "^17.15.0",
     "svelte-check": "^4.7.6",
     "typescript": "^6.0.3"
   }
