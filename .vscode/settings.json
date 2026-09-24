@@ -5,6 +5,10 @@
   "[astro]": {
     "editor.defaultFormatter": "astro-build.astro-vscode"
   },
-  "conventionalCommits.scopes": ["fonts", "css"],
+  "conventionalCommits.scopes": [
+    "fonts",
+    "css",
+    "security"
+  ],
   "svelte.enable-ts-plugin": true
 }
