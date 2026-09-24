@@ -83,8 +83,7 @@ Zod schema — this is the shortlist:
   rather than have content padded to fill a template.
 - **No employer-confidential detail.** Customer names, internal numbers,
   schemas, or screenshots from professional work stay out unless the
-  boundary was explicitly cleared first — see the "Employer boundary" note
-  in CONTENT_PLAN.md.
+  boundary was explicitly cleared first.
 - **No hedged conclusions.** Say what happened and what you'd do again,
   not "your results may vary" disclaimers.
 - **Don't reuse a fixture or demo article as source material.** Files

@@ -34,7 +34,7 @@ function walk(dir: string): string[] {
 // Throws on the first invalid entry, naming the offending file — this is a
 // build gate (T1), not a report; a schema failure here means the real
 // Astro build would also fail once it reaches the content layer.
-export function loadCollection<T extends z.ZodTypeAny>(
+export function loadCollection<T extends z.ZodType>(
   dir: string,
   schema: T,
 ): LoadedEntry<z.infer<T>>[] {

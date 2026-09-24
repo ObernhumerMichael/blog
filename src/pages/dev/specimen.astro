@@ -105,11 +105,8 @@ const glyphs = [
 
 // Apparatus & aside (Phase 5.11) — real writing entries, not invented data
 // (same anti-lorem-ipsum reasoning as the fixture articles, Phase 5.9).
-// Content-plan step 5 finding: with only two launch articles, no entry has
-// both a prev AND a next, so `current` just takes the latest published
-// entry — prev/next/related render empty, which is fine for a layout page
-// (CONTENT_PLAN.md step 5). `?? null` also covers the zero-article state
-// this page builds against before step 7 adds real content.
+// `current` is the latest published entry, so it never has a next — fine
+// for a layout page. `?? null` covers a zero-article build.
 const published = (await getCollection('writing', (e) => !e.data.draft))
   .map((e) => e.data)
   .sort((a, b) => a.number - b.number);

@@ -18,7 +18,7 @@ const SECTIONS = ['Infrastructure', 'Security'] as const;
 // `image` is Astro's image() helper, which only exists inside the content
 // layer — content.config.ts passes the real one; the plain-node invariant
 // tests get `writingSchema` below, with a string stand-in.
-export const makeWritingSchema = <I extends z.ZodTypeAny>(image: () => I) =>
+export const makeWritingSchema = <I extends z.ZodType>(image: () => I) =>
   z
     .object({
       number: z.number().int().min(1).max(999),

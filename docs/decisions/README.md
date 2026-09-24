@@ -25,7 +25,7 @@ lives.
 | 0014                                                       | _(never allocated — skipped; do not reuse)_                                    |
 | [0015](./ADR-0015-accent-hi-and-nav-dark-values.md)        | Dark-theme `--c-accent-hi` / `--c-nav` provisionals resolved                   |
 | [0016](./ADR-0016-bp-gutter-corrected.md)                  | `--bp-gutter` corrected 1100px → 1280px (OD-08)                                |
-| [0017](./ADR-0017-sevelte.md)                              | Svelte replaces the vanilla-JS-only island constraint                          |
+| [0017](./ADR-0017-svelte.md)                               | Svelte replaces the vanilla-JS-only island constraint                          |
 | [0018](./ADR-0018-section-numbers-and-prose-spacing.md)    | Section numbers authored in Markdown; prose-spacing corrections (OD-10, OD-11) |
 | [0019](./ADR-0019-e6-container-context-corrected.md)       | E6's container context moved from `.layout-measure` to `.band`                 |
 | [0020](./ADR-0020-code-copy-island-strategy.md)            | One delegating `CodeCopy` island, not one per block (OD-12)                    |

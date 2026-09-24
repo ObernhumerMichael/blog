@@ -1,7 +1,7 @@
 # ADR-0012 — Homepage "Now" panel: build-time fetch with a committed fallback
 
 **Date:** 2026-08-25
-**Status:** Accepted
+**Status:** Superseded — Now-panel fetch removed in `37725fb`; the panel is static text (`COPY.home.nowSentence`)
 
 ## Decision
 
