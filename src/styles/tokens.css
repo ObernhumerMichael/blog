@@ -150,7 +150,7 @@
     --term-success: oklch(0.75 0.105 155);
 
     /* Chrome (§13.2, §13.3) */
-    --code-linenum: oklch(0.45 0.01 75);
+    --code-linenum: oklch(0.62 0.01 75); /* 4.97:1 on --c-code-bg, §18.1 */
     --code-chrome-bg: oklch(0.235 0.01 75);
     --code-chrome-rule: oklch(0.3 0.01 75);
     --code-control-border: oklch(0.34 0.01 75);
@@ -160,18 +160,18 @@
        language token ("mono 10.5 muted") are two DIFFERENT chrome-text
        weights, not one reused value: the filename is the block's primary
        identity, the language token is secondary. Sits below --code-filename
-       and above --code-linenum (0.45, the dimmest chrome text, reserved for
+       and above --code-linenum (0.62, the dimmest chrome text, reserved for
        the number gutter) — same three-tier chrome-text hierarchy the
        reference screenshots show (bright path, dim language, dimmer still
        numbers). */
-    --code-chrome-muted: oklch(0.5 0.01 75);
+    --code-chrome-muted: oklch(0.65 0.01 75); /* 5.15:1 on --code-chrome-bg, §18.1 */
     /* §13.3's uppercase host label ("TERMINAL — PI-02"), muted. Same
        numeric value as --code-chrome-muted above by coincidence of both
        being "secondary chrome text on a dark ground" — kept as a SEPARATE
        token, not an alias, because §23.4 explicitly forbids code and
        terminal chrome sharing a value that a future edit to one could
        silently drag along the other. */
-    --term-label: oklch(0.5 0.01 75);
+    --term-label: oklch(0.65 0.01 75); /* 6:1 on --c-term-bg */
     /* §13.1: "a visible hairline in light, none in dark" — the ONE place
        the code block's own colour responds to the PAGE theme (everything
        else above is constant across both, §2.2 deviation/§25.1). Needs its

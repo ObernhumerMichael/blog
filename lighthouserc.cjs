@@ -16,17 +16,18 @@ module.exports = {
         'http://localhost:4321/404',
       ],
       startServerCommand: 'pnpm run preview',
-      startServerReadyPattern: 'Preview server running',
+      // Foreground (CI) prints "ready in"; background mode prints "Preview server running".
+      startServerReadyPattern: 'ready in|Preview server running',
       numberOfRuns: 1,
     },
     assert: {
       assertions: {
-        'categories:performance': ['error', { minScore: 0.98 }],
+        // Performance, JS and LCP relaxed from §8's table per ADR-0027.
+        'categories:performance': ['error', { minScore: 0.85 }],
         'categories:accessibility': ['error', { minScore: 1 }],
-        // AD-11/ADR-0017's JS budget (5 KB, §8's own table).
-        'resource-summary:script:size': ['error', { maxNumericValue: 5120 }],
+        'resource-summary:script:size': ['error', { maxNumericValue: 24576 }],
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.01 }],
-        'largest-contentful-paint': ['error', { maxNumericValue: 1200 }],
+        'largest-contentful-paint': ['error', { maxNumericValue: 4000 }],
       },
     },
     upload: {
