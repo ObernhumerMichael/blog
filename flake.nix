@@ -25,6 +25,18 @@
           pkgs.lychee
         ];
 
+        # Pinned font set so fallback glyphs (fonts.css's local() faces,
+        # system-ui, anything the webfonts don't cover) render identically on
+        # a NixOS laptop and the Ubuntu CI runner — visual.spec.ts baselines
+        # are only reproducible if both sides resolve the same system fonts.
+        FONTCONFIG_FILE = pkgs.makeFontsConf {
+          fontDirectories = [
+            pkgs.liberation_ttf
+            pkgs.dejavu_fonts
+            pkgs.noto-fonts-color-emoji
+          ];
+        };
+
         shellHook = ''
           echo "🚀 Blog development environment"
           node --version

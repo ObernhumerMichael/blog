@@ -34,9 +34,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm exec playwright install
+      # verify runs inside the flake's devShell: its pinned Chromium and
+      # fontconfig are what tests/baselines/ were captured with, so CI and
+      # local runs render the screenshots identically. Playwright's own
+      # downloaded browser (and Ubuntu's system fonts) would not.
+      - uses: cachix/install-nix-action@v31
 
-      - run: pnpm verify
+      - run: nix develop --command pnpm verify
 
       - run: pnpm run build
 

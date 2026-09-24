@@ -27,7 +27,10 @@ const VISUAL_PAGES = [
 
 for (const { slug, url } of VISUAL_PAGES) {
   test(`visual baseline — ${url}`, async ({ page }) => {
-    await page.goto(url);
+    // networkidle, not `load`: under `astro dev` the islands' modules and
+    // their injected CSS keep arriving after `load` — /w/001 measurably
+    // grew 57px in that window, racing the first full-page capture.
+    await page.goto(url, { waitUntil: 'networkidle' });
     const width = page.viewportSize()!.width;
     const theme = test.info().project.name.endsWith('dark') ? 'dark' : 'light';
     // ~0.1% per §8's own table — anti-aliasing headroom, not a licence to
@@ -69,7 +72,7 @@ for (const { slug, interact } of SPECIMEN_STATES) {
       !test.info().project.name.startsWith('desktop-'),
       'desktop only, see header',
     );
-    await page.goto('/dev/specimen');
+    await page.goto('/dev/specimen', { waitUntil: 'networkidle' });
     await interact(page);
     const width = page.viewportSize()!.width;
     const theme = test.info().project.name.endsWith('dark') ? 'dark' : 'light';
