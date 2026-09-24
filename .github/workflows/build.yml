@@ -63,3 +63,49 @@ jobs:
       - uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: './lighthouserc.cjs'
+
+      # The exact dist/ every check above just passed is what ships — the
+      # deploy job never rebuilds. PR runs skip this and never deploy.
+      - if: github.event_name == 'push'
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  # IMPLEMENTATION_PLAN.md §10: rsync into releases/<sha>/, swap `current`,
+  # keep five. Server layout, deploy user and Caddy config are Ansible's
+  # (server-conf, roles/blog) — this job only ever writes releases. Rollback
+  # is documented there too.
+  deploy:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production
+    # Queue, never cancel: a cancelled run could stop between rsync and swap.
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Upload release and switch current
+        env:
+          TARGET: deploy@${{ vars.DEPLOY_HOST }}
+          ROOT: /srv/www/blog
+          SHA: ${{ github.sha }}
+        run: |
+          rsync -rz --delete --chmod=D755,F644 dist/ "$TARGET:$ROOT/releases/$SHA/"
+          ssh "$TARGET" "cd $ROOT && ln -sfn releases/$SHA current.tmp && mv -T current.tmp current && ls -1t releases | tail -n +6 | xargs -r -I{} rm -rf releases/{}"
