@@ -158,6 +158,7 @@ const toRowEntry = (e: (typeof published)[number]): WritingRowEntry => ({
   tags: e.tags,
   section: e.section,
   series: e.series,
+  leadFigure: e.leadFigure,
 });
 const rowEntries = published.slice(0, 3).map(toRowEntry);
 // Invariant 2 (tests/invariants/featured.test.ts) guarantees at most one
@@ -1007,8 +1008,8 @@ const pausedExample: ProjectItemEntry = {
     <p class="lede" style="font-size: 13.5px;">
       Article 001, the collection's one real <code>featured: true</code> entry. Not a card —
       no ground, no border, no radius (§9.1). The title is permanently underlined (it's always
-      a link); the figure is the §14.1 placeholder hatch, since no <code>writing</code> entry
-      authors a lead image yet.
+      a link); the figure is the entry's own <code>leadFigure</code>, and an entry without
+      one renders no figure at all (ADR-0028).
     </p>
     {featuredEntry && <FeaturedEntry entry={featuredEntry} context="index" />}
 

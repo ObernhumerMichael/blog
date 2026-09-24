@@ -29,6 +29,7 @@ const writingRows: IndexRowEntry[] = await Promise.all(
       tags: entry.data.tags,
       section: entry.data.section,
       series: entry.data.series,
+      leadFigure: entry.data.leadFigure,
       isFeatured: Boolean(entry.data.featured),
     };
   }),

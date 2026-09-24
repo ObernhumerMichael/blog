@@ -32,6 +32,8 @@ export interface WritingRowEntry {
   // FeaturedEntry.astro (§9.5's "optional series line"), which imports
   // this same interface.
   series?: { id: string; name: string; part: number; total: number };
+  // Same: FeaturedEntry.astro's lead figure (ADR-0028).
+  leadFigure?: { src: string; alt: string };
 }
 
 export interface Props {

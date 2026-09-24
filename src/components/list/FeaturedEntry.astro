@@ -5,7 +5,7 @@
 // PERMANENT accent underline (§9.1/§9.5: "distinguished from the rows
 // beneath it by size and a figure, not by a container" — no ground, no
 // border, no radius), lead paragraph, optional series line, paired with a
-// hairline-framed lead figure. Two real call sites are named in the spec
+// hairline-framed lead figure when the entry has one (ADR-0028). Two real call sites are named in the spec
 // (blog index at 200px/28px, homepage at 170px/27px, §2.5's derived-values
 // table and §14.1's sizes-by-role list) — `context` picks between them, the
 // same two-named-variants reasoning WritingRow's compact variant already
@@ -70,21 +70,19 @@ const href = `/w/${num}`;
     }
   </div>
 
-  <!-- §14.1 placeholder convention: no `writing` schema field carries a
-       lead-image source (checked directly — writingSchema has none), so
-       until real article imagery exists this always renders the same
-       135°-hatch placeholder the design system itself uses for media that
-       doesn't exist yet (e.g. the project case-study mockup's
-       "[ architecture diagram ]"), sized per role via the featured--home /
-       featured--index modifier already on the outer element. Not an
-       invented schema field — §9.5 states the figure as a required
-       pairing, so a placeholder is the honest substitute, not an
-       omission. -->
-  <div class="featured-figure">
-    <span class="featured-figure-label">
-      [ lead figure ]<br />{context === 'home' ? '170' : '200'}px
-    </span>
-  </div>
+  <!-- ADR-0028: the entry's own `leadFigure`, or no figure at all. §1.8's
+       "the alternative to an image is not a decorative graphic; it is no
+       image" wins over §9.5's "paired with a lead figure" — the hatch
+       placeholder is a design-mockup convention, not something to ship.
+       Sized per role via the featured--home / featured--index modifier
+       already on the outer element. -->
+  {
+    entry.leadFigure && (
+      <div class="featured-figure">
+        <img src={entry.leadFigure.src} alt={entry.leadFigure.alt} />
+      </div>
+    )
+  }
 </div>
 
 <style>
@@ -166,26 +164,16 @@ const href = `/w/${num}`;
        markdown-directive-specific class (different component, §14.1 vs
        §9.5, coincidentally the same frame language per §9.3's own
        "bounded surfaces" table, not a shared dependency between the two). */
-    .featured-figure {
+    .featured-figure img {
+      display: block;
       height: var(--fig-h-index);
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
       border: var(--bw) solid var(--c-rule);
-      background: repeating-linear-gradient(
-        135deg,
-        var(--c-sunken) 0 7px,
-        var(--c-bg) 7px 14px
-      );
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
     }
 
-    .featured-figure-label {
-      font: var(--t-meta);
-      color: var(--c-muted);
-    }
-
-    .featured--home .featured-figure {
+    .featured--home .featured-figure img {
       height: var(--fig-h-home);
     }
   }

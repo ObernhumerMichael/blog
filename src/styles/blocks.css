@@ -488,17 +488,20 @@
   }
 
   /* Same rule for the two author-portrait photos (about.astro, Article­
-     Apparatus.astro's author block) — a portrait is a photo, same §14.1
-     dimming, same reason it can't live in either component's own scoped
-     <style> block (this file is the one place `filter` is allowed). */
+     Apparatus.astro's author block) and FeaturedEntry.astro's lead figure
+     (ADR-0028) — same §14.1 dimming, same reason it can't live in any of
+     those components' own scoped <style> blocks (this file is the one
+     place `filter` is allowed). */
   :root[data-theme='dark'] .portrait img,
-  :root[data-theme='dark'] .author-portrait img {
+  :root[data-theme='dark'] .author-portrait img,
+  :root[data-theme='dark'] .featured-figure img {
     filter: brightness(0.92);
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) .portrait img,
-    :root:not([data-theme='light']) .author-portrait img {
+    :root:not([data-theme='light']) .author-portrait img,
+    :root:not([data-theme='light']) .featured-figure img {
       filter: brightness(0.92);
     }
   }

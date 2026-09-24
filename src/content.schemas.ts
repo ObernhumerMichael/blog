@@ -45,6 +45,9 @@ export const writingSchema = z
       })
       .optional(),
     featured: z.boolean().optional(),
+    // ADR-0028: the featured entry's lead figure (§9.5) — a real image the
+    // article already has, or nothing. No placeholder, no default image.
+    leadFigure: z.object({ src: z.string(), alt: z.string().min(1) }).optional(),
     // OD-03 "drafts exempt": default stays true so a forgotten `draft:`
     // line fails closed, not silently publishes.
     draft: z.boolean().default(true),

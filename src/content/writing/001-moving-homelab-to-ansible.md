@@ -6,6 +6,9 @@ section: 'Infrastructure'
 date: 2026-09-23
 tags: ['ansible', 'homelab', 'infrastructure']
 featured: true
+leadFigure:
+  src: '/figures/001-backup-chain.svg'
+  alt: 'Diagram of the backup chain: production VPS to a Raspberry Pi backup server, mirrored across two drives'
 draft: false
 ---
 
