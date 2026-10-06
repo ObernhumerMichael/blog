@@ -84,7 +84,10 @@ const showPrimary = Boolean(entry.links.article && primaryText);
 
   <div class="status-period">
     <p class="status">
-      <span class="dot" class:list={{ filled: isFilled, ok: isOk }} aria-hidden="true"
+      <span
+        class="dot"
+        class:list={{ filled: isFilled, ok: isOk }}
+        aria-hidden="true"
       ></span>
       <span class:list={{ ok: isOk }}>{entry.status}</span>
     </p>
@@ -97,47 +100,39 @@ const showPrimary = Boolean(entry.links.article && primaryText);
 
   <p class="description">{entry.description}</p>
 
-  {
-    entry.why && (
-      <p class="why">
-        <strong>Why.</strong> {entry.why}
-      </p>
-    )
-  }
+  {entry.why && (
+    <p class="why">
+      <strong>Why.</strong> {entry.why}
+    </p>
+  )}
 
   <p class="stack">{entry.stack.join(' · ')}</p>
 
   <div class="links">
-    {
-      showPrimary && (
-        <p class="primary-link">
-          <a href={entry.links.article}>
-            {primaryText} <span aria-hidden="true">→</span>
+    {showPrimary && (
+      <p class="primary-link">
+        <a href={entry.links.article}>
+          {primaryText} <span aria-hidden="true">→</span>
+        </a>
+      </p>
+    )}
+    {variant === 'index' && (
+      <p class="source">
+        {entry.links.source ? (
+          <a href={entry.links.source}>
+            source <span aria-hidden="true">↗</span>
           </a>
-        </p>
-      )
-    }
-    {
-      variant === 'index' && (
-        <p class="source">
-          {entry.links.source ? (
-            <a href={entry.links.source}>
-              source <span aria-hidden="true">↗</span>
-            </a>
-          ) : (
-            entry.sourceAbsence && (
-              <span class="source-absence">{entry.sourceAbsence}</span>
-            )
-          )}
-          {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
-          {entry.links.demo && (
-            <a href={entry.links.demo}>
-              demo <span aria-hidden="true">↗</span>
-            </a>
-          )}
-        </p>
-      )
-    }
+        ) : (
+          entry.sourceAbsence && <span class="source-absence">{entry.sourceAbsence}</span>
+        )}
+        {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
+        {entry.links.demo && (
+          <a href={entry.links.demo}>
+            demo <span aria-hidden="true">↗</span>
+          </a>
+        )}
+      </p>
+    )}
   </div>
 </div>
 

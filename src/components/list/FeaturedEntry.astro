@@ -33,7 +33,9 @@ const href = `/w/${num}`;
       <dd class="metadata-accent">{num}</dd>
 
       <dt class="visually-hidden">Published</dt>
-      <dd><time datetime={isoDate}>{isoDate}</time></dd>
+      <dd>
+        <time datetime={isoDate}>{isoDate}</time>
+      </dd>
 
       <dt class="visually-hidden">Reading time</dt>
       <dd>{entry.minutesRead} min</dd>
@@ -43,32 +45,30 @@ const href = `/w/${num}`;
            entry a "metadata row" with no such restriction, so it follows
            §09's canonical full taxonomy, same as ArticleHeader's own
            metadata row). -->
-      {
-        entry.tags.map((tag) => (
-          <Fragment>
-            <dt class="visually-hidden">Tag</dt>
-            <dd>
-              <Tag tag={tag} />
-            </dd>
-          </Fragment>
-        ))
-      }
+      {entry.tags.map((tag) => (
+        <Fragment>
+          <dt class="visually-hidden">Tag</dt>
+          <dd>
+            <Tag tag={tag} />
+          </dd>
+        </Fragment>
+      ))}
     </dl>
 
     <!-- §9.5/line 988: "permanently underlined when it is the featured
          entry (which is always a link)" — unlike WritingRow's hover-only
          underline, this one is unconditional. -->
-    <a class="title" href={href}>{entry.title}</a>
+    <a class="title" href={href}>
+      {entry.title}
+    </a>
 
     <p class="lead">{entry.lead}</p>
 
-    {
-      entry.series && (
-        <p class="series">
-          series: {entry.series.name} · {entry.series.part} of {entry.series.total}
-        </p>
-      )
-    }
+    {entry.series && (
+      <p class="series">
+        series: {entry.series.name} · {entry.series.part} of {entry.series.total}
+      </p>
+    )}
   </div>
 
   <!-- ADR-0028: the entry's own `leadFigure`, or no figure at all. §1.8's
@@ -77,13 +77,11 @@ const href = `/w/${num}`;
        placeholder is a design-mockup convention, not something to ship.
        Sized per role via the featured--home / featured--index modifier
        already on the outer element. -->
-  {
-    entry.leadFigure && (
-      <div class="featured-figure">
-        <Image src={entry.leadFigure.src} alt={entry.leadFigure.alt} loading="eager" />
-      </div>
-    )
-  }
+  {entry.leadFigure && (
+    <div class="featured-figure">
+      <Image src={entry.leadFigure.src} alt={entry.leadFigure.alt} loading="eager" />
+    </div>
+  )}
 </div>
 
 <style>

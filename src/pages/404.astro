@@ -46,13 +46,11 @@ const routes = [
           article number you can go straight there.
         </p>
         <ul class="route-list">
-          {
-            routes.map((route) => (
-              <li>
-                <a href={route.href}>{route.label}</a> — {route.description}
-              </li>
-            ))
-          }
+          {routes.map((route) => (
+            <li>
+              <a href={route.href}>{route.label}</a> — {route.description}
+            </li>
+          ))}
         </ul>
       </div>
     </section>

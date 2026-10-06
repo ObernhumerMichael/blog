@@ -53,7 +53,9 @@ const href = `/w/${num}`;
 
 <a class:list={['row', `row--${variant}`]} href={href}>
   <span class="row-number">{num}</span>
-  <span class="row-date"><time datetime={isoDate}>{isoDate}</time></span>
+  <span class="row-date">
+    <time datetime={isoDate}>{isoDate}</time>
+  </span>
   <span class="row-title-group">
     <span class="row-title">{entry.title}</span>
     {entry.dek && <span class="row-dek">— {entry.dek}</span>}

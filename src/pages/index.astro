@@ -84,21 +84,19 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       </div>
     </section>
 
-    {
-      featuredWriting && (
-        <section class="band layout-band">
-          <div class="gutter">
-            <p class="gutter-label">Featured</p>
-            <p class="gutter-count">{String(featuredWriting.number).padStart(3, '0')}</p>
-          </div>
-          <p class="running-head">
-            <span>Featured</span>
-            <span>{String(featuredWriting.number).padStart(3, '0')}</span>
-          </p>
-          <FeaturedEntry entry={featuredWriting} context="home" />
-        </section>
-      )
-    }
+    {featuredWriting && (
+      <section class="band layout-band">
+        <div class="gutter">
+          <p class="gutter-label">Featured</p>
+          <p class="gutter-count">{String(featuredWriting.number).padStart(3, '0')}</p>
+        </div>
+        <p class="running-head">
+          <span>Featured</span>
+          <span>{String(featuredWriting.number).padStart(3, '0')}</span>
+        </p>
+        <FeaturedEntry entry={featuredWriting} context="home" />
+      </section>
+    )}
 
     <section class="band layout-band">
       <div class="gutter">
@@ -111,7 +109,9 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       </p>
       <div class="list-content">
         <div class="writing-rows">
-          {latestWriting.map((entry) => <WritingRow entry={entry} variant="compact" />)}
+          {latestWriting.map((entry) => (
+            <WritingRow entry={entry} variant="compact" />
+          ))}
         </div>
         <p class="list-links">
           <a class="primary-nav-link" href="/writing">
@@ -139,11 +139,9 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       </p>
       <div class="list-content">
         <div class="project-rows">
-          {
-            selectedProjects.map((project) => (
-              <ProjectItem entry={project} variant="selected" />
-            ))
-          }
+          {selectedProjects.map((project) => (
+            <ProjectItem entry={project} variant="selected" />
+          ))}
         </div>
         <p class="list-links">
           <a class="primary-nav-link" href="/projects">
@@ -177,7 +175,9 @@ const yearMonth = new Date().toISOString().slice(0, 7);
       <div class="about-content">
         <p class="about-bio">{COPY.site.authorBio}</p>
         <div class="contact">
-          <a class="email" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+          <a class="email" href={`mailto:${CONTACT_EMAIL}`}>
+            {CONTACT_EMAIL}
+          </a>
           <p class="contact-links">
             <a href={SITE_LINKS.rss}>
               rss <span aria-hidden="true">↗</span>

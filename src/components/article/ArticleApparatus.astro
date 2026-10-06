@@ -69,102 +69,92 @@ function isoDate(date: Date) {
 }
 ---
 
-{
-  showAuthorBlock && (
-    <div
-      class:list={[
-        'author',
-        'apparatus-block',
-        { 'apparatus-first': first === 'author' },
-      ]}
-    >
-      <div class="author-portrait">
-        <Image
-          src={portraitPhoto}
-          alt="Portrait of Michael Obernhumer"
-          width={88}
-          height={88}
-        />
-      </div>
-      <div class="author-text">
-        <p class="author-name">{COPY.site.name}</p>
-        <p class="author-bio">{COPY.site.authorBio}</p>
-        <p class="author-contact">
-          <a href={`mailto:${CONTACT_EMAIL}`}>
-            {CONTACT_EMAIL} <span aria-hidden="true">↗</span>
-          </a>
-          <a href={GITHUB_URL}>
-            github <span aria-hidden="true">↗</span>
-          </a>
-          <a href={RSS_PATH}>
-            rss <span aria-hidden="true">↗</span>
-          </a>
-        </p>
-      </div>
+{showAuthorBlock && (
+  <div
+    class:list={['author', 'apparatus-block', { 'apparatus-first': first === 'author' }]}
+  >
+    <div class="author-portrait">
+      <Image
+        src={portraitPhoto}
+        alt="Portrait of Michael Obernhumer"
+        width={88}
+        height={88}
+      />
     </div>
-  )
-}
-
-{
-  showPagination && (
-    <nav
-      class:list={[
-        'pagination',
-        'apparatus-block',
-        { 'apparatus-first': first === 'pagination' },
-      ]}
-      aria-label="Article navigation"
-    >
-      <div class="pagination-side">
-        {prev && (
-          <a class="pagination-link" href={href(prev.number)}>
-            <span class="pagination-kicker">
-              <span aria-hidden="true">←</span> {String(prev.number).padStart(3, '0')} ·
-              previous
-            </span>
-            <span class="pagination-title">{prev.title}</span>
-          </a>
-        )}
-      </div>
-      <div class="pagination-side pagination-side--next">
-        {next && (
-          <a class="pagination-link" href={href(next.number)}>
-            <span class="pagination-kicker">
-              {String(next.number).padStart(3, '0')} · next{' '}
-              <span aria-hidden="true">→</span>
-            </span>
-            <span class="pagination-title">{next.title}</span>
-          </a>
-        )}
-      </div>
-    </nav>
-  )
-}
-
-{
-  showRelated && (
-    <div
-      class:list={[
-        'related',
-        'apparatus-block',
-        { 'apparatus-first': first === 'related' },
-      ]}
-    >
-      <p class="related-label">RELATED</p>
-      <div class="related-grid">
-        {related.map((item) => (
-          <a class="related-item" href={href(item.number)}>
-            <span class="related-title">{item.title}</span>
-            <span class="related-meta">
-              {String(item.number).padStart(3, '0')} · {isoDate(item.date)} ·{' '}
-              {item.minutesRead} min
-            </span>
-          </a>
-        ))}
-      </div>
+    <div class="author-text">
+      <p class="author-name">{COPY.site.name}</p>
+      <p class="author-bio">{COPY.site.authorBio}</p>
+      <p class="author-contact">
+        <a href={`mailto:${CONTACT_EMAIL}`}>
+          {CONTACT_EMAIL} <span aria-hidden="true">↗</span>
+        </a>
+        <a href={GITHUB_URL}>
+          github <span aria-hidden="true">↗</span>
+        </a>
+        <a href={RSS_PATH}>
+          rss <span aria-hidden="true">↗</span>
+        </a>
+      </p>
     </div>
-  )
-}
+  </div>
+)}
+
+{showPagination && (
+  <nav
+    class:list={[
+      'pagination',
+      'apparatus-block',
+      { 'apparatus-first': first === 'pagination' },
+    ]}
+    aria-label="Article navigation"
+  >
+    <div class="pagination-side">
+      {prev && (
+        <a class="pagination-link" href={href(prev.number)}>
+          <span class="pagination-kicker">
+            <span aria-hidden="true">←</span> {String(prev.number).padStart(3, '0')} ·
+            previous
+          </span>
+          <span class="pagination-title">{prev.title}</span>
+        </a>
+      )}
+    </div>
+    <div class="pagination-side pagination-side--next">
+      {next && (
+        <a class="pagination-link" href={href(next.number)}>
+          <span class="pagination-kicker">
+            {String(next.number).padStart(3, '0')} · next{' '}
+            <span aria-hidden="true">→</span>
+          </span>
+          <span class="pagination-title">{next.title}</span>
+        </a>
+      )}
+    </div>
+  </nav>
+)}
+
+{showRelated && (
+  <div
+    class:list={[
+      'related',
+      'apparatus-block',
+      { 'apparatus-first': first === 'related' },
+    ]}
+  >
+    <p class="related-label">RELATED</p>
+    <div class="related-grid">
+      {related.map((item) => (
+        <a class="related-item" href={href(item.number)}>
+          <span class="related-title">{item.title}</span>
+          <span class="related-meta">
+            {String(item.number).padStart(3, '0')} · {isoDate(item.date)} ·{' '}
+            {item.minutesRead} min
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+)}
 
 <style>
   @layer components {

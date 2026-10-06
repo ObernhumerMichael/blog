@@ -63,17 +63,15 @@ const { experience, elsewhere } = COPY.about;
         <span>selected</span>
       </p>
       <div class="exp-rows">
-        {
-          experience.map((row) => (
-            <div class="exp-row">
-              <p class="exp-period">{row.period}</p>
-              <div class="exp-substance">
-                <p class="exp-role">{row.role}</p>
-                <p class="exp-desc">{row.description}</p>
-              </div>
+        {experience.map((row) => (
+          <div class="exp-row">
+            <p class="exp-period">{row.period}</p>
+            <div class="exp-substance">
+              <p class="exp-role">{row.role}</p>
+              <p class="exp-desc">{row.description}</p>
             </div>
-          ))
-        }
+          </div>
+        ))}
       </div>
     </section>
 
@@ -87,16 +85,14 @@ const { experience, elsewhere } = COPY.about;
         <span>—</span>
       </p>
       <div class="elsewhere-grid">
-        {
-          elsewhere.map((entry) => (
-            <div class="elsewhere-cell">
-              <p class="elsewhere-label">{entry.label}</p>
-              <a class="elsewhere-value" href={entry.href}>
-                {entry.value}
-              </a>
-            </div>
-          ))
-        }
+        {elsewhere.map((entry) => (
+          <div class="elsewhere-cell">
+            <p class="elsewhere-label">{entry.label}</p>
+            <a class="elsewhere-value" href={entry.href}>
+              {entry.value}
+            </a>
+          </div>
+        ))}
       </div>
     </section>
   </div>

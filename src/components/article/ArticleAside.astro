@@ -54,23 +54,22 @@ const shareHref = `mailto:?subject=${encodeURIComponent(title)}&body=${mailBody}
     data-share
     data-share-title={title}
     data-share-url={shareUrl}
-    ><span data-share-label>share</span> <span aria-hidden="true">↗</span></a
   >
+    <span data-share-label>share</span> <span aria-hidden="true">↗</span>
+  </a>
   <a class="aside-link" href={`mailto:${CONTACT_EMAIL}`}>
     reply by email <span aria-hidden="true">↗</span>
   </a>
 </div>
 
-{
-  nextProject && (
-    <div class="aside-next">
-      <p class="aside-next-label">next project</p>
-      <a class="aside-next-link" href={nextProject.href}>
-        {nextProject.title} <span aria-hidden="true">→</span>
-      </a>
-    </div>
-  )
-}
+{nextProject && (
+  <div class="aside-next">
+    <p class="aside-next-label">next project</p>
+    <a class="aside-next-link" href={nextProject.href}>
+      {nextProject.title} <span aria-hidden="true">→</span>
+    </a>
+  </div>
+)}
 
 <!-- .visually-hidden, NOT .visually-hidden-inline: that variant is only for
      an island's own empty root (CodeCopy.svelte/TocProgress.svelte), kept
