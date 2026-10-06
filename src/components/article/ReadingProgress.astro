@@ -20,13 +20,11 @@ const { bare = false } = Astro.props;
 ---
 
 <div class="progress">
-  {
-    !bare && (
-      <p class="progress-text">
-        read <span data-progress-text>0</span>%
-      </p>
-    )
-  }
+  {!bare && (
+    <p class="progress-text">
+      read <span data-progress-text>0</span>%
+    </p>
+  )}
   <div class="progress-track">
     <div class="progress-fill" data-progress-fill></div>
   </div>

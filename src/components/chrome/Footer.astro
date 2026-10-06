@@ -15,44 +15,53 @@ const year = new Date().getFullYear();
   <div class="frame">
     <div class="row">
       <div class="track track-left">
-        <a href="/" class="name">{COPY.site.name}</a>
+        <a href="/" class="name">
+          {COPY.site.name}
+        </a>
         <nav aria-label="Footer">
           <ul class="footer-nav">
-            {
-              NAV_LINKS.map((link, i) => (
-                <li>
-                  {i > 0 && <span aria-hidden="true">·</span>}
-                  <a href={link.href} class="footer-link">
-                    {link.label}
-                  </a>
-                </li>
-              ))
-            }
+            {NAV_LINKS.map((link, i) => (
+              <li>
+                {i > 0 && <span aria-hidden="true">·</span>}
+                <a href={link.href} class="footer-link">
+                  {link.label}
+                </a>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
 
       <div class="track track-right">
         <p class="social-links">
-          <a href={SITE_LINKS.rss} class="footer-link"
-            >rss <span aria-hidden="true">↗</span></a
-          >
-          <span class="sep" aria-hidden="true">·</span>
-          <a href={SITE_LINKS.github} class="footer-link"
-            >github <span aria-hidden="true">↗</span></a
-          >
-          <span class="sep" aria-hidden="true">·</span>
-          <a href={SITE_LINKS.pgp} class="footer-link"
-            >pgp <span aria-hidden="true">↗</span></a
-          >
+          <a href={SITE_LINKS.rss} class="footer-link">
+            rss <span aria-hidden="true">↗</span>
+          </a>
+          <span class="sep" aria-hidden="true">
+            ·
+          </span>
+          <a href={SITE_LINKS.github} class="footer-link">
+            github <span aria-hidden="true">↗</span>
+          </a>
+          <span class="sep" aria-hidden="true">
+            ·
+          </span>
+          <a href={SITE_LINKS.pgp} class="footer-link">
+            pgp <span aria-hidden="true">↗</span>
+          </a>
         </p>
         <p class="colophon-line">
           © {year}
-          <span class="sep" aria-hidden="true">·</span> built with Astro <span
-            class="sep"
-            aria-hidden="true">·</span
-          >
-          <a href="/about#colophon" class="footer-link">colophon</a>
+          <span class="sep" aria-hidden="true">
+            ·
+          </span>{' '}
+          built with Astro{' '}
+          <span class="sep" aria-hidden="true">
+            ·
+          </span>
+          <a href="/about#colophon" class="footer-link">
+            colophon
+          </a>
         </p>
       </div>
     </div>

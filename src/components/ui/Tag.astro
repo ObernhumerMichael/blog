@@ -32,19 +32,17 @@ const label = isAll ? 'all' : `#${tag}`;
 const href = isAll ? '/writing' : `/writing/tag/${tag}`;
 ---
 
-{
-  variant === 'current' ? (
-    <span class="tag tag--current">
-      {label}
-      {count !== undefined && ` ${count}`}
-    </span>
-  ) : (
-    <a class="tag" href={href}>
-      {label}
-      {count !== undefined && <span class="tag-count"> {count}</span>}
-    </a>
-  )
-}
+{variant === 'current' ? (
+  <span class="tag tag--current">
+    {label}
+    {count !== undefined && ` ${count}`}
+  </span>
+) : (
+  <a class="tag" href={href}>
+    {label}
+    {count !== undefined && <span class="tag-count"> {count}</span>}
+  </a>
+)}
 
 <style>
   @layer components {

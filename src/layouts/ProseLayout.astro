@@ -149,21 +149,19 @@ const {
              string. Sits outside .gutter (unlike ArticleToc) so it stays
              excluded from grid auto-placement at >=1280 via display:none
              on itself rather than depending on .gutter's own override. -->
-        {
-          frontmatter.section && (
-            <Fragment>
-              <p class="running-head running-head--tablet">
-                {frontmatter.section}
-                {frontmatter.series && ` · ${frontmatter.series.name}`}
-              </p>
-              <p class="running-head running-head--mobile">
-                {frontmatter.section}
-                {frontmatter.series &&
-                  ` · ${frontmatter.series.part}/${frontmatter.series.total}`}
-              </p>
-            </Fragment>
-          )
-        }
+        {frontmatter.section && (
+          <Fragment>
+            <p class="running-head running-head--tablet">
+              {frontmatter.section}
+              {frontmatter.series && ` · ${frontmatter.series.name}`}
+            </p>
+            <p class="running-head running-head--mobile">
+              {frontmatter.section}
+              {frontmatter.series &&
+                ` · ${frontmatter.series.part}/${frontmatter.series.total}`}
+            </p>
+          </Fragment>
+        )}
         <!-- Not .layout-measure here — .prose sets its own max-width
              (--measure, prose.css) and never needed the class for sizing.
              CORRECTION (Phase 4.0, ADR-0019): this comment previously
@@ -193,17 +191,15 @@ const {
           <div class="prose">
             <slot />
           </div>
-          {
-            apparatus && (
-              <ArticleApparatus
-                headings={headings}
-                numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
-                prev={prev}
-                next={next}
-                related={related}
-              />
-            )
-          }
+          {apparatus && (
+            <ArticleApparatus
+              headings={headings}
+              numberedHeadingFlags={frontmatter.numberedHeadingFlags ?? []}
+              prev={prev}
+              next={next}
+              related={related}
+            />
+          )}
         </div>
         <div class="aside">
           <ArticleAside title={frontmatter.title} nextProject={nextProject} />

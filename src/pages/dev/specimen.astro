@@ -442,182 +442,154 @@ const pausedExample: ProjectItemEntry = {
 
     <h2>Grounds</h2>
     <div class="grid">
-      {
-        groundTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {groundTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Text</h2>
     <div class="grid">
-      {
-        textTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {textTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Rules</h2>
     <div class="grid">
-      {
-        ruleTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {ruleTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Accent &amp; nav</h2>
     <div class="grid">
-      {
-        accentTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {accentTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Semantic hues</h2>
     <div class="grid">
-      {
-        semanticTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {semanticTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Machine grounds (identical in both themes, E2)</h2>
     <div class="grid">
-      {
-        machineTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {machineTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Component-specific text colours</h2>
     <div class="grid">
-      {
-        componentTextTokens.map((t) => (
-          <div class="swatch">
-            <div
-              class="swatch-fill"
-              style={`background: var(--c-sunken); color: var(${t}); display: flex; align-items: center; justify-content: center; font: var(--t-body);`}
-            >
-              Aa
-            </div>
-            <div class="swatch-name">{t}</div>
+      {componentTextTokens.map((t) => (
+        <div class="swatch">
+          <div
+            class="swatch-fill"
+            style={`background: var(--c-sunken); color: var(${t}); display: flex; align-items: center; justify-content: center; font: var(--t-body);`}
+          >
+            Aa
           </div>
-        ))
-      }
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Code &amp; syntax palette (constant across themes, §2.3)</h2>
     <div class="grid">
-      {
-        syntaxTokens.map((t) => (
-          <div class="swatch">
-            <div
-              class="swatch-fill"
-              style={`background: var(--code-chrome-bg); color: var(${t}); display: flex; align-items: center; justify-content: center; font: var(--t-code);`}
-            >
-              Aa1
-            </div>
-            <div class="swatch-name">{t}</div>
+      {syntaxTokens.map((t) => (
+        <div class="swatch">
+          <div
+            class="swatch-fill"
+            style={`background: var(--code-chrome-bg); color: var(${t}); display: flex; align-items: center; justify-content: center; font: var(--t-code);`}
+          >
+            Aa1
           </div>
-        ))
-      }
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Code chrome</h2>
     <div class="grid">
-      {
-        codeChromeTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {codeChromeTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Diff (these two hues appear nowhere else in the system, §2.3)</h2>
     <div class="grid">
-      {
-        diffTokens.map((t) => (
-          <div class="swatch">
-            <div class="swatch-fill" style={`background: var(${t})`} />
-            <div class="swatch-name">{t}</div>
-          </div>
-        ))
-      }
+      {diffTokens.map((t) => (
+        <div class="swatch">
+          <div class="swatch-fill" style={`background: var(${t})`} />
+          <div class="swatch-name">{t}</div>
+        </div>
+      ))}
     </div>
 
     <h2>Type scale</h2>
     <div>
-      {
-        typeTokens.map((t) => (
-          <div class="type-row">
-            <span class="token-name">{t}</span>
-            <span class="sample" style={`font: var(${t})`}>
-              The quick brown fox — Größe, Übung
-            </span>
-          </div>
-        ))
-      }
+      {typeTokens.map((t) => (
+        <div class="type-row">
+          <span class="token-name">{t}</span>
+          <span class="sample" style={`font: var(${t})`}>
+            The quick brown fox — Größe, Übung
+          </span>
+        </div>
+      ))}
     </div>
 
     <h2>Spacing — canonical scale (§2.6)</h2>
     <div class="ruler">
-      {
-        spacingCanonical.map((t) => (
-          <div class="ruler-row">
-            <span class="ruler-label">{t}</span>
-            <div class="ruler-bar" style={`width: var(${t})`} />
-          </div>
-        ))
-      }
+      {spacingCanonical.map((t) => (
+        <div class="ruler-row">
+          <span class="ruler-label">{t}</span>
+          <div class="ruler-bar" style={`width: var(${t})`} />
+        </div>
+      ))}
     </div>
 
     <h2>Spacing — responsive steps (§3.3, mobile-only additions)</h2>
     <div class="ruler">
-      {
-        spacingResponsive.map((t) => (
-          <div class="ruler-row">
-            <span class="ruler-label">{t}</span>
-            <div class="ruler-bar" style={`width: var(${t})`} />
-          </div>
-        ))
-      }
+      {spacingResponsive.map((t) => (
+        <div class="ruler-row">
+          <span class="ruler-label">{t}</span>
+          <div class="ruler-bar" style={`width: var(${t})`} />
+        </div>
+      ))}
     </div>
 
     <h2>Spacing — component interior sub-steps (E13, inside components only)</h2>
     <div class="ruler">
-      {
-        spacingComponentSub.map((t) => (
-          <div class="ruler-row">
-            <span class="ruler-label">{t}</span>
-            <div class="ruler-bar" style={`width: var(${t})`} />
-          </div>
-        ))
-      }
+      {spacingComponentSub.map((t) => (
+        <div class="ruler-row">
+          <span class="ruler-label">{t}</span>
+          <div class="ruler-bar" style={`width: var(${t})`} />
+        </div>
+      ))}
     </div>
 
     <h2>Spacing — the one exception (E1)</h2>
@@ -631,7 +603,9 @@ const pausedExample: ProjectItemEntry = {
     <h2>Borders &amp; radius (§2.8, §2.9)</h2>
     <div class="grid">
       <div class="swatch">
-        <div class="border-demo" style="border: var(--bw) solid var(--c-rule);">1px</div>
+        <div class="border-demo" style="border: var(--bw) solid var(--c-rule);">
+          1px
+        </div>
         <div class="swatch-name">--bw</div>
       </div>
       <div class="swatch">
@@ -647,24 +621,21 @@ const pausedExample: ProjectItemEntry = {
         <div
           class="border-demo"
           style="border: var(--bw) solid var(--c-rule); border-radius: var(--radius); background: var(--c-code-bg);"
-        >
-        </div>
+        ></div>
         <div class="swatch-name">--radius (4px)</div>
       </div>
       <div class="swatch">
         <div
           class="border-demo"
           style="border: var(--bw) solid var(--c-rule); border-radius: var(--radius-sm); background: var(--c-sunken);"
-        >
-        </div>
+        ></div>
         <div class="swatch-name">--radius-sm (3px)</div>
       </div>
       <div class="swatch">
         <div
           class="border-demo"
           style="border-radius: 50%; background: var(--c-ok); width: 24px; height: 24px;"
-        >
-        </div>
+        ></div>
         <div class="swatch-name">50% (status dot only)</div>
       </div>
     </div>
@@ -679,30 +650,31 @@ const pausedExample: ProjectItemEntry = {
 
     <h2>Prose components (§6·10, §10, §11) — added Phase 3.9</h2>
     <p class="lede" style="font-size: 13.5px;">
-      Every <code>--t-*</code> bundle above is rendered directly on a token, so a wrong value
-      is caught immediately. Component-local sizes like
-      <code>--fs-callout</code> have no such bundle to sit beside — the only way a wrong one
-      shows up is a real component rendered wrong, which is exactly what 3.2's mobile callout
-      bug slipped past. This section is that check.
+      Every <code>--t-*</code> bundle above is rendered directly on a token, so a wrong
+      value is caught immediately. Component-local sizes like
+      <code>--fs-callout</code> have no such bundle to sit beside — the only way a wrong
+      one shows up is a real component rendered wrong, which is exactly what 3.2's mobile
+      callout bug slipped past. This section is that check.
     </p>
     <div class="prose">
       <p>
-        A prose paragraph, same as any other, with an <a href="/writing/">
-          inline link</a
-        >, an <a href="https://example.com/">external link&#8202;↗</a>, some <code
-          >inline code</code
-        >, and a footnote reference<sup
-          ><a data-footnote-ref href="#specimen-fn-1">1</a></sup
-        >.
+        A prose paragraph, same as any other, with an <a href="/writing/">inline link</a>,
+        an <a href="https://example.com/">external link&#8202;↗</a>, some{' '}
+        <code>inline code</code>, and a footnote reference
+        <sup>
+          <a data-footnote-ref href="#specimen-fn-1">
+            1
+          </a>
+        </sup>
+        .
       </p>
 
       <div class="callout callout--note" data-callout="note">
         <p class="callout__label">NOTE</p>
         <div class="callout__body">
           <p>
-            The default callout kind — accent marker, sunken ground. Body text renders in <code
-              >--t-callout</code
-            >, not <code>--t-body</code>.
+            The default callout kind — accent marker, sunken ground. Body text renders in{' '}
+            <code>--t-callout</code>, not <code>--t-body</code>.
           </p>
         </div>
       </div>
@@ -711,9 +683,8 @@ const pausedExample: ProjectItemEntry = {
         <p class="callout__label">WARNING</p>
         <div class="callout__body">
           <p>
-            Warning and correction share the same treatment: marker and label switch to <code
-              >--c-warn</code
-            >, ground switches to
+            Warning and correction share the same treatment: marker and label switch to{' '}
+            <code>--c-warn</code>, ground switches to
             <code>--c-warn-bg</code>.
           </p>
         </div>
@@ -738,24 +709,23 @@ const pausedExample: ProjectItemEntry = {
     <h2>Code, terminal, figures &amp; tables (§13, §14, §15) — added Phase 4.11</h2>
     <p class="lede" style="font-size: 13.5px;">
       Same job as 3.9, one section behind it: the four block kinds render here even where
-      no shipped fixture combines their states. <code>.diff-del</code> and <code
-        >.term-block__success</code
-      > are real classes (<code>code.css</code>, <code>rehype-terminal.ts</code>) that no
-      committed fixture had triggered until this page did — a diff hunk that only ever
-      adds, and a terminal block that never succeeds, are exactly the kind of gap 3.2's
-      callout bug came from.
+      no shipped fixture combines their states. <code>.diff-del</code> and{' '}
+      <code>.term-block__success</code> are real classes (<code>code.css</code>,{' '}
+      <code>rehype-terminal.ts</code>) that no committed fixture had triggered until this
+      page did — a diff hunk that only ever adds, and a terminal block that never
+      succeeds, are exactly the kind of gap 3.2's callout bug came from.
     </p>
     <div class="prose">
       <figure class="code-block">
         <div class="code-block__chrome">
-          <span class="code-block__filename"
-            >ansible/roles/base/templates/hostname.j2</span
-          >
+          <span class="code-block__filename">
+            ansible/roles/base/templates/hostname.j2
+          </span>
           <div class="code-block__meta">
             <span class="code-block__lang">jinja</span>
-            <button type="button" hidden class="code-block__copy" data-copy=""
-              >copy</button
-            >
+            <button type="button" hidden class="code-block__copy" data-copy="">
+              copy
+            </button>
           </div>
         </div>
         <div class="code-block__body">
@@ -763,7 +733,8 @@ const pausedExample: ProjectItemEntry = {
             class="astro-code ledger"
             style="background-color:var(--c-code-bg);color:var(--code-fg); overflow-x: auto;"
             tabindex="0"
-            data-language="jinja"><code><span class="line"><span style="color:var(--code-fg)">{'{{ inventory_hostname }}'}</span></span></code></pre>
+            data-language="jinja"
+          ><code><span class="line"><span style="color:var(--code-fg)">{'{{ inventory_hostname }}'}</span></span></code></pre>
         </div>
       </figure>
       <p class="code-block__caption">
@@ -772,29 +743,46 @@ const pausedExample: ProjectItemEntry = {
 
       <figure class="code-block">
         <div class="code-block__chrome">
-          <span class="code-block__filename">ansible/roles/monitoring/tasks/main.yml</span
-          >
+          <span class="code-block__filename">
+            ansible/roles/monitoring/tasks/main.yml
+          </span>
           <div class="code-block__meta">
             <span class="code-block__lang">yaml</span>
-            <button type="button" hidden class="code-block__copy" data-copy=""
-              >copy</button
-            >
+            <button type="button" hidden class="code-block__copy" data-copy="">
+              copy
+            </button>
           </div>
         </div>
         <div class="code-block__body">
           <div class="code-block__gutter" aria-hidden="true">
-            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span
-              >6</span
-            ><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span
-              >12</span
-            ><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span
-            ><span>18</span><span>19</span><span>20</span><span>21</span>
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+            <span>6</span>
+            <span>7</span>
+            <span>8</span>
+            <span>9</span>
+            <span>10</span>
+            <span>11</span>
+            <span>12</span>
+            <span>13</span>
+            <span>14</span>
+            <span>15</span>
+            <span>16</span>
+            <span>17</span>
+            <span>18</span>
+            <span>19</span>
+            <span>20</span>
+            <span>21</span>
           </div>
           <pre
             class="astro-code ledger"
             style="background-color:var(--c-code-bg);color:var(--code-fg); overflow-x: auto;"
             tabindex="0"
-            data-language="yaml"><code><span class="line"><span style="color:var(--code-fg)">---</span></span>
+            data-language="yaml"
+          ><code><span class="line"><span style="color:var(--code-fg)">---</span></span>
 <span class="line"><span style="color:var(--code-fg)">- </span><span style="color:var(--syn-keyword)">name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> Install node_exporter</span></span>
 <span class="line"><span style="color:var(--syn-keyword)">  ansible.builtin.apt</span><span style="color:var(--syn-keyword)">:</span></span>
 <span class="line"><span style="color:var(--syn-keyword)">    name</span><span style="color:var(--syn-keyword)">:</span><span style="color:var(--syn-string)"> prometheus-node-exporter</span></span>
@@ -823,14 +811,14 @@ const pausedExample: ProjectItemEntry = {
 
       <figure class="code-block">
         <div class="code-block__chrome">
-          <span class="code-block__filename"
-            >ansible/roles/firewall/defaults/main.yml</span
-          >
+          <span class="code-block__filename">
+            ansible/roles/firewall/defaults/main.yml
+          </span>
           <div class="code-block__meta">
             <span class="code-block__lang">diff</span>
-            <button type="button" hidden class="code-block__copy" data-copy=""
-              >copy</button
-            >
+            <button type="button" hidden class="code-block__copy" data-copy="">
+              copy
+            </button>
           </div>
         </div>
         <div class="code-block__body">
@@ -838,7 +826,8 @@ const pausedExample: ProjectItemEntry = {
             class="astro-code ledger"
             style="background-color:var(--c-code-bg);color:var(--code-fg); overflow-x: auto;"
             tabindex="0"
-            data-language="diff"><code><span class="line"><span style="color:var(--code-fg)"> default_zone: public</span></span>
+            data-language="diff"
+          ><code><span class="line"><span style="color:var(--code-fg)"> default_zone: public</span></span>
 <span class="line diff-del"><span style="color:var(--diff-del-fg)"><span style="user-select: none;">-</span>allowed_tcp_ports: [22, 80]</span></span>
 <span class="line diff-add"><span style="color:var(--diff-add-fg)"><span style="user-select: none;">+</span>allowed_tcp_ports: [22, 80, 443]</span></span></code></pre>
         </div>
@@ -853,15 +842,14 @@ const pausedExample: ProjectItemEntry = {
           <span class="term-block__label">TERMINAL — PI-04</span>
         </div>
         <div class="term-block__body">
-          <pre
-            tabindex="0"><code class="language-terminal"><span class="term-block__prompt">$</span> ansible-playbook site.yml --limit pi-04 --tags firewall
+          <pre tabindex="0"><code class="language-terminal"><span class="term-block__prompt">$</span> ansible-playbook site.yml --limit pi-04 --tags firewall
 <span class="term-block__success">[+]</span> firewall : Apply nftables ruleset — changed</code></pre>
         </div>
       </figure>
       <p class="code-block__caption">
-        Listing 4 — The <code>$</code> prompt and the <code>[+]</code> success marker (§13.3)
-        — the only two coloured tokens in a terminal block, and the marker no shipped fixture
-        triggers.
+        Listing 4 — The <code>$</code> prompt and the <code>[+]</code> success marker
+        (§13.3) — the only two coloured tokens in a terminal block, and the marker no
+        shipped fixture triggers.
       </p>
 
       <div class="figure-row">
@@ -913,17 +901,20 @@ const pausedExample: ProjectItemEntry = {
           </thead>
           <tbody>
             <tr>
-              <td><code>pi-01</code></td>
+              <td>
+                <code>pi-01</code>
+              </td>
               <td align="right">34</td>
               <td align="left" class="table-region__cell--prose">
                 Runs Prometheus and Grafana; first node provisioned.
               </td>
               <td>
-                <code title="sha256:9f2b1c7ae43f8091c2b9d0c81a4e77f3b1a9"
-                  ><span class="table-region__digest-head"
-                    >sha256:9f2b1c7ae43f8091c2b9d0c81a4e77</span
-                  ><span class="table-region__digest-tail">f3b1a9</span></code
-                >
+                <code title="sha256:9f2b1c7ae43f8091c2b9d0c81a4e77f3b1a9">
+                  <span class="table-region__digest-head">
+                    sha256:9f2b1c7ae43f8091c2b9d0c81a4e77
+                  </span>
+                  <span class="table-region__digest-tail">f3b1a9</span>
+                </code>
               </td>
             </tr>
           </tbody>
@@ -939,14 +930,14 @@ const pausedExample: ProjectItemEntry = {
     <p class="lede" style="font-size: 13.5px;">
       Same job as 3.9/4.11: the components 5.6–5.8 built get a home outside a full article
       render. The aside renders both its forms — the &gt;=1280 column
-      (share/reply/progress-with-text) and the &lt;1280 relocated bar (<code
-        >ReadingProgress bare</code
-      >, what <code>Masthead.astro</code> mounts under itself) — side by side rather than one
-      disappearing into the other at a real viewport width. Author block, prev/next and the
-      related grid below use the latest real
-      <code>writing</code> entry — with only two launch articles neither has both a prev and
-      a next, so those render empty here (CONTENT_PLAN.md step 5), which is fine for a layout
-      page.
+      (share/reply/progress-with-text) and the &lt;1280 relocated bar (
+      <code>ReadingProgress bare</code>, what <code>Masthead.astro</code> mounts under
+      itself) — side by side rather than one disappearing into the other at a real
+      viewport width. Author block, prev/next and the related grid below use the latest
+      real
+      <code>writing</code> entry — with only two launch articles neither has both a prev
+      and a next, so those render empty here (CONTENT_PLAN.md step 5), which is fine for a
+      layout page.
     </p>
     <div class="aside-demo-row">
       <div class="aside-demo">
@@ -973,8 +964,8 @@ const pausedExample: ProjectItemEntry = {
     <p class="lede" style="font-size: 13.5px;">
       Three variants as props, not three components (§22.6). Plain and counted are both
       real links to <code>/writing/tag/&lt;tag&gt;</code>; tab to either and the token
-      focus ring should show. Current has no <code>href</code> at all — not tabbable, by construction
-      rather than a disabled/aria-current workaround.
+      focus ring should show. Current has no <code>href</code> at all — not tabbable, by
+      construction rather than a disabled/aria-current workaround.
     </p>
     <div class="tag-row">
       <Tag tag="ansible" variant="plain" />
@@ -986,40 +977,47 @@ const pausedExample: ProjectItemEntry = {
 
     <h2>WritingRow (component 05, §05) — added Phase 6.4</h2>
     <p class="lede" style="font-size: 13.5px;">
-      Real <code>writing</code> entries (articles 1–3), not invented data. Full variant shows
-      all five tracks &gt;=1280 (resize to see the three-track tablet join and the stacked mobile
-      line — <code>{'038 · 2026-07-28 · 14 min'}</code> — take over). The entire row is the
-      link; hover shifts the ground and underlines the title.
+      Real <code>writing</code> entries (articles 1–3), not invented data. Full variant
+      shows all five tracks &gt;=1280 (resize to see the three-track tablet join and the
+      stacked mobile line — <code>{'038 · 2026-07-28 · 14 min'}</code> — take over). The
+      entire row is the link; hover shifts the ground and underlines the title.
     </p>
     <div class="row-list">
-      {rowEntries.map((entry) => <WritingRow entry={entry} variant="full" />)}
+      {rowEntries.map((entry) => (
+        <WritingRow entry={entry} variant="full" />
+      ))}
     </div>
     <p class="lede" style="font-size: 13.5px; margin-top: 24px;">
       Compact variant (four tracks, no tag — Phase 7's homepage "latest writing"):
     </p>
     <div class="row-list">
-      {rowEntries.map((entry) => <WritingRow entry={entry} variant="compact" />)}
+      {rowEntries.map((entry) => (
+        <WritingRow entry={entry} variant="compact" />
+      ))}
     </div>
 
     <h2>FeaturedEntry (component 05, §9.5) — added Phase 6.4</h2>
     <p class="lede" style="font-size: 13.5px;">
-      Article 001, the collection's one real <code>featured: true</code> entry. Not a card —
-      no ground, no border, no radius (§9.1). The title is permanently underlined (it's always
-      a link); the figure is the entry's own <code>leadFigure</code>, and an entry without
-      one renders no figure at all (ADR-0028).
+      Article 001, the collection's one real <code>featured: true</code> entry. Not a card
+      — no ground, no border, no radius (§9.1). The title is permanently underlined (it's
+      always a link); the figure is the entry's own <code>leadFigure</code>, and an entry
+      without one renders no figure at all (ADR-0028).
     </p>
     {featuredEntry && <FeaturedEntry entry={featuredEntry} context="index" />}
 
     <h2>ProjectItem (component 07, §07) — added Phase 6.7, selected variant 7.7</h2>
     <p class="lede" style="font-size: 13.5px;">
-      All real <code>projects</code> entries. Resize to see the number fold into the substance
-      column at tablet and the status-first mobile reorder (E3) — real DOM order, not a CSS
-      reorder. The "paused" example below is synthetic (no real project is currently paused);
-      the last row uses <code>forceMobile</code> to show E3's own order at any width, screenshot-deterministic
-      per T5's own force-states-via-class convention.
+      All real <code>projects</code> entries. Resize to see the number fold into the
+      substance column at tablet and the status-first mobile reorder (E3) — real DOM
+      order, not a CSS reorder. The "paused" example below is synthetic (no real project
+      is currently paused); the last row uses <code>forceMobile</code> to show E3's own
+      order at any width, screenshot-deterministic per T5's own force-states-via-class
+      convention.
     </p>
     <div class="project-list">
-      {projects.map((project) => <ProjectItem entry={project} />)}
+      {projects.map((project) => (
+        <ProjectItem entry={project} />
+      ))}
       <ProjectItem entry={pausedExample} />
       {projects[0] && <ProjectItem entry={projects[0]} forceMobile />}
     </div>
@@ -1031,28 +1029,29 @@ const pausedExample: ProjectItemEntry = {
       from the markup entirely).
     </p>
     <div class="project-list">
-      {projects.map((project) => <ProjectItem entry={project} variant="selected" />)}
+      {projects.map((project) => (
+        <ProjectItem entry={project} variant="selected" />
+      ))}
     </div>
 
     <h2>Glyphs (§2.11)</h2>
     <div class="glyph-row">
-      {
-        glyphs.map((g) => (
-          <div class="glyph">
-            <span class="char">{g.char}</span>
-            <span class="desc">{g.name}</span>
-          </div>
-        ))
-      }
+      {glyphs.map((g) => (
+        <div class="glyph">
+          <span class="char">{g.char}</span>
+          <span class="desc">{g.name}</span>
+        </div>
+      ))}
     </div>
 
     <h2>ADR-0007a resolutions — the three glyphs no font in the stack has</h2>
     <p class="lede" style="font-size: 13.5px;">
       <code>●</code>
       <code>○</code>
-      <code>◐</code> are absent from every font file (see docs/reference/glyph-coverage.md).
-      These are the drawn substitutes, next to real body text, so a mismatch in size or alignment
-      is visible before any real component depends on them.
+      <code>◐</code> are absent from every font file (see
+      docs/reference/glyph-coverage.md). These are the drawn substitutes, next to real
+      body text, so a mismatch in size or alignment is visible before any real component
+      depends on them.
     </p>
     <p style="font: var(--t-body);">
       <span class="status-dot live"></span>active — the live status dot, filled
@@ -1062,7 +1061,13 @@ const pausedExample: ProjectItemEntry = {
     </p>
     <p style="font: var(--t-body);">
       <svg class="theme-glyph" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"
+        <circle
+          cx="8"
+          cy="8"
+          r="7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
         ></circle>
         <path d="M8 1a7 7 0 0 1 0 14z"></path>
       </svg>

@@ -57,57 +57,52 @@ const {
            matching tag is `current` instead of "all" (6.6 point 2). -->
       <div class="filter-row">
         <Tag tag="all" variant={currentTag ? 'counted' : 'current'} count={siteTotal} />
-        {
-          TAGS.filter((tag) => (siteTagCounts.get(tag) ?? 0) > 0).map((tag) => (
-            <Tag
-              tag={tag}
-              variant={tag === currentTag ? 'current' : 'counted'}
-              count={siteTagCounts.get(tag)}
-            />
-          ))
-        }
-        <a class="rss-link" href={SITE_LINKS.rss}>rss <span aria-hidden="true">↗</span></a
-        >
+        {TAGS.filter((tag) => (siteTagCounts.get(tag) ?? 0) > 0).map((tag) => (
+          <Tag
+            tag={tag}
+            variant={tag === currentTag ? 'current' : 'counted'}
+            count={siteTagCounts.get(tag)}
+          />
+        ))}
+        <a class="rss-link" href={SITE_LINKS.rss}>
+          rss <span aria-hidden="true">↗</span>
+        </a>
       </div>
     </div>
   </header>
 
-  {
-    featured && (
-      <section class="band layout-band">
-        <div class="gutter">
-          <p class="gutter-label">Featured</p>
-        </div>
-        <FeaturedEntry entry={featured} context="index" />
-      </section>
-    )
-  }
+  {featured && (
+    <section class="band layout-band">
+      <div class="gutter">
+        <p class="gutter-label">Featured</p>
+      </div>
+      <FeaturedEntry entry={featured} context="index" />
+    </section>
+  )}
 
-  {
-    yearGroups.map((group) => (
-      <section class="band layout-band" id={String(group.year)}>
-        <div class="gutter">
-          <p class="gutter-year">{group.year}</p>
-          <p class="gutter-count">{group.count}</p>
-        </div>
-        <div class="year-content">
-          {/* §3.6: "Index year header ... sticky row spanning the list"
+  {yearGroups.map((group) => (
+    <section class="band layout-band" id={String(group.year)}>
+      <div class="gutter">
+        <p class="gutter-year">{group.year}</p>
+        <p class="gutter-count">{group.count}</p>
+      </div>
+      <div class="year-content">
+        {/* §3.6: "Index year header ... sticky row spanning the list"
                below 1280, where the real .gutter above is display:none —
                the column is what goes, the data never does (§3.6's own
                framing), so this is a second render of the same two data
                points, not a CSS relocation of the gutter nodes themselves. */}
-          <p class="year-sticky">
-            {group.year} · {group.count}
-          </p>
-          <div class="year-rows">
-            {group.entries.map((entry) => (
-              <WritingRow entry={entry} variant="full" />
-            ))}
-          </div>
+        <p class="year-sticky">
+          {group.year} · {group.count}
+        </p>
+        <div class="year-rows">
+          {group.entries.map((entry) => (
+            <WritingRow entry={entry} variant="full" />
+          ))}
         </div>
-      </section>
-    ))
-  }
+      </div>
+    </section>
+  ))}
 
   <!-- §19.2 archive row: "archive by year → 2024 (9) 2023 (6) rss ↗",
        resolved (6.5 point 4) as in-page anchors to each year's own band —
@@ -116,14 +111,14 @@ const {
     <div class="gutter"></div>
     <p class="archive-row">
       archive by year <span aria-hidden="true">→</span>{' '}
-      {
-        yearGroups.map((group) => (
-          <a href={`#${group.year}`}>
-            {group.year} ({group.count})
-          </a>
-        ))
-      }
-      <a href={SITE_LINKS.rss}>rss <span aria-hidden="true">↗</span></a>
+      {yearGroups.map((group) => (
+        <a href={`#${group.year}`}>
+          {group.year} ({group.count})
+        </a>
+      ))}
+      <a href={SITE_LINKS.rss}>
+        rss <span aria-hidden="true">↗</span>
+      </a>
     </p>
   </div>
 </div>

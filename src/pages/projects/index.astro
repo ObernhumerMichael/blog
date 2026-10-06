@@ -37,7 +37,9 @@ const activeCount = published.filter((p) => p.status === 'active').length;
         <p class="gutter-label">Index</p>
       </div>
       <div class="project-rows">
-        {published.map((project) => <ProjectItem entry={project} />)}
+        {published.map((project) => (
+          <ProjectItem entry={project} />
+        ))}
       </div>
     </section>
   </div>

@@ -96,13 +96,11 @@ const isLongTitle = frontmatter.title.length > 90;
   <div class="gutter">
     <div class="gutter-number">{num}</div>
     <div class="gutter-section">{frontmatter.section}</div>
-    {
-      frontmatter.series && (
-        <div class="gutter-series">
-          series {frontmatter.series.part}/{frontmatter.series.total}
-        </div>
-      )
-    }
+    {frontmatter.series && (
+      <div class="gutter-series">
+        series {frontmatter.series.part}/{frontmatter.series.total}
+      </div>
+    )}
   </div>
 
   <div class="header-content">
@@ -111,26 +109,26 @@ const isLongTitle = frontmatter.title.length > 90;
            be a dead link invented ahead of the page that would resolve it. -->
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <ol>
-        <li><a href="/writing">writing</a></li>
+        <li>
+          <a href="/writing">writing</a>
+        </li>
         <li>{frontmatter.section.toLowerCase()}</li>
         <!-- §6·16 says this segment may drop below 760 (the number is
              still present in the metadata row's first datum on the same
              screen either way) — kept visible at every width instead, per
              explicit user direction overriding that default. -->
-        <li class="breadcrumb-current" aria-current="page">{num}</li>
+        <li class="breadcrumb-current" aria-current="page">
+          {num}
+        </li>
       </ol>
-      {
-        frontmatter.series && (
-          <span class="breadcrumb-series">
-            series {frontmatter.series.part}/{frontmatter.series.total}
-          </span>
-        )
-      }
+      {frontmatter.series && (
+        <span class="breadcrumb-series">
+          series {frontmatter.series.part}/{frontmatter.series.total}
+        </span>
+      )}
     </nav>
 
-    <h1 class:list={['title', { 'title--long': isLongTitle }]}>
-      {frontmatter.title}
-    </h1>
+    <h1 class:list={['title', { 'title--long': isLongTitle }]}>{frontmatter.title}</h1>
 
     <p class="lead">{frontmatter.lead}</p>
 
@@ -146,7 +144,9 @@ const isLongTitle = frontmatter.title.length > 90;
       <dd class="metadata-number metadata-accent">{num}</dd>
 
       <dt class="visually-hidden">Published</dt>
-      <dd><time datetime={isoDate}>{isoDate}</time></dd>
+      <dd>
+        <time datetime={isoDate}>{isoDate}</time>
+      </dd>
 
       <dt class="visually-hidden">Reading time</dt>
       <dd>{frontmatter.minutesRead} min</dd>
@@ -154,27 +154,23 @@ const isLongTitle = frontmatter.title.length > 90;
       <dt class="visually-hidden">Word count</dt>
       <dd>{wordCountText} words</dd>
 
-      {
-        showUpdated && (
-          <Fragment>
-            <dt class="visually-hidden">Updated</dt>
-            <dd>
-              upd <time datetime={isoUpdated}>{isoUpdated}</time>
-            </dd>
-          </Fragment>
-        )
-      }
+      {showUpdated && (
+        <Fragment>
+          <dt class="visually-hidden">Updated</dt>
+          <dd>
+            upd <time datetime={isoUpdated}>{isoUpdated}</time>
+          </dd>
+        </Fragment>
+      )}
 
-      {
-        frontmatter.tags.map((tag) => (
-          <Fragment>
-            <dt class="visually-hidden">Tag</dt>
-            <dd>
-              <Tag tag={tag} />
-            </dd>
-          </Fragment>
-        ))
-      }
+      {frontmatter.tags.map((tag) => (
+        <Fragment>
+          <dt class="visually-hidden">Tag</dt>
+          <dd>
+            <Tag tag={tag} />
+          </dd>
+        </Fragment>
+      ))}
     </dl>
   </div>
 </header>
@@ -217,9 +213,7 @@ const isLongTitle = frontmatter.title.length > 90;
     }
 
     .header-content {
-      max-width: var(
-        --header-w
-      ); /* §10.2: header content may run to 760,
+      max-width: var(--header-w); /* §10.2: header content may run to 760,
         wider than the 680 measure — E11. */
     }
 

@@ -47,14 +47,20 @@ const periodText = (() => {
        number, so it isn't relocated. -->
   <div class="gutter">
     <p class="gutter-label">Project {num}</p>
-    <p class="gutter-status" class:list={{ ok: isOk }}>{entry.status}</p>
+    <p class="gutter-status" class:list={{ ok: isOk }}>
+      {entry.status}
+    </p>
   </div>
 
   <div class="header-content">
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <ol>
-        <li><a href="/projects">projects</a></li>
-        <li class="breadcrumb-current" aria-current="page">{slug}</li>
+        <li>
+          <a href="/projects">projects</a>
+        </li>
+        <li class="breadcrumb-current" aria-current="page">
+          {slug}
+        </li>
       </ol>
     </nav>
 
@@ -73,7 +79,10 @@ const periodText = (() => {
       <div class="status-cell">
         <dt class="status-label">Status</dt>
         <dd class="status-value">
-          <span class="dot" class:list={{ filled: isFilled, ok: isOk }} aria-hidden="true"
+          <span
+            class="dot"
+            class:list={{ filled: isFilled, ok: isOk }}
+            aria-hidden="true"
           ></span>
           <span class:list={{ ok: isOk }}>{entry.status}</span>
         </dd>
@@ -92,25 +101,21 @@ const periodText = (() => {
       <div class="status-cell">
         <dt class="status-label">Links</dt>
         <dd class="status-value">
-          {
-            entry.links.source ? (
-              <a href={entry.links.source}>
-                source <span aria-hidden="true">↗</span>
-              </a>
-            ) : (
-              entry.sourceAbsence && (
-                <span class="source-absence">{entry.sourceAbsence}</span>
-              )
+          {entry.links.source ? (
+            <a href={entry.links.source}>
+              source <span aria-hidden="true">↗</span>
+            </a>
+          ) : (
+            entry.sourceAbsence && (
+              <span class="source-absence">{entry.sourceAbsence}</span>
             )
-          }
+          )}
           {(entry.links.source || entry.sourceAbsence) && entry.links.demo && ' · '}
-          {
-            entry.links.demo && (
-              <a href={entry.links.demo}>
-                demo <span aria-hidden="true">↗</span>
-              </a>
-            )
-          }
+          {entry.links.demo && (
+            <a href={entry.links.demo}>
+              demo <span aria-hidden="true">↗</span>
+            </a>
+          )}
         </dd>
       </div>
     </dl>

@@ -90,56 +90,54 @@ const entries = numbered.map((h) => {
 });
 ---
 
-{
-  showToc && (
-    <Fragment>
-      <details open class="toc toc--wide">
-        <summary class="toc-summary">
-          <span>
-            CONTENTS — {h2Count} SECTION{h2Count === 1 ? '' : 'S'}
-          </span>
-        </summary>
-        <p class="toc-label">CONTENTS</p>
-        <ol class:list={['toc-list', { 'toc-list--capped': isLong }]}>
-          {entries.map((entry) => (
-            <li class:list={['toc-item', { 'toc-item--h3': entry.depth === 3 }]}>
-              <a href={`#${entry.slug}`}>
-                {entry.depth === 2 && (
-                  <>
-                    <span class="toc-num">{entry.ordinal} ·</span>{' '}
-                  </>
-                )}
-                {entry.title}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </details>
+{showToc && (
+  <Fragment>
+    <details open class="toc toc--wide">
+      <summary class="toc-summary">
+        <span>
+          CONTENTS — {h2Count} SECTION{h2Count === 1 ? '' : 'S'}
+        </span>
+      </summary>
+      <p class="toc-label">CONTENTS</p>
+      <ol class:list={['toc-list', { 'toc-list--capped': isLong }]}>
+        {entries.map((entry) => (
+          <li class:list={['toc-item', { 'toc-item--h3': entry.depth === 3 }]}>
+            <a href={`#${entry.slug}`}>
+              {entry.depth === 2 && (
+                <>
+                  <span class="toc-num">{entry.ordinal} ·</span>{' '}
+                </>
+              )}
+              {entry.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </details>
 
-      <details class="toc toc--narrow">
-        <summary class="toc-summary">
-          <span>
-            CONTENTS — {h2Count} SECTION{h2Count === 1 ? '' : 'S'}
-          </span>
-        </summary>
-        <ol class:list={['toc-list', { 'toc-list--capped': isLong }]}>
-          {entries.map((entry) => (
-            <li class:list={['toc-item', { 'toc-item--h3': entry.depth === 3 }]}>
-              <a href={`#${entry.slug}`}>
-                {entry.depth === 2 && (
-                  <>
-                    <span class="toc-num">{entry.ordinal} ·</span>{' '}
-                  </>
-                )}
-                {entry.title}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </details>
-    </Fragment>
-  )
-}
+    <details class="toc toc--narrow">
+      <summary class="toc-summary">
+        <span>
+          CONTENTS — {h2Count} SECTION{h2Count === 1 ? '' : 'S'}
+        </span>
+      </summary>
+      <ol class:list={['toc-list', { 'toc-list--capped': isLong }]}>
+        {entries.map((entry) => (
+          <li class:list={['toc-item', { 'toc-item--h3': entry.depth === 3 }]}>
+            <a href={`#${entry.slug}`}>
+              {entry.depth === 2 && (
+                <>
+                  <span class="toc-num">{entry.ordinal} ·</span>{' '}
+                </>
+              )}
+              {entry.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </Fragment>
+)}
 
 <style>
   @layer components {

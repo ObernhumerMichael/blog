@@ -48,25 +48,25 @@ const menuLinks = await Promise.all(
   <div class="frame">
     <div class="row">
       <div class="identity">
-        <a href="/" class="wordmark">{COPY.site.name}</a>
+        <a href="/" class="wordmark">
+          {COPY.site.name}
+        </a>
         <span class="role">{COPY.site.role}</span>
       </div>
 
       <nav class="nav-inline" aria-label="Primary">
         <ul>
-          {
-            NAV_LINKS.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  class:list={['nav-link', { current: isCurrent(link.href) }]}
-                  aria-current={isCurrent(link.href) ? 'page' : undefined}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))
-          }
+          {NAV_LINKS.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class:list={['nav-link', { current: isCurrent(link.href) }]}
+                aria-current={isCurrent(link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
         </ul>
         <ThemeControl class="nav-theme" />
       </nav>
@@ -77,29 +77,27 @@ const menuLinks = await Promise.all(
       <MobileMenu client:load links={menuLinks}>
         <ThemeControl slot="theme" class="menu-theme" showLabel />
         <span slot="meta-links">
-          <a href={SITE_LINKS.rss} class="meta-link"
-            >rss <span aria-hidden="true">↗</span></a
-          >
+          <a href={SITE_LINKS.rss} class="meta-link">
+            rss <span aria-hidden="true">↗</span>
+          </a>
           <span aria-hidden="true">·</span>
-          <a href={SITE_LINKS.github} class="meta-link"
-            >github <span aria-hidden="true">↗</span></a
-          >
+          <a href={SITE_LINKS.github} class="meta-link">
+            github <span aria-hidden="true">↗</span>
+          </a>
           <span aria-hidden="true">·</span>
-          <a href={SITE_LINKS.pgp} class="meta-link"
-            >pgp <span aria-hidden="true">↗</span></a
-          >
+          <a href={SITE_LINKS.pgp} class="meta-link">
+            pgp <span aria-hidden="true">↗</span>
+          </a>
         </span>
       </MobileMenu>
     </div>
   </div>
 
-  {
-    progress && (
-      <div class="reading-progress" aria-hidden="true">
-        <ReadingProgress bare />
-      </div>
-    )
-  }
+  {progress && (
+    <div class="reading-progress" aria-hidden="true">
+      <ReadingProgress bare />
+    </div>
+  )}
 </header>
 
 <style>
