@@ -30,8 +30,8 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@astrojs/svelte": "^9.1.2",
-    "@shikijs/transformers": "^4.5.0",
-    "astro": "^7.4.4",
+    "@shikijs/transformers": "^4.6.0",
+    "astro": "^7.4.6",
     "mdast-util-to-string": "^4.0.0",
     "remark-directive": "^4.0.0",
     "sharp": "^0.35.5",
@@ -47,9 +47,9 @@
     "postcss-html": "^2.0.0",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
-    "shiki": "^4.5.0",
+    "shiki": "^4.6.0",
     "stylelint": "^18.0.0",
-    "svelte-check": "^4.7.7",
+    "svelte-check": "^4.7.8",
     "typescript": "^6.0.3"
   }
 }
